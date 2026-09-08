@@ -10,7 +10,8 @@ export const LOTR_SONGS = [
     id: "in-dreams",
     title: "In Dreams",
     difficulty: 2,
-    description: "The vocal theme heard at the end of The Fellowship of the Ring.",
+    description:
+      "The vocal theme heard at the end of The Fellowship of the Ring.",
     playable: false,
   },
   {
