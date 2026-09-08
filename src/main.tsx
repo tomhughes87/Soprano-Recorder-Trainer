@@ -1391,8 +1391,10 @@ function App() {
                 type="button"
                 className={`headerSettingsButton ${tab === "calibration" ? "active" : ""}`}
                 onClick={openSettings}
+                aria-label="Settings"
+                title="Settings"
               >
-                <span aria-hidden="true">⚙</span> Settings
+                <span aria-hidden="true">⚙</span>
               </button>
             </div>
           </div>

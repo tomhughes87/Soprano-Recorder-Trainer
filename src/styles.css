@@ -160,8 +160,11 @@ button {
 }
 
 .headerSettingsButton {
-  padding: 9px 12px;
-  font-size: 12px;
+  display: grid;
+  width: 52px;
+  padding: 0;
+  place-items: center;
+  font-size: 22px;
   font-weight: 900;
 }
 
@@ -183,9 +186,6 @@ button {
     max-width: none;
   }
 
-  .headerSettingsButton {
-    flex: 1 1 100%;
-  }
 }
 
 .eyebrow {
