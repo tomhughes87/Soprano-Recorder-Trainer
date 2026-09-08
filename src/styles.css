@@ -1838,3 +1838,166 @@ code {
   right: 16px;
   top: 50%;
 }
+
+
+/* Beat Game is its own clean performance screen */
+.beatGamePage .page {
+  width: min(1500px, calc(100% - 24px));
+  padding-top: 12px;
+}
+
+.beatGamePage .appHeader {
+  display: none;
+}
+
+.beatGamePage .songPlayer {
+  padding: 16px 18px 18px;
+  border-radius: 14px;
+  min-height: calc(100vh - 28px);
+}
+
+.beatOnlyHeader {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr) 120px;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.beatOnlyTitle {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+
+.beatOnlyTitle strong {
+  font-size: 22px;
+}
+
+.beatOnlyTitle span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.beatOnlyHeader > button:last-child {
+  justify-self: end;
+}
+
+.beatHud {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.beatHudStat {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: rgba(0,0,0,.08);
+}
+
+.beatHudStat span {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.beatHudStat strong {
+  font-size: 18px;
+}
+
+.beatHud .beatGameSpeed {
+  margin-left: auto;
+}
+
+.beatGamePage .beatLane {
+  height: 690px;
+  border-radius: 14px;
+}
+
+.beatGamePage .noteHead {
+  min-width: 104px;
+  min-height: 126px;
+  padding: 10px 12px;
+}
+
+.beatGamePage .noteHead > strong {
+  font-size: 24px;
+}
+
+.beatGamePage .noteHead .recorderPattern.compact .recorderHole {
+  width: 14px;
+  height: 14px;
+  border-width: 2px;
+}
+
+.beatGamePage .noteHead .recorderPattern.compact .patternTopRow {
+  gap: 6px;
+}
+
+.beatGamePage .noteHead .recorderPattern.compact .patternFrontColumn {
+  gap: 4px;
+  padding-left: 19px;
+}
+
+.beatGamePage .fallingDuration {
+  left: 52px;
+  font-size: 10px;
+}
+
+.beatGamePage .sustainTail {
+  right: 76px;
+  height: 9px;
+}
+
+.beatGamePage .beatGameFeedback {
+  padding-top: 8px;
+  font-size: 24px;
+}
+
+.beatGamePage .beatGameLegend {
+  margin-top: 0;
+  opacity: .7;
+}
+
+@media (max-width: 800px) {
+  .beatGamePage .page {
+    width: calc(100% - 10px);
+  }
+
+  .beatGamePage .songPlayer {
+    min-height: auto;
+    padding: 10px;
+  }
+
+  .beatOnlyHeader {
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .beatOnlyTitle span {
+    display: none;
+  }
+
+  .beatHud {
+    flex-wrap: wrap;
+  }
+
+  .beatHud .beatGameSpeed {
+    margin-left: 0;
+  }
+
+  .beatGamePage .beatLane {
+    height: 560px;
+  }
+}

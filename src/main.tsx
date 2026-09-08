@@ -524,74 +524,94 @@ function App() {
         selectedSongSection === "zelda" ? "zeldaPanel" :
         "lotrPanel"
       }`}>
-        <div className="songPlayerHeader">
-          <button className="secondary" onClick={leaveSong}>← Songs</button>
-
-          <div>
-            <h2>{selectedSong.title}</h2>
-            <Stars count={selectedSong.difficulty} />
-          </div>
-
-          <div className="songCounter">
-            {songStep + 1} / {activeSongEvents.length}
-          </div>
-        </div>
-
-        <div className="songResetHint">
-          <div className="songResetCopy">
-            <strong>Quick reset:</strong>
-            <span>
-              play your calibrated C♯5 {resetBlowsRequired} times in a row.
-            </span>
-          </div>
-
-          <label className="resetSafetyToggle">
-            <input
-              type="checkbox"
-              checked={safeResetMode}
-              onChange={event => {
-                setSafeResetMode(event.target.checked);
-                resetBlowCountRef.current = 0;
-                setSongFeedback("Play the next note");
-              }}
-            />
-            <span>5-blow safe reset</span>
-          </label>
-
-          <div className="resetSafetyHelp">
-            Turn this on for songs that contain repeated C♯5 notes, so normal playing is less likely to reset the tune.
-          </div>
-        </div>
-
-        <div className="songModeSwitch">
-          <button
-            className={songMode === "practice" ? "secondary selectedMode" : "secondary"}
-            onClick={() => {
+        {songMode === "beat" ? (
+          <div className="beatOnlyHeader">
+            <button className="secondary" onClick={() => {
               setSongMode("practice");
               setBeatGameResetKey(value => value + 1);
-              resetCurrentSong();
-            }}
-          >
-            Practice
-          </button>
+            }}>
+              ← Practice
+            </button>
 
-          <button
-            className={songMode === "beat" ? "secondary selectedMode" : "secondary"}
-            disabled={selectedSong.rhythmVerified !== true}
-            onClick={() => {
-              setSongMode("beat");
-              setMetronomeEnabled(false);
-              setFocusMode(false);
-              setBeatGameResetKey(value => value + 1);
-            }}
-          >
-            Beat Game
-          </button>
+            <div className="beatOnlyTitle">
+              <strong>{selectedSong.title}</strong>
+              <span>Beat Game</span>
+            </div>
 
-          {selectedSong.rhythmVerified !== true && (
-            <span className="sub small">Beat Game needs verified rhythm</span>
-          )}
-        </div>
+            <button className="secondary" onClick={leaveSong}>Songs</button>
+          </div>
+        ) : (
+          <>
+            <div className="songPlayerHeader">
+              <button className="secondary" onClick={leaveSong}>← Songs</button>
+
+              <div>
+                <h2>{selectedSong.title}</h2>
+                <Stars count={selectedSong.difficulty} />
+              </div>
+
+              <div className="songCounter">
+                {songStep + 1} / {activeSongEvents.length}
+              </div>
+            </div>
+
+            <div className="songResetHint">
+              <div className="songResetCopy">
+                <strong>Quick reset:</strong>
+                <span>
+                  play your calibrated C♯5 {resetBlowsRequired} times in a row.
+                </span>
+              </div>
+
+              <label className="resetSafetyToggle">
+                <input
+                  type="checkbox"
+                  checked={safeResetMode}
+                  onChange={event => {
+                    setSafeResetMode(event.target.checked);
+                    resetBlowCountRef.current = 0;
+                    setSongFeedback("Play the next note");
+                  }}
+                />
+                <span>5-blow safe reset</span>
+              </label>
+
+              <div className="resetSafetyHelp">
+                Turn this on for songs that contain repeated C♯5 notes, so normal playing is less likely to reset the tune.
+              </div>
+            </div>
+
+            <div className="songModeSwitch">
+              <button
+                className="secondary selectedMode"
+                onClick={() => {
+                  setSongMode("practice");
+                  setBeatGameResetKey(value => value + 1);
+                  resetCurrentSong();
+                }}
+              >
+                Practice
+              </button>
+
+              <button
+                className="secondary"
+                disabled={selectedSong.rhythmVerified !== true}
+                onClick={() => {
+                  setSongMode("beat");
+                  setMetronomeEnabled(false);
+                  setFocusMode(false);
+                  setBeatGameResetKey(value => value + 1);
+                }}
+              >
+                Beat Game
+              </button>
+
+              {selectedSong.rhythmVerified !== true && (
+                <span className="sub small">Beat Game needs verified rhythm</span>
+              )}
+            </div>
+          </>
+        )}
 
         {songMode === "practice" ? (
           <>
@@ -811,13 +831,6 @@ function App() {
             midiSignal={beatMidiSignal}
             resetMidi={midiMap[RESET_NOTE_ID] ?? DEFAULT_MIDI_MAP[RESET_NOTE_ID]}
             resetKey={beatGameResetKey}
-            focusMode={focusMode}
-            onFocusModeChange={setFocusMode}
-            onBackToPractice={() => {
-              setSongMode("practice");
-              setFocusMode(false);
-              setBeatGameResetKey(value => value + 1);
-            }}
             onBpmChange={setBpm}
           />
         )}
@@ -826,7 +839,7 @@ function App() {
   };
 
   return (
-    <div className={`appShell ${pageTheme}`}>
+    <div className={`appShell ${pageTheme} ${songMode === "beat" && selectedSong ? "beatGamePage" : ""}`}>
       <main className="page">
         <section className="panel appHeader">
           <div className="eyebrow">Carry-on Digital Wind Instrument</div>
