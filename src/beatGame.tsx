@@ -448,6 +448,9 @@ export function BeatGame({
     // Keep a held note visible until its trailing edge has passed the hit line.
     return untilEnd >= -0.18 && untilStart <= LOOKAHEAD_BEATS;
   });
+  const activeHoldIndexes = new Set(
+    Object.values(holdStarts).map((hold) => hold.eventIndex),
+  );
 
   const judgedCount = Object.keys(judgements).length;
   const hitCount = Object.values(judgements).filter(
@@ -586,7 +589,7 @@ export function BeatGame({
           return (
             <div
               key={event.index}
-              className={`fallingNote ${event.beats > 1 ? "heldNote" : ""} ${judgement ? `judged ${judgement}` : ""}`}
+              className={`fallingNote ${event.beats > 1 ? "heldNote" : ""} ${activeHoldIndexes.has(event.index) ? "holding" : ""} ${judgement ? `judged ${judgement}` : ""}`}
               style={{
                 left: `${leadingEdgeX}px`,
                 top: `${y}px`,

@@ -1661,7 +1661,8 @@ code {
   min-height: 92px;
   color: var(--text);
   z-index: 3;
-  transition: opacity .1s ease, border-color .1s ease;
+  opacity: 1;
+  transition: opacity .7s ease-out, border-color .1s ease;
 }
 
 /* The left edge is note-on; the right edge is note-off.
@@ -1716,6 +1717,10 @@ code {
 }
 
 .fallingNote.judged {
+  opacity: 0;
+}
+
+.fallingNote.judged.holding {
   opacity: .32;
 }
 
