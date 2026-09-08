@@ -2,6 +2,57 @@ import { noteEvent, type Song } from "./songTypes";
 
 const n = noteEvent;
 
+// Shepherd's Hey is written as two repeated strains. The B-strain pickup is
+// played once before that strain's repeat, so the performed form is A A +
+// pickup + B B (not A + pickup + B).
+const SHEPHERDS_HEY_A = [
+  n("Fs4", 0.75),
+  n("G4", 0.25),
+  n("A4", 0.75),
+  n("Fs4", 0.25),
+  n("G4", 1),
+  n("G4", 1),
+  n("Fs4", 0.75),
+  n("G4", 0.25),
+  n("A4", 0.75),
+  n("Fs4", 0.25),
+  n("E4", 1, { tieToNext: true }),
+  n("E4", 1),
+  n("Fs4", 0.75),
+  n("G4", 0.25),
+  n("A4", 0.75),
+  n("Fs4", 0.25),
+  n("G4", 1),
+  n("Fs4", 0.75),
+  n("G4", 0.25),
+  n("A4", 1),
+  n("A4", 1),
+  n("D4", 2),
+];
+
+const SHEPHERDS_HEY_B_PICKUP = [n("D4", 0.75), n("E4", 0.25)];
+
+const SHEPHERDS_HEY_B = [
+  n("Fs4", 1),
+  n("D4", 1),
+  n("G4", 1, { tieToNext: true }),
+  n("G4", 1),
+  n("Fs4", 1),
+  n("D4", 1),
+  n("E4", 1, { tieToNext: true }),
+  n("E4", 1),
+  n("Fs4", 0.75),
+  n("G4", 0.25),
+  n("A4", 0.75),
+  n("Fs4", 0.25),
+  n("G4", 1),
+  n("Fs4", 0.75),
+  n("G4", 0.25),
+  n("A4", 1),
+  n("A4", 1),
+  n("D4", 2),
+];
+
 export const ENGLISH_FOLK_SONGS: Song[] = [
   {
     id: "shepherds-hey",
@@ -12,51 +63,11 @@ export const ENGLISH_FOLK_SONGS: Song[] = [
     playable: true,
     rhythmVerified: true,
     events: [
-      n("Fs4", 0.75),
-      n("G4", 0.25),
-      n("A4", 0.75),
-      n("Fs4", 0.25),
-      n("G4", 1),
-      n("G4", 1),
-      n("Fs4", 0.75),
-      n("G4", 0.25),
-      n("A4", 0.75),
-      n("Fs4", 0.25),
-      n("E4", 1, { tieToNext: true }),
-      n("E4", 1),
-      n("Fs4", 0.75),
-      n("G4", 0.25),
-      n("A4", 0.75),
-      n("Fs4", 0.25),
-      n("G4", 1),
-      n("Fs4", 0.75),
-      n("G4", 0.25),
-      n("A4", 1),
-      n("A4", 1),
-      n("D4", 2),
-
-      // ABC pickup into the B section: d>e = ¾ beat + ¼ beat.
-      n("D4", 0.75),
-      n("E4", 0.25),
-
-      n("Fs4", 1),
-      n("D4", 1),
-      n("G4", 1, { tieToNext: true }),
-      n("G4", 1),
-      n("Fs4", 1),
-      n("D4", 1),
-      n("E4", 1, { tieToNext: true }),
-      n("E4", 1),
-      n("Fs4", 0.75),
-      n("G4", 0.25),
-      n("A4", 0.75),
-      n("Fs4", 0.25),
-      n("G4", 1),
-      n("Fs4", 0.75),
-      n("G4", 0.25),
-      n("A4", 1),
-      n("A4", 1),
-      n("D4", 2),
+      ...SHEPHERDS_HEY_A,
+      ...SHEPHERDS_HEY_A,
+      ...SHEPHERDS_HEY_B_PICKUP,
+      ...SHEPHERDS_HEY_B,
+      ...SHEPHERDS_HEY_B,
     ],
   },
   {
