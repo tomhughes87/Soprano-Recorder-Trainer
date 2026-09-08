@@ -79,6 +79,7 @@ export class SongTransport {
   private context: AudioContext | null = null;
   private voices: ScheduledVoice[] = [];
   private started: TransportStart | null = null;
+  private presentationOffsetSeconds = 0;
 
   private getContext() {
     if (!this.context) {
@@ -122,6 +123,19 @@ export class SongTransport {
     const nowAudio = context.currentTime;
     const startAudioTime = nowAudio + 0.08 + leadInBeats * secondsPerBeat;
     const presentationClock = getPresentationClock(context);
+    const sampledPerformanceTime = performance.now();
+    const presentedContextTime =
+      presentationClock.contextTime +
+      (sampledPerformanceTime - presentationClock.performanceTime) / 1000;
+
+    // Freeze the output offset for this playback. Re-reading the browser's
+    // estimated presentation timestamp on every animation frame can make the
+    // visual clock change rate as the estimate is corrected. Advancing this
+    // fixed offset with currentTime keeps audio and visuals on one clock.
+    this.presentationOffsetSeconds = Math.max(
+      0,
+      context.currentTime - presentedContextTime,
+    );
     const startPerformanceTime =
       presentationClock.performanceTime +
       (startAudioTime - presentationClock.contextTime) * 1000;
@@ -171,13 +185,10 @@ export class SongTransport {
   currentBeat() {
     if (!this.context || !this.started) return 0;
 
-    const presentationClock = getPresentationClock(this.context);
-    const presentedContextTime =
-      presentationClock.contextTime +
-      (performance.now() - presentationClock.performanceTime) / 1000;
-
     return (
-      (presentedContextTime - this.started.startAudioTime) /
+      (this.context.currentTime -
+        this.presentationOffsetSeconds -
+        this.started.startAudioTime) /
       this.started.secondsPerBeat
     );
   }
@@ -194,6 +205,7 @@ export class SongTransport {
 
     this.voices = [];
     this.started = null;
+    this.presentationOffsetSeconds = 0;
   }
 
   get startInfo() {
