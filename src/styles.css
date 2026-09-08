@@ -1,0 +1,1160 @@
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #ece8df;
+  background: #222321;
+  font-synthesis: none;
+
+  --bg: #222321;
+  --panel: #2c2e2b;
+  --panel-soft: #343632;
+  --text: #ece8df;
+  --muted: #a6aaa4;
+  --border: #474a45;
+  --accent: #d4d0c4;
+  --accent-strong: #f1eee5;
+  --button: #3a3d38;
+  --button-hover: #454941;
+  --hole-stage: #dedbd2;
+  --hole-open: #f7f4ec;
+  --hole-stroke: #232421;
+  --hole-closed: #232421;
+  --success: #8fd49f;
+  --danger: #e6948d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-width: 320px;
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+button,
+select,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.appShell {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top, rgba(255,255,255,.035), transparent 34rem),
+    var(--bg);
+  color: var(--text);
+  transition: background .25s ease, color .25s ease;
+}
+
+.page {
+  width: min(1100px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 34px 0 80px;
+  display: grid;
+  gap: 20px;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 12px 34px rgba(0,0,0,.18);
+}
+
+.appHeader {
+  padding-bottom: 22px;
+}
+
+.eyebrow {
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+h1 {
+  margin: 6px 0 18px;
+  font-size: clamp(34px, 6vw, 56px);
+  line-height: .98;
+}
+
+h2 {
+  margin: 0 0 8px;
+}
+
+.sub {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.small {
+  font-size: 14px;
+}
+
+.tabs {
+  display: flex;
+  gap: 5px;
+  margin: 0 0 20px;
+  padding: 5px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: rgba(0,0,0,.12);
+  overflow-x: auto;
+}
+
+.tab {
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
+  padding: 10px 13px;
+  font-weight: 850;
+}
+
+.tab:hover {
+  color: var(--text);
+}
+
+.tab.active {
+  background: var(--button);
+  color: var(--accent-strong);
+}
+
+.setupNote {
+  margin: 0 0 18px;
+  padding: 15px 17px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: rgba(0,0,0,.1);
+}
+
+.setupTitle {
+  margin-bottom: 8px;
+  font-weight: 900;
+}
+
+.setupSettings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  margin-bottom: 8px;
+}
+
+.setupNote p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.primary,
+.secondary {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 16px;
+  font-weight: 850;
+}
+
+.primary {
+  background: var(--accent-strong);
+  color: #222321;
+  border-color: var(--accent-strong);
+}
+
+.secondary {
+  background: var(--button);
+  color: var(--text);
+}
+
+.secondary:hover {
+  background: var(--button-hover);
+}
+
+.secondary:disabled {
+  opacity: .42;
+  cursor: not-allowed;
+}
+
+.status {
+  color: var(--muted);
+}
+
+.selectRow {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+  font-weight: 750;
+}
+
+select {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 12px;
+  background: var(--panel-soft);
+  color: var(--text);
+}
+
+.readout {
+  text-align: center;
+  padding: 42px 24px;
+}
+
+.note {
+  font-weight: 950;
+  font-size: clamp(82px, 16vw, 170px);
+  line-height: .9;
+  letter-spacing: -.06em;
+}
+
+.meta {
+  margin-top: 32px;
+  display: flex;
+  justify-content: center;
+  gap: 54px;
+}
+
+.meta div,
+.stats div {
+  display: grid;
+  gap: 4px;
+}
+
+.meta span,
+.stats span {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.meta strong {
+  font-size: 28px;
+}
+
+.tableWrap {
+  overflow-x: auto;
+  margin-top: 16px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+th,
+td {
+  padding: 10px;
+  text-align: left;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border);
+}
+
+th {
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.empty {
+  padding: 28px;
+  color: var(--muted);
+  text-align: center;
+}
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.trainingCard,
+.songPlayer {
+  text-align: center;
+}
+
+.trainingTop {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.trainingLabel {
+  color: var(--muted);
+  font-weight: 750;
+}
+
+.targetNote {
+  font-size: 31px;
+  font-weight: 950;
+}
+
+.fingeringStage {
+  display: flex;
+  justify-content: center;
+  width: min(360px, 100%);
+  margin: 0 auto 18px;
+  padding: 24px 34px;
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.26), rgba(0,0,0,.04)),
+    var(--hole-stage);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.45),
+    0 8px 24px rgba(0,0,0,.14);
+}
+
+.recorderPattern {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+}
+
+.patternTopRow {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 9px;
+}
+
+.patternFrontColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  padding-left: 30px;
+}
+
+.recorderHole {
+  display: block;
+  width: 22px;
+  height: 22px;
+  border: 3px solid var(--hole-stroke);
+  border-radius: 50%;
+  background: var(--hole-open);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.35);
+}
+
+.recorderHole.closed {
+  background: var(--hole-closed);
+}
+
+.recorderHole.half {
+  background: linear-gradient(
+    90deg,
+    var(--hole-closed) 0 50%,
+    var(--hole-open) 50% 100%
+  );
+}
+
+.recorderPattern.large {
+  gap: 9px;
+}
+
+.recorderPattern.large .patternTopRow {
+  gap: 15px;
+}
+
+.recorderPattern.large .patternFrontColumn {
+  gap: 8px;
+  padding-left: 48px;
+}
+
+.recorderPattern.large .recorderHole {
+  width: 38px;
+  height: 38px;
+  border-width: 5px;
+}
+
+.recorderPattern.compact {
+  gap: 3px;
+}
+
+.recorderPattern.compact .patternTopRow {
+  gap: 4px;
+}
+
+.recorderPattern.compact .patternFrontColumn {
+  gap: 3px;
+  padding-left: 15px;
+}
+
+.recorderPattern.compact .recorderHole {
+  width: 11px;
+  height: 11px;
+  border-width: 2px;
+}
+
+.fingeringHint {
+  margin: -4px 0 20px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 750;
+}
+
+.feedback {
+  min-height: 34px;
+  margin-bottom: 22px;
+  font-size: 21px;
+  font-weight: 900;
+}
+
+.feedback.correct {
+  color: var(--success);
+}
+
+.feedback.wrong {
+  color: var(--danger);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  max-width: 660px;
+  margin: 0 auto 22px;
+}
+
+.stats div {
+  padding: 13px 8px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(0,0,0,.09);
+}
+
+.stats strong {
+  font-size: 27px;
+}
+
+.trainingActions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.shuffleToggle {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 0 8px;
+  font-weight: 750;
+}
+
+.fingerGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.fingerRow {
+  min-height: 126px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: 54px 1fr;
+  grid-template-rows: 1fr auto;
+  align-items: center;
+  gap: 8px 10px;
+  background: var(--panel-soft);
+  color: var(--text);
+  text-align: left;
+}
+
+.fingerRow:hover,
+.fingerRow.selected {
+  border-color: var(--accent);
+}
+
+.fingerRow strong {
+  font-size: 20px;
+}
+
+.midiTag {
+  grid-column: 2;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.calibration {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.songHeader {
+  margin-bottom: 18px;
+}
+
+.songGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 12px;
+}
+
+.songCard {
+  min-height: 150px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  padding: 17px;
+  background: var(--panel-soft);
+  color: var(--text);
+  text-align: left;
+  transition: transform .14s ease, border-color .14s ease, background .14s ease;
+}
+
+.songCard:hover:not(:disabled) {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+
+.songCard:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+.songCardTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.songCardTop strong {
+  font-size: 18px;
+}
+
+.songCard p {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.songStatus {
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.stars {
+  white-space: nowrap;
+  color: var(--accent);
+}
+
+.emptyStars {
+  opacity: .24;
+}
+
+.songPlayerHeader {
+  display: grid;
+  grid-template-columns: 110px 1fr 110px;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.songCounter {
+  justify-self: end;
+  color: var(--muted);
+  font-weight: 850;
+}
+
+.songResetHint {
+  margin: 0 auto 18px;
+  padding: 10px 13px;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  background: rgba(0,0,0,.08);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.songResetHint strong {
+  color: var(--text);
+}
+
+.zeldaVersionSwitch {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 18px;
+}
+
+.zeldaVersionSwitch .selectedMode {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.progressTrack {
+  height: 6px;
+  overflow: hidden;
+  margin: 20px 0 28px;
+  border-radius: 999px;
+  background: rgba(0,0,0,.22);
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--accent);
+  transition: width .25s ease;
+}
+
+.songNow {
+  margin-bottom: 6px;
+}
+
+.upcomingTitle {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.songWindow {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+  margin: 0 auto 18px;
+  padding: 4px;
+  overflow: hidden;
+}
+
+.songWindowEllipsis {
+  flex: 0 0 auto;
+  align-self: center;
+  color: var(--muted);
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1;
+  padding: 0 2px;
+}
+
+.songStripNote {
+  flex: 0 0 auto;
+  width: 74px;
+  min-height: 126px;
+  padding: 9px 8px 8px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: rgba(0,0,0,.10);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+}
+
+.songStripNote > strong {
+  font-size: 18px;
+}
+
+.songStripNote.current {
+  background: var(--accent);
+  color: #1f211d;
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.songStripNote.current .recorderHole {
+  --hole-open: #f7f4ec;
+  --hole-stroke: #1f211d;
+  --hole-closed: #1f211d;
+}
+
+.songStripNote.done {
+  opacity: .36;
+}
+
+.songStats {
+  margin-top: 10px;
+}
+
+.noticeCard p {
+  margin-top: 6px;
+}
+
+/* English folk: dark brown, old printed/timing-card feel */
+.themeFolk {
+  --bg: #201914;
+  --panel: #34261d;
+  --panel-soft: #403026;
+  --text: #f0dfbd;
+  --muted: #b9a98c;
+  --border: #66503d;
+  --accent: #d7b878;
+  --accent-strong: #ead8ad;
+  --button: #4a382b;
+  --button-hover: #5a4434;
+  --hole-stage: #e2d7c0;
+  --hole-open: #fbf4e6;
+  --hole-stroke: #36291f;
+  --hole-closed: #36291f;
+}
+
+.themeFolk .songLibrary,
+.themeFolk .songPlayer,
+.themeFolk .noticeCard {
+  font-family: Georgia, "Times New Roman", serif;
+  background:
+    linear-gradient(rgba(255,255,255,.018), rgba(0,0,0,.035)),
+    var(--panel);
+}
+
+.themeFolk .songLibrary h2,
+.themeFolk .songPlayer h2 {
+  letter-spacing: .02em;
+  font-variant: small-caps;
+}
+
+.themeFolk .songCard {
+  box-shadow: inset 0 0 0 1px rgba(223,194,139,.035);
+}
+
+/* Zelda: dark forest green + antique gold */
+.themeZelda {
+  --bg: #0c1812;
+  --panel: #11251a;
+  --panel-soft: #173122;
+  --text: #f1ead2;
+  --muted: #a9b7a8;
+  --border: #2c5139;
+  --accent: #d4af54;
+  --accent-strong: #ebcf7b;
+  --button: #1b3a28;
+  --button-hover: #244b34;
+  --hole-stage: #d8d4bc;
+  --hole-open: #faf6e7;
+  --hole-stroke: #16301f;
+  --hole-closed: #16301f;
+}
+
+.themeZelda .songLibrary,
+.themeZelda .songPlayer,
+.themeZelda .noticeCard {
+  border-color: #49633d;
+  box-shadow:
+    inset 0 0 0 1px rgba(212,175,84,.08),
+    0 12px 34px rgba(0,0,0,.24);
+}
+
+.themeZelda .songLibrary h2,
+.themeZelda .songPlayer h2 {
+  color: var(--accent-strong);
+}
+
+.themeZelda .songCard {
+  border-color: #345340;
+}
+
+.themeZelda .songCard:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+@media (max-width: 700px) {
+  .page {
+    width: min(100% - 18px, 1100px);
+    padding-top: 16px;
+  }
+
+  .panel {
+    padding: 18px;
+    border-radius: 15px;
+  }
+
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .songGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .songPlayerHeader {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .songPlayerHeader > div:nth-child(2) {
+    grid-column: 1 / 3;
+    grid-row: 1;
+  }
+
+  .songPlayerHeader button {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .songCounter {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .fingeringStage {
+    width: min(300px, 100%);
+    padding: 20px;
+  }
+
+  .recorderPattern.large .recorderHole {
+    width: 34px;
+    height: 34px;
+    border-width: 4px;
+  }
+
+  .songStripNote {
+    width: 68px;
+  }
+}
+
+
+/* Calibration */
+.calibrationHero h2 {
+  margin-top: 4px;
+}
+
+.calibrationHeading,
+.calibrationListHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.savedLocally {
+  padding: 8px 11px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.calibrationWorkspace {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 320px);
+  gap: 18px;
+  align-items: stretch;
+}
+
+.calibrationTarget {
+  text-align: center;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  background: rgba(0,0,0,.08);
+}
+
+.calibrationTarget > strong {
+  display: block;
+  margin: 3px 0 14px;
+  font-size: 34px;
+}
+
+.calibrationStage {
+  margin-bottom: 12px;
+}
+
+.captureCard {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  gap: 5px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  background: var(--panel-soft);
+  text-align: center;
+}
+
+.captureLabel {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.captureMidi {
+  margin-top: 3px;
+  font-size: 27px;
+}
+
+.captureNote {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.captureDivider {
+  height: 1px;
+  margin: 13px 0;
+  background: var(--border);
+}
+
+.captureCard .primary {
+  margin-top: 14px;
+}
+
+.captureCard .primary:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+.referenceWarning {
+  max-width: 580px;
+  margin: 10px auto 0;
+  padding: 11px 13px;
+  border: 1px dashed #a7804e;
+  border-radius: 10px;
+  color: #d9bd91;
+  background: rgba(113,72,24,.12);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.calibrationGrid {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(205px, 1fr));
+  gap: 10px;
+}
+
+.calibrationRow {
+  min-height: 116px;
+  display: grid;
+  grid-template-columns: 50px minmax(0, 1fr);
+  grid-template-rows: 1fr auto;
+  gap: 8px 10px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: var(--panel-soft);
+  color: var(--text);
+  text-align: left;
+}
+
+.calibrationRow:hover,
+.calibrationRow.selected {
+  border-color: var(--accent);
+}
+
+.calibrationRowText {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.calibrationRowText strong {
+  font-size: 17px;
+}
+
+.calibrationRowText span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.referenceBadge,
+.confirmedBadge {
+  grid-column: 2;
+  justify-self: start;
+  display: inline-flex;
+  margin-top: 3px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.referenceBadge {
+  border: 1px solid #8e6c43;
+  color: #d8b47d;
+  background: rgba(110,73,30,.12);
+}
+
+.confirmedBadge {
+  border: 1px solid #466951;
+  color: #9dccaa;
+  background: rgba(48,99,64,.12);
+}
+
+.fingerRow .referenceBadge {
+  display: inline-flex;
+  margin-left: 7px;
+  vertical-align: middle;
+}
+
+@media (max-width: 700px) {
+  .calibrationWorkspace {
+    grid-template-columns: 1fr;
+  }
+
+  .calibrationGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* Per-song reset safety */
+.songResetHint {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px 18px;
+  text-align: left;
+}
+
+.songResetCopy {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: baseline;
+}
+
+.resetSafetyToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: rgba(0,0,0,.08);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 850;
+  cursor: pointer;
+  user-select: none;
+}
+
+.resetSafetyToggle input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.resetSafetyHelp {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+@media (max-width: 700px) {
+  .songResetHint {
+    grid-template-columns: 1fr;
+  }
+
+  .resetSafetyToggle {
+    justify-self: start;
+  }
+}
+
+
+/* Lord of the Rings: dark royal blue + antique gold */
+.themeLotr {
+  --bg: #0b1020;
+  --panel: #101a33;
+  --panel-soft: #162342;
+  --text: #ede8d9;
+  --muted: #aeb7cc;
+  --border: #2f426b;
+  --accent: #c6a55b;
+  --accent-strong: #e0c477;
+  --button: #1b2b50;
+  --button-hover: #243762;
+  --hole-stage: #d9d4c4;
+  --hole-open: #f8f4e9;
+  --hole-stroke: #17213a;
+  --hole-closed: #17213a;
+}
+
+.themeLotr .songLibrary,
+.themeLotr .songPlayer,
+.themeLotr .noticeCard {
+  font-family: Georgia, "Times New Roman", serif;
+  border-color: #3b5589;
+  background:
+    linear-gradient(rgba(223,196,119,.02), rgba(0,0,0,.055)),
+    var(--panel);
+}
+
+.themeLotr .songLibrary h2,
+.themeLotr .songPlayer h2 {
+  color: var(--accent-strong);
+  letter-spacing: .025em;
+  font-variant: small-caps;
+}
+
+.themeLotr .songCard {
+  border-color: #324a79;
+}
+
+.themeLotr .songCard:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+
+@media (max-width: 860px) {
+  .songWindow {
+    gap: 6px;
+  }
+
+  .songStripNote {
+    width: 66px;
+    min-height: 118px;
+    padding: 8px 6px;
+  }
+}
+
+@media (max-width: 620px) {
+  .songWindow .songStripNote:nth-of-type(1),
+  .songWindow .songStripNote:nth-last-of-type(1) {
+    display: none;
+  }
+
+  .songStripNote {
+    width: 62px;
+  }
+}
