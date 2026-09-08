@@ -33,6 +33,15 @@ export const noteEvent = (
 export const notesToEvents = (notes: string[] = []): SongEvent[] =>
   notes.map((note) => noteEvent(note, 1));
 
+/** Portion of an event's time slot during which its sound is sustained. */
+export function articulationGateRatio(
+  articulation: Articulation = "normal",
+) {
+  if (articulation === "staccato") return 0.58;
+  if (articulation === "slur") return 1;
+  return 0.92;
+}
+
 export function eventLengthLabel(event: SongEvent) {
   if (event.beats === 0.25) return "¼ beat";
   if (event.beats === 0.5) return "½ beat";

@@ -11,6 +11,7 @@ import {
   type TrainingNote,
 } from "./training";
 import {
+  articulationGateRatio,
   eventLengthLabel,
   mergeTiedEvents,
   type SongEvent,
@@ -540,6 +541,7 @@ export function BeatGame({
           // stays exact on desktop, tablet and mobile.
           const leadingEdgeX = hitLineX + beatsUntilHit * pxPerBeat;
           const durationWidthPx = Math.max(1, event.beats * pxPerBeat);
+          const soundingWidth = `${articulationGateRatio(event.articulation) * 100}%`;
 
           const y = verticalPositionForNoteId(event.note);
           const judgement = judgements[event.index];
@@ -555,7 +557,10 @@ export function BeatGame({
                 ...noteColourStyle(note.id),
               }}
             >
-              <div className="noteHead noteColourCard">
+              <div
+                className="noteHead noteColourCard"
+                style={{ width: soundingWidth }}
+              >
                 <strong>{primaryGameLabel(note.label)}</strong>
                 <RecorderPattern note={note} compact />
               </div>

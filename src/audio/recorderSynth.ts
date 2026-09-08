@@ -1,5 +1,8 @@
 import { noteIdToFrequency } from "./pitch";
-import type { Articulation } from "../music/songTypes";
+import {
+  articulationGateRatio,
+  type Articulation,
+} from "../music/songTypes";
 
 export type GuideLevel = "off" | "soft" | "full";
 
@@ -80,11 +83,7 @@ export function scheduleRecorderNote(
         : 0.045;
 
   const gatedDuration =
-    articulation === "staccato"
-      ? durationSeconds * 0.58
-      : articulation === "slur"
-        ? durationSeconds
-        : durationSeconds * 0.92;
+    durationSeconds * articulationGateRatio(articulation);
 
   // The entire envelope must fit inside the event's musical duration. A fixed
   // release added after the event makes short notes overlap a much larger part
