@@ -212,9 +212,10 @@ function SongLibrary({
           const playerIsLeader = Boolean(
             playerName && leader && samePlayer(playerName, leader.playerName),
           );
-          const playerHasServerScore = leaders.some((entry) =>
+          const playerRank = leaders.findIndex((entry) =>
             samePlayer(playerName, entry.playerName),
           );
+          const playerHasServerScore = playerRank >= 0;
 
           return (
             <div
@@ -260,10 +261,22 @@ function SongLibrary({
                           <span>
                             {index === 0 ? "🏆 " : ""}
                             {entry.playerName}
+                            {samePlayer(playerName, entry.playerName)
+                              ? " (you)"
+                              : ""}
                           </span>
                           <b>{entry.percentage}%</b>
                         </li>
                       ))}
+                      {playerRank >= 3 && (
+                        <li className="playerScoreRow">
+                          <span>
+                            #{playerRank + 1} {leaders[playerRank].playerName}
+                            {" (you)"}
+                          </span>
+                          <b>{leaders[playerRank].percentage}%</b>
+                        </li>
+                      )}
                     </ol>
                   ) : (
                     <span className="noScores">No scores yet</span>

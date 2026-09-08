@@ -75,7 +75,7 @@ function publicLeaderboards(store) {
             right.score - left.score ||
             left.updatedAt.localeCompare(right.updatedAt),
         )
-        .slice(0, 10),
+        .slice(0, 50),
     ]),
   );
 }

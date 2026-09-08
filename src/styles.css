@@ -712,6 +712,14 @@ code {
   color: var(--accent-strong);
 }
 
+.songScoreboard .playerScoreRow {
+  margin-top: 3px;
+  padding-top: 5px;
+  border-top: 1px dashed var(--border);
+  color: var(--accent-strong);
+  font-weight: 850;
+}
+
 .noScores {
   font-style: italic;
 }
