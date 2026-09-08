@@ -1959,6 +1959,18 @@ code {
   color: var(--muted);
 }
 
+.rhythmGameResultActions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.rhythmGameResultActions button {
+  min-width: 96px;
+}
+
 .rhythmCountdownOverlay {
   background: rgba(10,12,11,.58);
   pointer-events: none;

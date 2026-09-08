@@ -41,6 +41,9 @@ type Props = {
   onBpmChange: (bpm: number) => void;
   savedRating?: SongRating;
   onComplete: (result: RhythmGameResult) => void;
+  onPractice: () => void;
+  onSongs: () => void;
+  onHome: () => void;
 };
 
 export type RhythmGameResult = {
@@ -129,6 +132,9 @@ export function RhythmGame({
   onBpmChange,
   savedRating,
   onComplete,
+  onPractice,
+  onSongs,
+  onHome,
 }: Props) {
   const [running, setRunning] = useState(false);
   const [finished, setFinished] = useState(false);
@@ -638,9 +644,20 @@ export function RhythmGame({
                   )}
                   %
                 </span>
-                <button className="primary" onClick={startGame}>
-                  Play again
-                </button>
+                <div className="rhythmGameResultActions">
+                  <button className="primary" onClick={startGame}>
+                    Retry
+                  </button>
+                  <button className="secondary" onClick={onPractice}>
+                    Practice
+                  </button>
+                  <button className="secondary" onClick={onSongs}>
+                    Songs
+                  </button>
+                  <button className="secondary" onClick={onHome}>
+                    Home
+                  </button>
+                </div>
               </>
             ) : (
               <>

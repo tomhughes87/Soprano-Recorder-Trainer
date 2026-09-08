@@ -688,6 +688,16 @@ function App() {
     leaveSong();
   };
 
+  const returnToPractice = () => {
+    setSongMode("practice");
+    setRhythmGameResetKey((value) => value + 1);
+  };
+
+  const goHome = () => {
+    setTab("tester");
+    leaveSong();
+  };
+
   const resetCurrentSong = () => {
     setSongStep(0);
     setSongMistakes(0);
@@ -931,10 +941,7 @@ function App() {
           <div className="rhythmOnlyHeader">
             <button
               className="secondary"
-              onClick={() => {
-                setSongMode("practice");
-                setRhythmGameResetKey((value) => value + 1);
-              }}
+              onClick={returnToPractice}
             >
               ← Practice
             </button>
@@ -1333,6 +1340,9 @@ function App() {
             onBpmChange={setBpm}
             savedRating={songRatings[selectedSong.id]}
             onComplete={saveRhythmGameRating}
+            onPractice={returnToPractice}
+            onSongs={leaveSong}
+            onHome={goHome}
           />
         )}
       </section>
