@@ -189,6 +189,35 @@ h2 {
   font-weight: 850;
 }
 
+.playerNameControls {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.playerNameControls label {
+  display: grid;
+  flex: 1 1 260px;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.playerNameControls input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 12px;
+  background: var(--panel-soft);
+  color: var(--text);
+}
+
+.playerNameHelp {
+  margin-top: 12px;
+}
+
 .actions {
   display: flex;
   align-items: center;
@@ -570,6 +599,16 @@ code {
   min-width: 0;
 }
 
+.songCardShell.topScorer .songCard {
+  border: 2px solid #f4c84d;
+  background:
+    linear-gradient(145deg, rgba(255,224,116,.24), rgba(161,105,12,.12)),
+    var(--panel-soft);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,239,176,.25),
+    0 10px 30px rgba(191,135,20,.22);
+}
+
 .songCard:hover:not(:disabled) {
   transform: translateY(-2px);
   border-color: var(--accent);
@@ -624,6 +663,57 @@ code {
   background: transparent;
   color: var(--muted);
   font-weight: 750;
+}
+
+.topScorerMessage {
+  margin: 0 0 12px;
+  padding: 8px 10px;
+  border: 1px solid rgba(244,200,77,.65);
+  border-radius: 9px;
+  background: rgba(244,200,77,.15);
+  color: #ffe89a;
+  font-size: 12px;
+  font-weight: 950;
+  line-height: 1.35;
+}
+
+.songScoreboard {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 14px;
+  padding-top: 11px;
+  border-top: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.songScoreboard > strong {
+  color: var(--text);
+  font-size: 11px;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.songScoreboard ol {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.songScoreboard li {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.songScoreboard li b {
+  color: var(--accent-strong);
+}
+
+.noScores {
+  font-style: italic;
 }
 
 .clearSongRating {
