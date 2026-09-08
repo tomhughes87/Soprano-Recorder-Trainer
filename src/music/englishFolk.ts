@@ -16,6 +16,9 @@ export const ENGLISH_FOLK_SONGS: Song[] = [
       n("Fs4", .75), n("G4", .25), n("A4", .75), n("Fs4", .25), n("G4", 1), n("Fs4", .75), n("G4", .25),
       n("A4", 1), n("A4", 1), n("D4", 2),
 
+      // ABC pickup into the B section: d>e = ¾ beat + ¼ beat.
+      n("D4", .75), n("E4", .25),
+
       n("Fs4", 1), n("D4", 1), n("G4", 1, { tieToNext: true }), n("G4", 1),
       n("Fs4", 1), n("D4", 1), n("E4", 1, { tieToNext: true }), n("E4", 1),
       n("Fs4", .75), n("G4", .25), n("A4", .75), n("Fs4", .25), n("G4", 1), n("Fs4", .75), n("G4", .25),

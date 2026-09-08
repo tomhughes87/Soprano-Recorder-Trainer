@@ -410,6 +410,13 @@ export function BeatGame({
   const usableTravelWidth = Math.max(1, laneWidth - hitLineX - rightPadding);
   const pxPerBeat = usableTravelWidth / LOOKAHEAD_BEATS;
 
+  const firstGridBeat = Math.max(0, Math.floor(currentBeat) - 1);
+  const lastGridBeat = Math.ceil(currentBeat + LOOKAHEAD_BEATS);
+  const beatGrid = Array.from(
+    { length: Math.max(0, lastGridBeat - firstGridBeat + 1) },
+    (_, offset) => firstGridBeat + offset
+  );
+
   return (
     <div className="beatGame">
       <div className="beatHud">
@@ -448,6 +455,23 @@ export function BeatGame({
               {noteId.replace("s", "♯")}
             </div>
           ))}
+        </div>
+
+        <div className="timeGrid" aria-hidden="true">
+          {beatGrid.map(beat => {
+            const x = hitLineX + (beat - currentBeat) * pxPerBeat;
+            const isBar = beat % 4 === 0;
+
+            return (
+              <div
+                key={beat}
+                className={`timeGridLine ${isBar ? "barLine" : "beatLine"}`}
+                style={{ left: `${x}px` }}
+              >
+                <span>{(beat % 4) + 1}</span>
+              </div>
+            );
+          })}
         </div>
 
         {visibleEvents.map(event => {
@@ -516,7 +540,7 @@ export function BeatGame({
       <div className="beatGameLegend">
         <span><b>Perfect</b> ±0.10 beat</span>
         <span><b>Good</b> ±0.23 beat</span>
-        <span><b>Long notes</b> hold until the tail reaches the line</span>
+        <span><b>Long notes</b> keep holding while the block crosses HIT</span>
       </div>
     </div>
   );
