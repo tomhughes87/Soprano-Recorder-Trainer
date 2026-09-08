@@ -1,20 +1,35 @@
-import type { Song } from "../../songTypes";
+import { noteEvent, type Song } from "../../songTypes";
+
+const n = noteEvent;
+
+const A = [
+  n("G4", 0.5), n("A4", 0.5), n("B4", 0.5), n("A4", 0.5), n("G4", 0.5), n("A4", 0.5), n("B4", 0.5), n("A4", 0.5),
+  n("G4", 1), n("E4", 1), n("E4", 1.5), n("D4", 0.5),
+  n("G4", 0.5), n("A4", 0.5), n("B4", 0.5), n("A4", 0.5), n("G4", 0.5), n("A4", 0.5), n("B4", 0.5), n("G4", 0.5),
+  n("C5", 1), n("A4", 1), n("A4", 2),
+  n("G4", 0.5), n("A4", 0.5), n("B4", 0.5), n("A4", 0.5), n("G4", 0.5), n("A4", 0.5), n("B4", 0.5), n("A4", 0.5),
+  n("G4", 1), n("E4", 1), n("C5", 2),
+  n("E4", 1), n("D4", 0.5), n("C4", 0.5), n("D4", 1), n("B4", 1),
+  n("C5", 1), n("A4", 1), n("A4", 2),
+];
+
+const B = [
+  n("D5", 1.5), n("C5", 0.5), n("B4", 1), n("A4", 1),
+  n("G4", 1), n("E4", 1), n("E4", 2),
+  n("D5", 1.5), n("C5", 0.5), n("B4", 1), n("A4", 0.5), n("G4", 0.5),
+  n("C5", 1), n("A4", 1), n("A4", 2),
+  n("D5", 1.5), n("C5", 0.5), n("B4", 1), n("A4", 1),
+  n("G4", 1), n("E4", 1), n("C5", 1), n("E4", 1),
+  n("E4", 1), n("D4", 0.5), n("C4", 0.5), n("D4", 1), n("B4", 1),
+  n("C5", 1), n("A4", 1), n("A4", 2),
+];
 
 export const overTheHillsAndFarAway: Song = {
   id: "over-the-hills",
   title: "Over the Hills and Far Away",
   difficulty: 2,
-  description: "Recorder version using the calibrated Carry-on fingerings. Pitch sequence is ready; detailed rhythm is not yet verified.",
+  description: "Traditional English slow air in A Dorian.",
   playable: true,
-  rhythmVerified: false,
-  notes: [
-    "D4", "G4", "B4", "G4", "B4", "G4", "E4", "E4",
-    "D4", "G4", "B4", "G4", "B4", "C5", "D5", "A4",
-    "D4", "G4", "B4", "G4", "B4", "G4", "E4", "C5",
-    "E4", "D4", "D4", "D4", "B4", "C5", "D5", "A4",
-    "D5", "C5", "B4", "A4", "G4", "E4", "E4",
-    "D5", "C5", "B4", "G4", "C5", "D5", "A4",
-    "D5", "D5", "C5", "B4", "A4", "G4", "E4", "C5",
-    "E4", "D4", "D4", "D4", "B4", "C5", "D5", "A4",
-  ],
+  rhythmVerified: true,
+  events: [...A, ...A, ...B, ...B],
 };

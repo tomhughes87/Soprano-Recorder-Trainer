@@ -1,3 +1,3 @@
 # Lord of the Rings song references
 
-These entries are placeholders migrated from the original flat catalogue. No melodies or score references are stored yet. Add each verified arrangement and its permitted reference material inside the matching song folder.
+These copyrighted entries remain disabled until a purchased or otherwise permitted score is supplied for transcription. Each song folder now links to a licensed score listing or an official composer reference; no storefront previews are copied into the repository.

@@ -1,3 +1,6 @@
-# Reference
+# Epona's Song references
 
-Short input and long continuation were migrated from the original catalogues. No external score source was documented.
+- [Zelda Dungeon: Epona's Song](https://www.zeldadungeon.net/wiki/Epona%27s_Song)
+- [StrategyWiki: Ocarina of Time songs](https://strategywiki.org/wiki/The_Legend_of_Zelda:_Ocarina_of_Time/Ocarina_Songs)
+
+The short input is documented in-game. The longer continuation was migrated without a licensed score and its rhythm remains unverified.
