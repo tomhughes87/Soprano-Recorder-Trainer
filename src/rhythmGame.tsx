@@ -53,6 +53,7 @@ export type RhythmGameResult = {
 const HIT_WINDOW_BEATS = 0.42;
 const LOOKAHEAD_BEATS = 3;
 const COUNTDOWN_BEATS = 4;
+const NOTE_FADE_MS = 700;
 
 const NOTE_HEIGHT_ORDER = [
   "D5",
@@ -444,13 +445,12 @@ export function RhythmGame({
   const visibleEvents = timeline.filter((event) => {
     const untilStart = event.startBeat - currentBeat;
     const untilEnd = event.endBeat - currentBeat;
+    const fadeBeats = NOTE_FADE_MS / beatMs;
 
-    // Keep a held note visible until its trailing edge has passed the hit line.
-    return untilEnd >= -0.18 && untilStart <= LOOKAHEAD_BEATS;
+    // Keep the card mounted long enough to complete its fade after its
+    // trailing edge reaches the hit line.
+    return untilEnd >= -fadeBeats && untilStart <= LOOKAHEAD_BEATS;
   });
-  const activeHoldIndexes = new Set(
-    Object.values(holdStarts).map((hold) => hold.eventIndex),
-  );
 
   const judgedCount = Object.keys(judgements).length;
   const hitCount = Object.values(judgements).filter(
@@ -585,11 +585,14 @@ export function RhythmGame({
 
           const y = verticalPositionForNoteId(event.note);
           const judgement = judgements[event.index];
+          const shouldFade = Boolean(
+            judgement && currentBeat >= event.endBeat,
+          );
 
           return (
             <div
               key={event.index}
-              className={`fallingNote ${event.beats > 1 ? "heldNote" : ""} ${activeHoldIndexes.has(event.index) ? "holding" : ""} ${judgement ? `judged ${judgement}` : ""}`}
+              className={`fallingNote ${event.beats > 1 ? "heldNote" : ""} ${judgement ? `judged ${judgement}` : ""} ${shouldFade ? "fadeOut" : ""}`}
               style={{
                 left: `${leadingEdgeX}px`,
                 top: `${y}px`,

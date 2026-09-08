@@ -1840,12 +1840,8 @@ code {
   white-space: nowrap;
 }
 
-.fallingNote.judged {
+.fallingNote.judged.fadeOut {
   opacity: 0;
-}
-
-.fallingNote.judged.holding {
-  opacity: .32;
 }
 
 .fallingNote.judged.perfect .noteHead {
