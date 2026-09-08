@@ -63,9 +63,49 @@ type SongSection =
   | "lotr";
 
 const STORAGE_KEY = "carryon-recorder-midi-map-v1";
+const MIDI_INPUT_STORAGE_KEY = "carryon-midi-input-v1";
 const RESET_NOTE_ID = "Cs5";
 const DEFAULT_RESET_BLOWS = 3;
 const SAFE_RESET_BLOWS = 5;
+
+type SavedMidiInput = {
+  id: string;
+  name: string;
+  manufacturer: string;
+};
+
+function loadSavedMidiInput(): SavedMidiInput | null {
+  try {
+    const raw = localStorage.getItem(MIDI_INPUT_STORAGE_KEY);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw) as Partial<SavedMidiInput>;
+    return typeof parsed.id === "string"
+      ? {
+          id: parsed.id,
+          name: parsed.name ?? "",
+          manufacturer: parsed.manufacturer ?? "",
+        }
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveMidiInput(input: MIDIInput) {
+  try {
+    localStorage.setItem(
+      MIDI_INPUT_STORAGE_KEY,
+      JSON.stringify({
+        id: input.id,
+        name: input.name ?? "",
+        manufacturer: input.manufacturer ?? "",
+      } satisfies SavedMidiInput),
+    );
+  } catch {
+    // Manual connection remains available if storage is unavailable.
+  }
+}
 
 function loadMidiMap(): MidiMap {
   try {
@@ -204,7 +244,9 @@ function App() {
   const [tab, setTab] = useState<Tab>("tester");
   const [status, setStatus] = useState("Not connected");
   const [inputs, setInputs] = useState<MIDIInput[]>([]);
-  const [selectedId, setSelectedId] = useState("");
+  const [selectedId, setSelectedId] = useState(
+    () => loadSavedMidiInput()?.id ?? "",
+  );
   const [lastNote, setLastNote] = useState("—");
   const [lastMidi, setLastMidi] = useState<number | null>(null);
   const [velocity, setVelocity] = useState("—");
@@ -249,6 +291,8 @@ function App() {
   const resetBlowCountRef = useRef(0);
   const metronomeTimerRef = useRef<number | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
+  const midiAccessRef = useRef<MIDIAccess | null>(null);
+  const autoConnectAttemptedRef = useRef(false);
 
   const selectedInput = useMemo(
     () => inputs.find((input) => input.id === selectedId) ?? null,
@@ -340,10 +384,20 @@ function App() {
 
   const refreshInputs = (access: MIDIAccess) => {
     const list = Array.from(access.inputs.values());
+    const remembered = loadSavedMidiInput();
     setInputs(list);
 
     setSelectedId((current) => {
       if (current && list.some((input) => input.id === current)) return current;
+
+      const rememberedInput = remembered
+        ? list.find((input) => input.id === remembered.id) ??
+          list.find(
+            (input) =>
+              (input.name ?? "") === remembered.name &&
+              (input.manufacturer ?? "") === remembered.manufacturer,
+          )
+        : undefined;
 
       const carryOn = list.find((input) => {
         const text =
@@ -351,8 +405,12 @@ function App() {
         return text.includes("wind") || text.includes("carry");
       });
 
-      return (carryOn ?? list[0])?.id ?? "";
+      const next = rememberedInput ?? carryOn ?? list[0];
+      if (next && (!remembered || rememberedInput)) saveMidiInput(next);
+      return next?.id ?? "";
     });
+
+    return list;
   };
 
   const connect = async () => {
@@ -365,13 +423,37 @@ function App() {
 
     try {
       const access = await navigator.requestMIDIAccess({ sysex: false });
-      refreshInputs(access);
-      access.onstatechange = () => refreshInputs(access);
-      setStatus("MIDI access granted");
+      midiAccessRef.current = access;
+      const list = refreshInputs(access);
+      access.onstatechange = () => {
+        const refreshed = refreshInputs(access);
+        setStatus(
+          refreshed.length > 0
+            ? "MIDI device connected"
+            : "MIDI access granted — connect your saved device",
+        );
+      };
+      setStatus(
+        list.length > 0
+          ? "MIDI access granted"
+          : "MIDI access granted — connect your saved device",
+      );
     } catch (error) {
       console.error(error);
       setStatus("MIDI permission was denied or unavailable.");
     }
+  };
+
+  useEffect(() => {
+    if (!loadSavedMidiInput() || autoConnectAttemptedRef.current) return;
+    autoConnectAttemptedRef.current = true;
+    void connect();
+  }, []);
+
+  const selectMidiInput = (id: string) => {
+    setSelectedId(id);
+    const input = inputs.find((candidate) => candidate.id === id);
+    if (input) saveMidiInput(input);
   };
 
   const pickNext = (current: number) => {
@@ -1253,7 +1335,7 @@ function App() {
               MIDI input
               <select
                 value={selectedId}
-                onChange={(event) => setSelectedId(event.target.value)}
+                onChange={(event) => selectMidiInput(event.target.value)}
               >
                 {inputs.map((input) => (
                   <option key={input.id} value={input.id}>
