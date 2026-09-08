@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { RecorderPattern, noteColourStyle, type TrainingNote } from "./training";
 import { eventLengthLabel, mergeTiedEvents, type SongEvent } from "./music/songTypes";
 import { SongTransport } from "./audio/songTransport";
@@ -133,6 +133,8 @@ export function BeatGame({
   const startAtRef = useRef(0);
   const frameRef = useRef<number | null>(null);
   const transportRef = useRef<SongTransport | null>(null);
+  const laneRef = useRef<HTMLDivElement | null>(null);
+  const [laneWidth, setLaneWidth] = useState(0);
 
   const beatMs = 60000 / bpm;
 
@@ -209,6 +211,26 @@ export function BeatGame({
       setRunning(false);
     }
   };
+
+  useLayoutEffect(() => {
+    const lane = laneRef.current;
+    if (!lane) return;
+
+    const updateWidth = () => {
+      setLaneWidth(lane.getBoundingClientRect().width);
+    };
+
+    updateWidth();
+
+    if ("ResizeObserver" in window) {
+      const observer = new ResizeObserver(updateWidth);
+      observer.observe(lane);
+      return () => observer.disconnect();
+    }
+
+    window.addEventListener("resize", updateWidth);
+    return () => window.removeEventListener("resize", updateWidth);
+  }, []);
 
   useEffect(() => {
     resetGame();
@@ -380,6 +402,14 @@ export function BeatGame({
   const hitCount = Object.values(judgements).filter(value => value !== "miss").length;
   const accuracy = judgedCount === 0 ? 0 : Math.round((hitCount / judgedCount) * 100);
 
+  // One geometry system for every screen size and tempo.
+  // Beat length is derived from the measured usable lane width.
+  const hitLineRatio = 0.12;
+  const rightPadding = 24;
+  const hitLineX = laneWidth * hitLineRatio;
+  const usableTravelWidth = Math.max(1, laneWidth - hitLineX - rightPadding);
+  const pxPerBeat = usableTravelWidth / LOOKAHEAD_BEATS;
+
   return (
     <div className="beatGame">
       <div className="beatHud">
@@ -407,7 +437,7 @@ export function BeatGame({
         </div>
       </div>
 
-      <div className="beatLane" aria-label="Beat game note highway">
+      <div ref={laneRef} className="beatLane" aria-label="Beat game note highway">
         <div className="pitchScale" aria-hidden="true">
           {NOTE_HEIGHT_ORDER.map(noteId => (
             <div
@@ -426,12 +456,11 @@ export function BeatGame({
 
           const beatsUntilHit = event.startBeat - currentBeat;
 
-          // The leading edge is the actual note-on moment.
-          // At 0 beatsUntilHit it sits exactly on the HIT line (12%).
-          // One beat occupies exactly one beat of horizontal travel distance.
-          const percentPerBeat = 80 / LOOKAHEAD_BEATS;
-          const leadingEdgeX = 12 + beatsUntilHit * percentPerBeat;
-          const durationWidthPercent = event.beats * percentPerBeat;
+          // The left edge is note-on, the right edge is note-off.
+          // Both are calculated from the measured lane width, so the duration
+          // stays exact on desktop, tablet and mobile.
+          const leadingEdgeX = hitLineX + beatsUntilHit * pxPerBeat;
+          const durationWidthPx = Math.max(1, event.beats * pxPerBeat);
 
           const y = verticalPositionForNoteId(event.note);
           const judgement = judgements[event.index];
@@ -441,9 +470,9 @@ export function BeatGame({
               key={event.index}
               className={`fallingNote ${event.beats > 1 ? "heldNote" : ""} ${judgement ? `judged ${judgement}` : ""}`}
               style={{
-                left: `${leadingEdgeX}%`,
+                left: `${leadingEdgeX}px`,
                 top: `${y}px`,
-                width: `${durationWidthPercent}%`,
+                width: `${durationWidthPx}px`,
                 ...noteColourStyle(note.id),
               }}
             >
@@ -457,7 +486,7 @@ export function BeatGame({
           );
         })}
 
-        <div className="hitLine">
+        <div className="hitLine" style={{ left: `${hitLineX}px` }}>
           <span>HIT</span>
         </div>
 
