@@ -18,9 +18,12 @@ function scheduleNoise(
   destination: AudioNode,
   startTime: number,
   stopTime: number,
-  amount: number
+  amount: number,
 ) {
-  const length = Math.max(1, Math.ceil((stopTime - startTime) * context.sampleRate));
+  const length = Math.max(
+    1,
+    Math.ceil((stopTime - startTime) * context.sampleRate),
+  );
   const buffer = context.createBuffer(1, length, context.sampleRate);
   const data = buffer.getChannelData(0);
 
@@ -55,30 +58,42 @@ export function scheduleRecorderNote(
   startTime: number,
   durationSeconds: number,
   level: GuideLevel,
-  articulation: Articulation = "normal"
+  articulation: Articulation = "normal",
 ): ScheduledVoice | null {
   const volume = guideGain(level);
   if (volume <= 0 || durationSeconds <= 0) return null;
 
   const frequency = noteIdToFrequency(noteId);
 
-  const attack =
-    articulation === "slur" ? 0.008 :
-    articulation === "staccato" ? 0.012 :
-    0.022;
+  const requestedAttack =
+    articulation === "slur"
+      ? 0.012
+      : articulation === "staccato"
+        ? 0.006
+        : 0.008;
 
-  const release =
-    articulation === "staccato" ? 0.035 :
-    articulation === "slur" ? 0.045 :
-    0.07;
+  const requestedRelease =
+    articulation === "staccato"
+      ? 0.025
+      : articulation === "slur"
+        ? 0.06
+        : 0.045;
 
   const gatedDuration =
     articulation === "staccato"
       ? durationSeconds * 0.58
-      : durationSeconds * 0.92;
+      : articulation === "slur"
+        ? durationSeconds
+        : durationSeconds * 0.92;
 
-  const soundEnd = Math.max(startTime + attack + 0.02, startTime + gatedDuration);
-  const stopTime = soundEnd + release;
+  // The entire envelope must fit inside the event's musical duration. A fixed
+  // release added after the event makes short notes overlap a much larger part
+  // of the following card than long notes, so their pitch change sounds late.
+  const soundEnd = startTime + Math.min(durationSeconds, gatedDuration);
+  const soundingDuration = soundEnd - startTime;
+  const attack = Math.min(requestedAttack, soundingDuration * 0.2);
+  const release = Math.min(requestedRelease, soundingDuration * 0.35);
+  const releaseStart = Math.max(startTime + attack, soundEnd - release);
 
   const master = context.createGain();
   const toneFilter = context.createBiquadFilter();
@@ -89,8 +104,8 @@ export function scheduleRecorderNote(
 
   master.gain.setValueAtTime(0.0001, startTime);
   master.gain.exponentialRampToValueAtTime(volume, startTime + attack);
-  master.gain.setValueAtTime(volume, Math.max(startTime + attack, soundEnd - release));
-  master.gain.exponentialRampToValueAtTime(0.0001, stopTime);
+  master.gain.setValueAtTime(volume, releaseStart);
+  master.gain.exponentialRampToValueAtTime(0.0001, soundEnd);
 
   master.connect(toneFilter);
   toneFilter.connect(destination);
@@ -110,19 +125,22 @@ export function scheduleRecorderNote(
     const partialGain = context.createGain();
 
     oscillator.type = partial.type;
-    oscillator.frequency.setValueAtTime(frequency * partial.multiple, startTime);
+    oscillator.frequency.setValueAtTime(
+      frequency * partial.multiple,
+      startTime,
+    );
     partialGain.gain.value = partial.gain;
 
     oscillator.connect(partialGain);
     partialGain.connect(master);
 
     oscillator.start(startTime);
-    oscillator.stop(stopTime);
+    oscillator.stop(soundEnd);
     sources.push(oscillator);
   }
 
   // A tiny breath component helps it read as a wind instrument rather than a beep.
-  const noise = scheduleNoise(context, master, startTime, stopTime, 0.07);
+  const noise = scheduleNoise(context, master, startTime, soundEnd, 0.07);
   sources.push(noise);
 
   return {
@@ -142,7 +160,7 @@ export function scheduleMetronomeClick(
   context: AudioContext,
   destination: AudioNode,
   at: number,
-  accent = false
+  accent = false,
 ): ScheduledVoice {
   const oscillator = context.createOscillator();
   const gain = context.createGain();
