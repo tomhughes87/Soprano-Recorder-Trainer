@@ -1461,9 +1461,8 @@ code {
   background: rgba(255,255,255,.055);
 }
 
-.beatLaneGuide1 { left: 25%; }
-.beatLaneGuide2 { left: 50%; }
-.beatLaneGuide3 { left: 75%; }
+.beatLaneGuide1 { top: 33.333%; left: 0; right: 0; bottom: auto; width: auto; height: 1px; }
+.beatLaneGuide2 { top: 66.666%; left: 0; right: 0; bottom: auto; width: auto; height: 1px; }
 
 .hitLine {
   position: absolute;
@@ -1488,21 +1487,43 @@ code {
 
 .fallingNote {
   position: absolute;
-  top: 50%;
   transform: translate(-50%, -50%);
-  min-height: 112px;
-  padding: 10px 12px;
-  border: 2px solid var(--accent);
-  border-radius: 12px;
-  background: var(--panel-soft);
+  min-width: 76px;
+  min-height: 92px;
   color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 3;
+  transition: opacity .1s ease, border-color .1s ease;
+}
+
+.noteHead {
+  position: relative;
+  z-index: 2;
+  min-width: 76px;
+  min-height: 92px;
+  padding: 8px 9px;
+  border: 2px solid var(--accent);
+  border-radius: 11px;
+  background: var(--panel-soft);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  z-index: 3;
-  transition: opacity .1s ease, border-color .1s ease;
+  gap: 5px;
+}
+
+.sustainTail {
+  position: absolute;
+  right: 58px;
+  top: 50%;
+  height: 8px;
+  transform: translateY(-50%);
+  border-radius: 999px;
+  background: var(--accent);
+  opacity: .55;
+  z-index: 1;
 }
 
 .fallingNote > strong {
@@ -1510,25 +1531,30 @@ code {
 }
 
 .fallingDuration {
+  position: absolute;
+  left: 38px;
+  top: calc(100% + 3px);
+  transform: translateX(-50%);
   color: var(--muted);
   font-size: 9px;
   font-weight: 850;
+  white-space: nowrap;
 }
 
 .fallingNote.judged {
   opacity: .32;
 }
 
-.fallingNote.judged.perfect {
+.fallingNote.judged.perfect .noteHead {
   border-color: #b7efc3;
 }
 
-.fallingNote.judged.good,
-.fallingNote.judged.okay {
+.fallingNote.judged.good .noteHead,
+.fallingNote.judged.okay .noteHead {
   border-color: var(--accent);
 }
 
-.fallingNote.judged.miss {
+.fallingNote.judged.miss .noteHead {
   border-color: var(--danger);
 }
 
@@ -1759,4 +1785,56 @@ code {
 
 .fallingNote {
   max-width: 250px;
+}
+
+
+.laneBand {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 33.333%;
+  pointer-events: none;
+}
+
+.laneBand1 {
+  top: 0;
+  background: rgba(255,255,255,.012);
+}
+
+.laneBand2 {
+  top: 33.333%;
+  background: rgba(0,0,0,.035);
+}
+
+.laneBand3 {
+  top: 66.666%;
+  background: rgba(255,255,255,.012);
+}
+
+.laneBand > span {
+  position: absolute;
+  left: 10px;
+  top: 8px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 950;
+  letter-spacing: .11em;
+  opacity: .7;
+}
+
+.fallingNote.lane1 .noteHead,
+.fallingNote.lane2 .noteHead,
+.fallingNote.lane3 .noteHead {
+  box-shadow: 0 4px 12px rgba(0,0,0,.18);
+}
+
+/* All three lanes use the same hit line; vertical position encodes fingering openness. */
+.hitLine {
+  z-index: 6;
+}
+
+.beatLane::after {
+  content: "←";
+  right: 16px;
+  top: 50%;
 }

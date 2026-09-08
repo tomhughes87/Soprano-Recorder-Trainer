@@ -28,6 +28,18 @@ const HIT_WINDOW_BEATS = 0.42;
 const LOOKAHEAD_BEATS = 4;
 const RESULT_STORAGE = "carryon-beat-game-best-v1";
 
+type Lane = 1 | 2 | 3;
+
+function laneForNoteId(noteId: string): Lane {
+  // Group by fingering openness / hand position:
+  // 1 = more open / higher notes
+  // 2 = mid positions
+  // 3 = more covered / lower notes
+  if (["A4", "Bb4", "B4", "C5", "Cs5", "D5"].includes(noteId)) return 1;
+  if (["F4", "Fs4", "G4", "Gs4"].includes(noteId)) return 2;
+  return 3;
+}
+
 function loadBest() {
   try {
     const raw = localStorage.getItem(RESULT_STORAGE);
@@ -68,7 +80,9 @@ export function BeatGame({
   const [feedback, setFeedback] = useState("Press Start when you're ready");
   const [judgements, setJudgements] = useState<Record<number, Judgement>>({});
   const [bestScore, setBestScore] = useState(loadBest);
-  const [holdStarts, setHoldStarts] = useState<Record<number, { at: number; eventIndex: number }>>({});
+  const [holdStarts, setHoldStarts] = useState<
+    Record<number, { at: number; eventIndex: number }>
+  >({});
 
   const startAtRef = useRef(0);
   const frameRef = useRef<number | null>(null);
@@ -91,14 +105,17 @@ export function BeatGame({
     });
   }, [events]);
 
-  const totalBeats = timeline.length ? timeline[timeline.length - 1].endBeat : 0;
+  const totalBeats = timeline.length
+    ? timeline[timeline.length - 1].endBeat
+    : 0;
   const elapsedMs = running ? Math.max(0, now - startAtRef.current) : 0;
   const currentBeat = elapsedMs / beatMs;
 
-  const noteById = (id: string) => notes.find(note => note.id === id);
+  const noteById = (id: string) => notes.find((note) => note.id === id);
 
   const playClick = (accent = false) => {
-    const AudioContextCtor = window.AudioContext ?? (window as any).webkitAudioContext;
+    const AudioContextCtor =
+      window.AudioContext ?? (window as any).webkitAudioContext;
     if (!AudioContextCtor) return;
 
     const context = audioContextRef.current ?? new AudioContextCtor();
@@ -191,7 +208,7 @@ export function BeatGame({
     if (!running || finished) return;
 
     // Automatically mark overdue notes as misses.
-    setJudgements(previous => {
+    setJudgements((previous) => {
       let changed = false;
       const next = { ...previous };
 
@@ -214,7 +231,7 @@ export function BeatGame({
       setFinished(true);
       setFeedback("Song complete");
 
-      setBestScore(previous => {
+      setBestScore((previous) => {
         const next = Math.max(previous, score);
         if (next !== previous) saveBest(next);
         return next;
@@ -229,12 +246,12 @@ export function BeatGame({
 
     if (midiSignal.kind === "on") {
       const candidates = timeline
-        .filter(event => !judgements[event.index])
-        .map(event => ({
+        .filter((event) => !judgements[event.index])
+        .map((event) => ({
           event,
           distance: Math.abs(signalBeat - event.startBeat),
         }))
-        .filter(candidate => candidate.distance <= HIT_WINDOW_BEATS)
+        .filter((candidate) => candidate.distance <= HIT_WINDOW_BEATS)
         .sort((a, b) => a.distance - b.distance);
 
       const candidate = candidates[0];
@@ -248,43 +265,43 @@ export function BeatGame({
       const expected = noteById(candidate.event.note);
 
       if (!expected || expected.midi !== midiSignal.midi) {
-        setFeedback(`Wrong pitch · aim for ${expected?.label ?? candidate.event.note}`);
+        setFeedback(
+          `Wrong pitch · aim for ${expected?.label ?? candidate.event.note}`,
+        );
         setCombo(0);
         return;
       }
 
       const distance = candidate.distance;
       const judgement: Judgement =
-        distance <= 0.10 ? "perfect" :
-        distance <= 0.23 ? "good" :
-        "okay";
+        distance <= 0.1 ? "perfect" : distance <= 0.23 ? "good" : "okay";
 
       const points =
-        judgement === "perfect" ? 100 :
-        judgement === "good" ? 70 :
-        40;
+        judgement === "perfect" ? 100 : judgement === "good" ? 70 : 40;
 
-      setJudgements(previous => ({
+      setJudgements((previous) => ({
         ...previous,
         [candidate.event.index]: judgement,
       }));
 
-      setScore(value => value + points);
-      setCombo(value => {
+      setScore((value) => value + points);
+      setCombo((value) => {
         const next = value + 1;
-        setBestCombo(best => Math.max(best, next));
+        setBestCombo((best) => Math.max(best, next));
         return next;
       });
 
       setFeedback(
-        judgement === "perfect" ? "Perfect!" :
-        judgement === "good" ? "Good" :
-        "Okay"
+        judgement === "perfect"
+          ? "Perfect!"
+          : judgement === "good"
+            ? "Good"
+            : "Okay",
       );
 
       // Track long notes so releasing close to the intended duration can earn a bonus.
       if (candidate.event.beats > 1) {
-        setHoldStarts(previous => ({
+        setHoldStarts((previous) => ({
           ...previous,
           [midiSignal.midi]: {
             at: midiSignal.at,
@@ -304,13 +321,13 @@ export function BeatGame({
       const ratio = heldMs / expectedMs;
 
       if (ratio >= 0.72) {
-        setScore(value => value + 30);
+        setScore((value) => value + 30);
         setFeedback("Hold ✓");
       } else {
         setFeedback("Released early");
       }
 
-      setHoldStarts(previous => {
+      setHoldStarts((previous) => {
         const next = { ...previous };
         delete next[midiSignal.midi];
         return next;
@@ -318,19 +335,26 @@ export function BeatGame({
     }
   }, [midiSignal?.nonce]);
 
-  const visibleEvents = timeline.filter(event => {
+  const visibleEvents = timeline.filter((event) => {
     const distance = event.startBeat - currentBeat;
     return distance >= -0.65 && distance <= LOOKAHEAD_BEATS;
   });
 
   const judgedCount = Object.keys(judgements).length;
-  const hitCount = Object.values(judgements).filter(value => value !== "miss").length;
-  const accuracy = judgedCount === 0 ? 0 : Math.round((hitCount / judgedCount) * 100);
+  const hitCount = Object.values(judgements).filter(
+    (value) => value !== "miss",
+  ).length;
+  const accuracy =
+    judgedCount === 0 ? 0 : Math.round((hitCount / judgedCount) * 100);
 
   if (focusMode) {
     const nextEvent =
-      timeline.find(event => !judgements[event.index] && event.startBeat >= currentBeat - HIT_WINDOW_BEATS) ??
-      timeline.find(event => !judgements[event.index]) ??
+      timeline.find(
+        (event) =>
+          !judgements[event.index] &&
+          event.startBeat >= currentBeat - HIT_WINDOW_BEATS,
+      ) ??
+      timeline.find((event) => !judgements[event.index]) ??
       timeline[0];
 
     const nextNote = nextEvent ? noteById(nextEvent.note) : null;
@@ -338,8 +362,18 @@ export function BeatGame({
     return (
       <div className="beatGameFocus">
         <div className="beatGameFocusTop">
-          <button className="focusBackButton" onClick={() => onFocusModeChange(false)}>← Back</button>
-          <button className="focusBackButton secondary" onClick={onBackToPractice}>Practice</button>
+          <button
+            className="focusBackButton"
+            onClick={() => onFocusModeChange(false)}
+          >
+            ← Back
+          </button>
+          <button
+            className="focusBackButton secondary"
+            onClick={onBackToPractice}
+          >
+            Practice
+          </button>
         </div>
 
         <div className="beatGameFocusCenter">
@@ -379,49 +413,101 @@ export function BeatGame({
         </div>
 
         <div className="beatGameToolbarActions">
-          <button className="secondary" onClick={() => onFocusModeChange(true)}>Focus</button>
+          <button className="secondary" onClick={() => onFocusModeChange(true)}>
+            Focus
+          </button>
 
           <div className="beatGameSpeed">
-          <button className="secondary" onClick={() => onBpmChange(Math.max(40, bpm - 5))}>−</button>
-          <strong>{bpm} BPM</strong>
-          <button className="secondary" onClick={() => onBpmChange(Math.min(200, bpm + 5))}>+</button>
+            <button
+              className="secondary"
+              onClick={() => onBpmChange(Math.max(40, bpm - 5))}
+            >
+              −
+            </button>
+            <strong>{bpm} BPM</strong>
+            <button
+              className="secondary"
+              onClick={() => onBpmChange(Math.min(200, bpm + 5))}
+            >
+              +
+            </button>
           </div>
         </div>
       </div>
 
       <div className="beatGameStats">
-        <div><span>Score</span><strong>{score}</strong></div>
-        <div><span>Combo</span><strong>{combo}×</strong></div>
-        <div><span>Best combo</span><strong>{bestCombo}×</strong></div>
-        <div><span>Accuracy</span><strong>{accuracy}%</strong></div>
+        <div>
+          <span>Score</span>
+          <strong>{score}</strong>
+        </div>
+        <div>
+          <span>Combo</span>
+          <strong>{combo}×</strong>
+        </div>
+        <div>
+          <span>Best combo</span>
+          <strong>{bestCombo}×</strong>
+        </div>
+        <div>
+          <span>Accuracy</span>
+          <strong>{accuracy}%</strong>
+        </div>
       </div>
 
       <div className="beatLane" aria-label="Beat game note highway">
+        <div className="laneBand laneBand1">
+          <span>SET 1</span>
+        </div>
+        <div className="laneBand laneBand2">
+          <span>SET 2</span>
+        </div>
+        <div className="laneBand laneBand3">
+          <span>SET 3</span>
+        </div>
+
         <div className="beatLaneGuide beatLaneGuide1" />
         <div className="beatLaneGuide beatLaneGuide2" />
-        <div className="beatLaneGuide beatLaneGuide3" />
 
-        {visibleEvents.map(event => {
+        {visibleEvents.map((event) => {
           const note = noteById(event.note);
           if (!note) return null;
 
           const beatsUntilHit = event.startBeat - currentBeat;
-          const progress = 1 - (beatsUntilHit / LOOKAHEAD_BEATS);
-          const x = Math.max(-8, Math.min(93, progress * 86));
-          const durationWidth = Math.max(78, Math.min(250, event.beats * 92));
+          const progress = 1 - beatsUntilHit / LOOKAHEAD_BEATS;
+
+          // Notes enter on the RIGHT and travel LEFT toward the hit line.
+          // progress: 0 = far future, 1 = at hit time.
+          const x = Math.max(8, Math.min(94, 92 - progress * 80));
+
+          const lane = laneForNoteId(event.note);
+          const laneTop = lane === 1 ? 17 : lane === 2 ? 50 : 83;
+
           const judgement = judgements[event.index];
 
           return (
             <div
               key={event.index}
-              className={`fallingNote ${judgement ? `judged ${judgement}` : ""}`}
+              className={`fallingNote lane${lane} ${judgement ? `judged ${judgement}` : ""}`}
               style={{
                 left: `${x}%`,
-                minWidth: `${durationWidth}px`,
+                top: `${laneTop}%`,
               }}
             >
-              <strong>{note.label}</strong>
-              <RecorderPattern note={note} compact />
+              <div className="noteHead">
+                <strong>{note.label}</strong>
+                <RecorderPattern note={note} compact />
+              </div>
+
+              {event.beats > 1 && (
+                <span
+                  className="sustainTail"
+                  style={{
+                    width: `${Math.max(38, Math.min(180, (event.beats - 1) * 78))}px`,
+                  }}
+                  aria-hidden="true"
+                />
+              )}
+
               <span className="fallingDuration">{eventLengthLabel(event)}</span>
             </div>
           );
@@ -436,28 +522,42 @@ export function BeatGame({
             {finished ? (
               <>
                 <strong>Finished</strong>
-                <span>Score {score} · Best saved score {Math.max(bestScore, score)}</span>
-                <button className="primary" onClick={startGame}>Play again</button>
+                <span>
+                  Score {score} · Best saved score {Math.max(bestScore, score)}
+                </span>
+                <button className="primary" onClick={startGame}>
+                  Play again
+                </button>
               </>
             ) : (
               <>
                 <strong>Ready?</strong>
                 <span>Two-beat count-in, then the notes start falling.</span>
-                <button className="primary" onClick={startGame}>Start Beat Game</button>
+                <button className="primary" onClick={startGame}>
+                  Start Beat Game
+                </button>
               </>
             )}
           </div>
         )}
       </div>
 
-      <div className={`beatGameFeedback ${feedback === "Perfect!" ? "perfect" : ""}`}>
+      <div
+        className={`beatGameFeedback ${feedback === "Perfect!" ? "perfect" : ""}`}
+      >
         {feedback}
       </div>
 
       <div className="beatGameLegend">
-        <span><b>Perfect</b> ±0.10 beat</span>
-        <span><b>Good</b> ±0.23 beat</span>
-        <span><b>Long notes</b> hold until the tail reaches the line</span>
+        <span>
+          <b>Perfect</b> ±0.10 beat
+        </span>
+        <span>
+          <b>Good</b> ±0.23 beat
+        </span>
+        <span>
+          <b>Long notes</b> hold until the tail reaches the line
+        </span>
       </div>
     </div>
   );
