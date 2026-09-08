@@ -41,6 +41,7 @@ import {
   type SongEvent,
 } from "./music/songTypes";
 import {
+  clearSongRating,
   loadSongRatings,
   saveSongResult,
   SONG_RATINGS_STORAGE_KEY,
@@ -117,6 +118,7 @@ function SongLibrary({
   onStart,
   section,
   ratings,
+  onClearRating,
 }: {
   songs: Song[];
   title: string;
@@ -124,6 +126,7 @@ function SongLibrary({
   onStart: (song: Song) => void;
   section: SongSection;
   ratings: SongRatings;
+  onClearRating: (songId: string) => void;
 }) {
   return (
     <section
@@ -153,34 +156,47 @@ function SongLibrary({
           const rating = ratings[song.id];
 
           return (
-            <button
-              key={song.id}
-              className={`songCard ${song.playable ? "" : "comingSoon"}`}
-              onClick={() => onStart(song)}
-              disabled={!song.playable}
-            >
-              <div className="songCardTop">
-                <strong>{song.title}</strong>
-                <Stars count={song.difficulty} />
-              </div>
+            <div className="songCardShell" key={song.id}>
+              <button
+                className={`songCard ${song.playable ? "" : "comingSoon"}`}
+                onClick={() => onStart(song)}
+                disabled={!song.playable}
+              >
+                <div className="songCardTop">
+                  <strong>{song.title}</strong>
+                  <div className="songCardResult">
+                    <Stars count={song.difficulty} />
+                    {rating ? (
+                      <span
+                        className="songGrade"
+                        title={`${rating.attempts} completed attempt${rating.attempts === 1 ? "" : "s"}`}
+                      >
+                        Best {rating.bestGrade} · {rating.bestPercentage}%
+                      </span>
+                    ) : (
+                      <span className="songGrade unrated">Not rated</span>
+                    )}
+                  </div>
+                </div>
 
-              <p>{song.description}</p>
-              <div className="songCardFooter">
+                <p>{song.description}</p>
                 <span className="songStatus">
                   {song.playable ? "Practise →" : "Add melody tab"}
                 </span>
-                {rating ? (
-                  <span
-                    className="songGrade"
-                    title={`${rating.attempts} completed attempt${rating.attempts === 1 ? "" : "s"}`}
-                  >
-                    {rating.bestGrade} · {rating.bestPercentage}%
-                  </span>
-                ) : (
-                  <span className="songGrade unrated">Not rated</span>
-                )}
-              </div>
-            </button>
+              </button>
+
+              {rating && (
+                <button
+                  type="button"
+                  className="clearSongRating"
+                  aria-label={`Clear saved rating for ${song.title}`}
+                  title="Clear saved rating"
+                  onClick={() => onClearRating(song.id)}
+                >
+                  <span aria-hidden="true">🗑</span>
+                </button>
+              )}
+            </div>
           );
         })}
       </div>
@@ -268,6 +284,10 @@ function App() {
     },
     [selectedSong],
   );
+
+  const clearSavedSongRating = (songId: string) => {
+    setSongRatings(clearSongRating(songId));
+  };
 
   const activeSongEvents: SongEvent[] = selectedSong
     ? selectedSongSection === "zelda"
@@ -1315,6 +1335,7 @@ function App() {
               onStart={(song) => startSong(song, "level0")}
               section="level0"
               ratings={songRatings}
+              onClearRating={clearSavedSongRating}
             />
           ))}
 
@@ -1329,6 +1350,7 @@ function App() {
               onStart={(song) => startSong(song, "level1")}
               section="level1"
               ratings={songRatings}
+              onClearRating={clearSavedSongRating}
             />
           ))}
 
@@ -1343,6 +1365,7 @@ function App() {
               onStart={(song) => startSong(song, "songs")}
               section="songs"
               ratings={songRatings}
+              onClearRating={clearSavedSongRating}
             />
           ))}
 
@@ -1357,6 +1380,7 @@ function App() {
               onStart={(song) => startSong(song, "shanties")}
               section="shanties"
               ratings={songRatings}
+              onClearRating={clearSavedSongRating}
             />
           ))}
 
@@ -1372,6 +1396,7 @@ function App() {
                 onStart={(song) => startSong(song, "zelda")}
                 section="zelda"
                 ratings={songRatings}
+                onClearRating={clearSavedSongRating}
               />
 
               <section className="panel noticeCard zeldaPanel">
@@ -1396,6 +1421,7 @@ function App() {
                 onStart={(song) => startSong(song, "lotr")}
                 section="lotr"
                 ratings={songRatings}
+                onClearRating={clearSavedSongRating}
               />
 
               <section className="panel noticeCard lotrPanel">

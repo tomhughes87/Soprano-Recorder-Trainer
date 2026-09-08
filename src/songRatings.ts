@@ -68,4 +68,17 @@ export function saveSongResult(
   return next;
 }
 
+export function clearSongRating(songId: string): SongRatings {
+  const next = { ...loadSongRatings() };
+  delete next[songId];
+
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  } catch {
+    // The in-memory result can still be cleared if storage is unavailable.
+  }
+
+  return next;
+}
+
 export const SONG_RATINGS_STORAGE_KEY = STORAGE_KEY;
