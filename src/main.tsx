@@ -1459,6 +1459,41 @@ function App() {
 
         {tab === "calibration" && (
           <>
+            <section className="panel playerSettingsPanel">
+              <div className="settingsHeading">
+                <div>
+                  <div className="eyebrow">Scoreboard profile</div>
+                  <h2>Player name</h2>
+                  <p className="sub">
+                    This name appears beside your best server scores.
+                  </p>
+                </div>
+                <span className="status">{leaderboardStatus}</span>
+              </div>
+
+              <div className="playerNameControls">
+                <label>
+                  Display name
+                  <input
+                    value={playerNameDraft}
+                    maxLength={30}
+                    placeholder="e.g. Thomas"
+                    onChange={(event) => setPlayerNameDraft(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") savePlayerProfile();
+                    }}
+                  />
+                </label>
+                <button className="primary" onClick={savePlayerProfile}>
+                  Save player name
+                </button>
+              </div>
+              <p className="sub small playerNameHelp">
+                No account or password is used. This is intended for a trusted
+                private friends-and-family server.
+              </p>
+            </section>
+
             <section className="panel midiSettingsPanel">
               <div className="settingsHeading">
                 <div>
@@ -1538,6 +1573,8 @@ function App() {
               section="level0"
               ratings={songRatings}
               onClearRating={clearSavedSongRating}
+              leaderboards={leaderboards}
+              playerName={playerName}
             />
           ))}
 
@@ -1553,6 +1590,8 @@ function App() {
               section="level1"
               ratings={songRatings}
               onClearRating={clearSavedSongRating}
+              leaderboards={leaderboards}
+              playerName={playerName}
             />
           ))}
 
@@ -1568,6 +1607,8 @@ function App() {
               section="songs"
               ratings={songRatings}
               onClearRating={clearSavedSongRating}
+              leaderboards={leaderboards}
+              playerName={playerName}
             />
           ))}
 
@@ -1583,6 +1624,8 @@ function App() {
               section="shanties"
               ratings={songRatings}
               onClearRating={clearSavedSongRating}
+              leaderboards={leaderboards}
+              playerName={playerName}
             />
           ))}
 
@@ -1599,6 +1642,8 @@ function App() {
                 section="zelda"
                 ratings={songRatings}
                 onClearRating={clearSavedSongRating}
+                leaderboards={leaderboards}
+                playerName={playerName}
               />
 
               <section className="panel noticeCard zeldaPanel">
@@ -1624,6 +1669,8 @@ function App() {
                 section="lotr"
                 ratings={songRatings}
                 onClearRating={clearSavedSongRating}
+                leaderboards={leaderboards}
+                playerName={playerName}
               />
 
               <section className="panel noticeCard lotrPanel">
