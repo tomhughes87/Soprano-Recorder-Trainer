@@ -18,6 +18,8 @@ import {
   type MidiMap,
 } from "./training";
 import { ENGLISH_FOLK_SONGS } from "./music/english-folk";
+import { LEVEL_1_SONGS } from "./music/level-1";
+import { SEA_SHANTIES } from "./music/sea-shanties";
 import { ZELDA_SONGS } from "./music/zelda";
 import { LOTR_SONGS } from "./music/lord-of-the-rings";
 import {
@@ -28,8 +30,16 @@ import {
   type SongEvent,
 } from "./music/songTypes";
 
-type Tab = "tester" | "training" | "calibration" | "songs" | "zelda" | "lotr";
-type SongSection = "songs" | "zelda" | "lotr";
+type Tab =
+  | "tester"
+  | "training"
+  | "calibration"
+  | "level1"
+  | "songs"
+  | "shanties"
+  | "zelda"
+  | "lotr";
+type SongSection = "level1" | "songs" | "shanties" | "zelda" | "lotr";
 
 const STORAGE_KEY = "carryon-recorder-midi-map-v1";
 const RESET_NOTE_ID = "Cs5";
@@ -94,6 +104,10 @@ function SongLibrary({
       className={`panel songLibrary ${
         section === "songs"
           ? "folkPanel"
+          : section === "level1"
+            ? "levelOnePanel"
+            : section === "shanties"
+              ? "shantyPanel"
           : section === "zelda"
             ? "zeldaPanel"
             : "lotrPanel"
@@ -189,7 +203,11 @@ function App() {
       ? ZELDA_SONGS
       : selectedSongSection === "lotr"
         ? (LOTR_SONGS as Song[])
-        : (ENGLISH_FOLK_SONGS as Song[]);
+        : selectedSongSection === "shanties"
+          ? SEA_SHANTIES
+          : selectedSongSection === "level1"
+            ? LEVEL_1_SONGS
+            : (ENGLISH_FOLK_SONGS as Song[]);
 
   const selectedSong =
     songCollection.find((song) => song.id === selectedSongId) ?? null;
@@ -219,13 +237,17 @@ function App() {
     : DEFAULT_RESET_BLOWS;
 
   const pageTheme =
-    tab === "songs"
+    tab === "level1"
+      ? "themeLevel1"
+      : tab === "songs"
       ? "themeFolk"
-      : tab === "zelda"
-        ? "themeZelda"
-        : tab === "lotr"
-          ? "themeLotr"
-          : "themeCharcoal";
+      : tab === "shanties"
+        ? "themeShanty"
+        : tab === "zelda"
+          ? "themeZelda"
+          : tab === "lotr"
+            ? "themeLotr"
+            : "themeCharcoal";
 
   const updateMapping = (noteId: string, midi: number) => {
     setMidiMap((previous) => {
@@ -433,7 +455,11 @@ function App() {
         }
 
         const inSongSection =
-          tab === "songs" || tab === "zelda" || tab === "lotr";
+          tab === "level1" ||
+          tab === "songs" ||
+          tab === "shanties" ||
+          tab === "zelda" ||
+          tab === "lotr";
 
         if (
           inSongSection &&
@@ -559,9 +585,13 @@ function App() {
         className={`panel songPlayer ${focusMode ? "focusMode" : ""} ${
           selectedSongSection === "songs"
             ? "folkPanel"
-            : selectedSongSection === "zelda"
-              ? "zeldaPanel"
-              : "lotrPanel"
+            : selectedSongSection === "level1"
+              ? "levelOnePanel"
+            : selectedSongSection === "shanties"
+              ? "shantyPanel"
+              : selectedSongSection === "zelda"
+                ? "zeldaPanel"
+                : "lotrPanel"
         }`}
       >
         {songMode === "beat" ? (
@@ -1053,6 +1083,16 @@ function App() {
             </button>
 
             <button
+              className={tab === "level1" ? "tab active" : "tab"}
+              onClick={() => {
+                setTab("level1");
+                leaveSong();
+              }}
+            >
+              Level 1
+            </button>
+
+            <button
               className={tab === "songs" ? "tab active" : "tab"}
               onClick={() => {
                 setTab("songs");
@@ -1060,6 +1100,16 @@ function App() {
               }}
             >
               English folk songs
+            </button>
+
+            <button
+              className={tab === "shanties" ? "tab active" : "tab"}
+              onClick={() => {
+                setTab("shanties");
+                leaveSong();
+              }}
+            >
+              Sea shanties
             </button>
 
             <button
@@ -1169,6 +1219,19 @@ function App() {
           />
         )}
 
+        {tab === "level1" &&
+          (selectedSongSection === "level1" && selectedSong ? (
+            renderSongPlayer()
+          ) : (
+            <SongLibrary
+              songs={LEVEL_1_SONGS}
+              title="Level 1 — B, A and G"
+              subtitle="First recorder tunes and clearly labelled three-note adaptations, all playable with B, A and G."
+              onStart={(song) => startSong(song, "level1")}
+              section="level1"
+            />
+          ))}
+
         {tab === "songs" &&
           (selectedSongSection === "songs" && selectedSong ? (
             renderSongPlayer()
@@ -1179,6 +1242,19 @@ function App() {
               subtitle="Traditional tunes for soprano recorder. Your saved MIDI calibration is applied automatically."
               onStart={(song) => startSong(song, "songs")}
               section="songs"
+            />
+          ))}
+
+        {tab === "shanties" &&
+          (selectedSongSection === "shanties" && selectedSong ? (
+            renderSongPlayer()
+          ) : (
+            <SongLibrary
+              songs={SEA_SHANTIES}
+              title="Sea shanties"
+              subtitle="Traditional English-language maritime work songs arranged for soprano recorder."
+              onStart={(song) => startSong(song, "shanties")}
+              section="shanties"
             />
           ))}
 

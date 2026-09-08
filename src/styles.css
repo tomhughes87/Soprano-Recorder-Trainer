@@ -711,6 +711,46 @@ code {
   margin-top: 6px;
 }
 
+/* Level 1: calm classroom blue + warm exercise-book yellow */
+.themeLevel1 {
+  --bg: #101b25;
+  --panel: #172938;
+  --panel-soft: #20384a;
+  --text: #f4f1e8;
+  --muted: #b8c7d0;
+  --border: #36556b;
+  --accent: #f0c866;
+  --accent-strong: #ffe299;
+  --button: #25445a;
+  --button-hover: #315a73;
+  --hole-stage: #e4dfcf;
+  --hole-open: #fffaf0;
+  --hole-stroke: #183246;
+  --hole-closed: #183246;
+}
+
+.themeLevel1 .songLibrary,
+.themeLevel1 .songPlayer,
+.themeLevel1 .noticeCard {
+  border-color: #466c84;
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.035), rgba(0,0,0,.06)),
+    var(--panel);
+}
+
+.themeLevel1 .songLibrary h2,
+.themeLevel1 .songPlayer h2 {
+  color: var(--accent-strong);
+}
+
+.themeLevel1 .songCard {
+  border-color: #3d6179;
+}
+
+.themeLevel1 .songCard:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
 /* English folk: dark brown, old printed/timing-card feel */
 .themeFolk {
   --bg: #201914;
@@ -746,6 +786,48 @@ code {
 
 .themeFolk .songCard {
   box-shadow: inset 0 0 0 1px rgba(223,194,139,.035);
+}
+
+/* Sea shanties: deep ocean blue + weathered rope gold */
+.themeShanty {
+  --bg: #071820;
+  --panel: #0d2a35;
+  --panel-soft: #123946;
+  --text: #e8f0ec;
+  --muted: #a7bbb9;
+  --border: #28505b;
+  --accent: #d4b875;
+  --accent-strong: #ead69e;
+  --button: #153e4b;
+  --button-hover: #1d5260;
+  --hole-stage: #d9d8cb;
+  --hole-open: #faf7eb;
+  --hole-stroke: #102d36;
+  --hole-closed: #102d36;
+}
+
+.themeShanty .songLibrary,
+.themeShanty .songPlayer,
+.themeShanty .noticeCard {
+  border-color: #396572;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.025), rgba(0,0,0,.08)),
+    var(--panel);
+}
+
+.themeShanty .songLibrary h2,
+.themeShanty .songPlayer h2 {
+  color: var(--accent-strong);
+  font-family: Georgia, "Times New Roman", serif;
+  letter-spacing: .025em;
+}
+
+.themeShanty .songCard {
+  border-color: #315d69;
+}
+
+.themeShanty .songCard:hover:not(:disabled) {
+  border-color: var(--accent);
 }
 
 /* Zelda: dark forest green + antique gold */
