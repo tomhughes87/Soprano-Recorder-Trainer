@@ -683,6 +683,11 @@ function App() {
     setRhythmGameResetKey((value) => value + 1);
   };
 
+  const openSettings = () => {
+    setTab("calibration");
+    leaveSong();
+  };
+
   const resetCurrentSong = () => {
     setSongStep(0);
     setSongMistakes(0);
@@ -1340,8 +1345,47 @@ function App() {
     >
       <main className="page">
         <section className="panel appHeader">
-          <div className="eyebrow">Carry-on Digital Wind Instrument</div>
-          <h1>Soprano recorder trainer</h1>
+          <div className="appHeaderTop">
+            <div>
+              <div className="eyebrow">Carry-on Digital Wind Instrument</div>
+              <h1>Soprano recorder trainer</h1>
+            </div>
+
+            <div className="headerUtilities" aria-label="Player and device">
+              <button
+                type="button"
+                className={`headerUtility ${playerName ? "" : "warning"}`}
+                onClick={openSettings}
+              >
+                <span>Player</span>
+                <strong>{playerName || "Add name"}</strong>
+              </button>
+
+              <button
+                type="button"
+                className={`headerUtility ${selectedInput ? "connected" : "warning"}`}
+                onClick={openSettings}
+                title={
+                  selectedInput
+                    ? `Connected to ${selectedInput.name ?? "MIDI device"}`
+                    : "Open Settings to connect MIDI"
+                }
+              >
+                <span>MIDI</span>
+                <strong>
+                  {selectedInput?.name ?? "⚠ No device connected"}
+                </strong>
+              </button>
+
+              <button
+                type="button"
+                className={`headerSettingsButton ${tab === "calibration" ? "active" : ""}`}
+                onClick={openSettings}
+              >
+                <span aria-hidden="true">⚙</span> Settings
+              </button>
+            </div>
+          </div>
 
           <div className="tabs" role="tablist">
             <button
@@ -1362,16 +1406,6 @@ function App() {
               }}
             >
               Training
-            </button>
-
-            <button
-              className={tab === "calibration" ? "tab active" : "tab"}
-              onClick={() => {
-                setTab("calibration");
-                leaveSong();
-              }}
-            >
-              Settings
             </button>
 
             <button

@@ -82,6 +82,112 @@ button {
   margin-bottom: 0;
 }
 
+.appHeaderTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 18px;
+}
+
+.appHeaderTop h1 {
+  margin-bottom: 0;
+}
+
+.headerUtilities {
+  display: flex;
+  justify-content: flex-end;
+  align-items: stretch;
+  gap: 7px;
+  flex-wrap: wrap;
+  max-width: 510px;
+}
+
+.headerUtility,
+.headerSettingsButton {
+  min-height: 52px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: rgba(0,0,0,.1);
+  color: var(--text);
+}
+
+.headerUtility {
+  display: grid;
+  min-width: 145px;
+  max-width: 210px;
+  padding: 8px 11px;
+  gap: 2px;
+  text-align: left;
+}
+
+.headerUtility > span {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.headerUtility > strong {
+  overflow: hidden;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.headerUtility.connected {
+  border-color: color-mix(in srgb, var(--success) 58%, var(--border));
+}
+
+.headerUtility.connected > strong {
+  color: var(--success);
+}
+
+.headerUtility.warning {
+  border-color: color-mix(in srgb, var(--danger) 58%, var(--border));
+}
+
+.headerUtility.warning > strong {
+  color: var(--danger);
+}
+
+.headerUtility:hover,
+.headerSettingsButton:hover,
+.headerSettingsButton.active {
+  border-color: var(--accent);
+  background: var(--button);
+}
+
+.headerSettingsButton {
+  padding: 9px 12px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+@media (max-width: 860px) {
+  .appHeaderTop {
+    flex-direction: column;
+  }
+
+  .headerUtilities {
+    justify-content: flex-start;
+    width: 100%;
+    max-width: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .headerUtility {
+    flex: 1 1 140px;
+    max-width: none;
+  }
+
+  .headerSettingsButton {
+    flex: 1 1 100%;
+  }
+}
+
 .eyebrow {
   font-size: 12px;
   font-weight: 850;
