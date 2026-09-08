@@ -291,7 +291,6 @@ function App() {
   const resetBlowCountRef = useRef(0);
   const metronomeTimerRef = useRef<number | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
-  const midiAccessRef = useRef<MIDIAccess | null>(null);
   const autoConnectAttemptedRef = useRef(false);
 
   const selectedInput = useMemo(
@@ -423,7 +422,6 @@ function App() {
 
     try {
       const access = await navigator.requestMIDIAccess({ sysex: false });
-      midiAccessRef.current = access;
       const list = refreshInputs(access);
       access.onstatechange = () => {
         const refreshed = refreshInputs(access);
