@@ -1,6 +1,20 @@
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { RecorderPattern, noteColourStyle, type TrainingNote } from "./training";
-import { eventLengthLabel, mergeTiedEvents, type SongEvent } from "./music/songTypes";
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import {
+  RecorderPattern,
+  noteColourStyle,
+  type TrainingNote,
+} from "./training";
+import {
+  eventLengthLabel,
+  mergeTiedEvents,
+  type SongEvent,
+} from "./music/songTypes";
 import { SongTransport } from "./audio/songTransport";
 import type { GuideLevel } from "./audio/recorderSynth";
 
@@ -11,7 +25,7 @@ export type BeatMidiSignal = {
   at: number;
 };
 
-type Judgement = "perfect" | "good" | "okay" | "miss";
+type Judgement = "perfect" | "good" | "okay" | "too-short" | "miss";
 
 type Props = {
   events: SongEvent[];
@@ -51,43 +65,45 @@ const NOTE_HEIGHT_ORDER = [
 // - naturals get the main spacing
 // - accidentals sit between them
 // - this still allows some overlap, but reads less like a compressed spreadsheet
-const NOTE_GRID_POSITIONS: Record<(typeof NOTE_HEIGHT_ORDER)[number], number> = {
-  D5: 36,
-  Cs5: 64,
-  C5: 92,
-  B4: 148,
-  Bb4: 176,
-  A4: 204,
-  Gs4: 232,
-  G4: 260,
-  Fs4: 288,
-  F4: 316,
-  E4: 372,
-  Ds4: 400,
-  D4: 428,
-  Cs4: 456,
-  C4: 484,
-};
+const NOTE_GRID_POSITIONS: Record<(typeof NOTE_HEIGHT_ORDER)[number], number> =
+  {
+    D5: 36,
+    Cs5: 64,
+    C5: 92,
+    B4: 148,
+    Bb4: 176,
+    A4: 204,
+    Gs4: 232,
+    G4: 260,
+    Fs4: 288,
+    F4: 316,
+    E4: 372,
+    Ds4: 400,
+    D4: 428,
+    Cs4: 456,
+    C4: 484,
+  };
 
 function pitchRowIndexForNoteId(noteId: string) {
-  const index = NOTE_HEIGHT_ORDER.indexOf(noteId as (typeof NOTE_HEIGHT_ORDER)[number]);
+  const index = NOTE_HEIGHT_ORDER.indexOf(
+    noteId as (typeof NOTE_HEIGHT_ORDER)[number],
+  );
   return index >= 0 ? index : NOTE_HEIGHT_ORDER.length - 1;
 }
 
 function verticalPositionForNoteId(noteId: string) {
-  const key =
-    (NOTE_HEIGHT_ORDER.includes(noteId as (typeof NOTE_HEIGHT_ORDER)[number])
+  const key = (
+    NOTE_HEIGHT_ORDER.includes(noteId as (typeof NOTE_HEIGHT_ORDER)[number])
       ? noteId
-      : "C4") as (typeof NOTE_HEIGHT_ORDER)[number];
+      : "C4"
+  ) as (typeof NOTE_HEIGHT_ORDER)[number];
 
   return NOTE_GRID_POSITIONS[key];
 }
 
-
 function primaryGameLabel(label: string) {
   return label.split("/")[0].trim();
 }
-
 
 function loadBest() {
   try {
@@ -128,7 +144,9 @@ export function BeatGame({
   const [feedback, setFeedback] = useState("Press Start when you're ready");
   const [judgements, setJudgements] = useState<Record<number, Judgement>>({});
   const [bestScore, setBestScore] = useState(loadBest);
-  const [holdStarts, setHoldStarts] = useState<Record<number, { at: number; eventIndex: number }>>({});
+  const [holdStarts, setHoldStarts] = useState<
+    Record<number, { at: number; eventIndex: number }>
+  >({});
 
   const startAtRef = useRef(0);
   const frameRef = useRef<number | null>(null);
@@ -154,13 +172,13 @@ export function BeatGame({
     });
   }, [events]);
 
-  const totalBeats = timeline.length ? timeline[timeline.length - 1].endBeat : 0;
+  const totalBeats = timeline.length
+    ? timeline[timeline.length - 1].endBeat
+    : 0;
   const currentBeat =
-    running && transportRef.current
-      ? transportRef.current.currentBeat()
-      : 0;
+    running && transportRef.current ? transportRef.current.currentBeat() : 0;
 
-  const noteById = (id: string) => notes.find(note => note.id === id);
+  const noteById = (id: string) => notes.find((note) => note.id === id);
 
   const getTransport = () => {
     if (!transportRef.current) transportRef.current = new SongTransport();
@@ -262,7 +280,7 @@ export function BeatGame({
     if (!running || finished) return;
 
     // Automatically mark overdue notes as misses.
-    setJudgements(previous => {
+    setJudgements((previous) => {
       let changed = false;
       const next = { ...previous };
 
@@ -286,7 +304,7 @@ export function BeatGame({
       setFinished(true);
       setFeedback("Song complete");
 
-      setBestScore(previous => {
+      setBestScore((previous) => {
         const next = Math.max(previous, score);
         if (next !== previous) saveBest(next);
         return next;
@@ -301,12 +319,12 @@ export function BeatGame({
 
     if (midiSignal.kind === "on") {
       const candidates = timeline
-        .filter(event => !judgements[event.index])
-        .map(event => ({
+        .filter((event) => !judgements[event.index])
+        .map((event) => ({
           event,
           distance: Math.abs(signalBeat - event.startBeat),
         }))
-        .filter(candidate => candidate.distance <= HIT_WINDOW_BEATS)
+        .filter((candidate) => candidate.distance <= HIT_WINDOW_BEATS)
         .sort((a, b) => a.distance - b.distance);
 
       const candidate = candidates[0];
@@ -320,43 +338,43 @@ export function BeatGame({
       const expected = noteById(candidate.event.note);
 
       if (!expected || expected.midi !== midiSignal.midi) {
-        setFeedback(`Wrong pitch · aim for ${expected?.label ?? candidate.event.note}`);
+        setFeedback(
+          `Wrong pitch · aim for ${expected?.label ?? candidate.event.note}`,
+        );
         setCombo(0);
         return;
       }
 
       const distance = candidate.distance;
       const judgement: Judgement =
-        distance <= 0.10 ? "perfect" :
-        distance <= 0.23 ? "good" :
-        "okay";
+        distance <= 0.1 ? "perfect" : distance <= 0.23 ? "good" : "okay";
 
       const points =
-        judgement === "perfect" ? 100 :
-        judgement === "good" ? 70 :
-        40;
+        judgement === "perfect" ? 100 : judgement === "good" ? 70 : 40;
 
-      setJudgements(previous => ({
+      setJudgements((previous) => ({
         ...previous,
         [candidate.event.index]: judgement,
       }));
 
-      setScore(value => value + points);
-      setCombo(value => {
+      setScore((value) => value + points);
+      setCombo((value) => {
         const next = value + 1;
-        setBestCombo(best => Math.max(best, next));
+        setBestCombo((best) => Math.max(best, next));
         return next;
       });
 
       setFeedback(
-        judgement === "perfect" ? "Perfect!" :
-        judgement === "good" ? "Good" :
-        "Okay"
+        judgement === "perfect"
+          ? "Perfect!"
+          : judgement === "good"
+            ? "Good"
+            : "Okay",
       );
 
       // Track long notes so releasing close to the intended duration can earn a bonus.
       if (candidate.event.beats > 1) {
-        setHoldStarts(previous => ({
+        setHoldStarts((previous) => ({
           ...previous,
           [midiSignal.midi]: {
             at: midiSignal.at,
@@ -376,13 +394,20 @@ export function BeatGame({
       const ratio = heldMs / expectedMs;
 
       if (ratio >= 0.72) {
-        setScore(value => value + 30);
+        setScore((value) => value + 30);
         setFeedback("Hold ✓");
       } else {
-        setFeedback("Released early");
+        setJudgements((previous) => ({
+          ...previous,
+          [hold.eventIndex]: "too-short",
+        }));
+        setCombo(0);
+        setFeedback(
+          `Too short · ${noteById(event.note)?.label ?? event.note}`,
+        );
       }
 
-      setHoldStarts(previous => {
+      setHoldStarts((previous) => {
         const next = { ...previous };
         delete next[midiSignal.midi];
         return next;
@@ -390,7 +415,7 @@ export function BeatGame({
     }
   }, [midiSignal?.nonce]);
 
-  const visibleEvents = timeline.filter(event => {
+  const visibleEvents = timeline.filter((event) => {
     const untilStart = event.startBeat - currentBeat;
     const untilEnd = event.endBeat - currentBeat;
 
@@ -399,8 +424,11 @@ export function BeatGame({
   });
 
   const judgedCount = Object.keys(judgements).length;
-  const hitCount = Object.values(judgements).filter(value => value !== "miss").length;
-  const accuracy = judgedCount === 0 ? 0 : Math.round((hitCount / judgedCount) * 100);
+  const hitCount = Object.values(judgements).filter(
+    (value) => value !== "miss" && value !== "too-short",
+  ).length;
+  const accuracy =
+    judgedCount === 0 ? 0 : Math.round((hitCount / judgedCount) * 100);
 
   // One geometry system for every screen size and tempo.
   // Beat length is derived from the measured usable lane width.
@@ -414,22 +442,33 @@ export function BeatGame({
   const lastGridBeat = Math.ceil(currentBeat + LOOKAHEAD_BEATS);
   const beatGrid = Array.from(
     { length: Math.max(0, lastGridBeat - firstGridBeat + 1) },
-    (_, offset) => firstGridBeat + offset
+    (_, offset) => firstGridBeat + offset,
   );
 
   return (
     <div className="beatGame">
       <div className="beatHud">
-        <div className="beatHudStat"><span>Score</span><strong>{score}</strong></div>
-        <div className="beatHudStat"><span>Combo</span><strong>{combo}×</strong></div>
-        <div className="beatHudStat"><span>Accuracy</span><strong>{accuracy}%</strong></div>
+        <div className="beatHudStat">
+          <span>Score</span>
+          <strong>{score}</strong>
+        </div>
+        <div className="beatHudStat">
+          <span>Combo</span>
+          <strong>{combo}×</strong>
+        </div>
+        <div className="beatHudStat">
+          <span>Accuracy</span>
+          <strong>{accuracy}%</strong>
+        </div>
 
         <label className="beatGuideSelect">
           <span>Guide</span>
           <select
             value={guideLevel}
             disabled={running}
-            onChange={event => onGuideLevelChange(event.target.value as GuideLevel)}
+            onChange={(event) =>
+              onGuideLevelChange(event.target.value as GuideLevel)
+            }
           >
             <option value="off">Off</option>
             <option value="soft">Soft</option>
@@ -438,15 +477,31 @@ export function BeatGame({
         </label>
 
         <div className="beatGameSpeed">
-          <button className="secondary" disabled={running} onClick={() => onBpmChange(Math.max(40, bpm - 5))}>−</button>
+          <button
+            className="secondary"
+            disabled={running}
+            onClick={() => onBpmChange(Math.max(40, bpm - 5))}
+          >
+            −
+          </button>
           <strong>{bpm} BPM</strong>
-          <button className="secondary" disabled={running} onClick={() => onBpmChange(Math.min(200, bpm + 5))}>+</button>
+          <button
+            className="secondary"
+            disabled={running}
+            onClick={() => onBpmChange(Math.min(200, bpm + 5))}
+          >
+            +
+          </button>
         </div>
       </div>
 
-      <div ref={laneRef} className="beatLane" aria-label="Beat game note highway">
+      <div
+        ref={laneRef}
+        className="beatLane"
+        aria-label="Beat game note highway"
+      >
         <div className="pitchScale" aria-hidden="true">
-          {NOTE_HEIGHT_ORDER.map(noteId => (
+          {NOTE_HEIGHT_ORDER.map((noteId) => (
             <div
               key={noteId}
               className="pitchScaleMark"
@@ -458,7 +513,7 @@ export function BeatGame({
         </div>
 
         <div className="timeGrid" aria-hidden="true">
-          {beatGrid.map(beat => {
+          {beatGrid.map((beat) => {
             const x = hitLineX + (beat - currentBeat) * pxPerBeat;
             const isBar = beat % 4 === 0;
 
@@ -474,7 +529,7 @@ export function BeatGame({
           })}
         </div>
 
-        {visibleEvents.map(event => {
+        {visibleEvents.map((event) => {
           const note = noteById(event.note);
           if (!note) return null;
 
@@ -519,28 +574,42 @@ export function BeatGame({
             {finished ? (
               <>
                 <strong>Finished</strong>
-                <span>Score {score} · Best saved score {Math.max(bestScore, score)}</span>
-                <button className="primary" onClick={startGame}>Play again</button>
+                <span>
+                  Score {score} · Best saved score {Math.max(bestScore, score)}
+                </span>
+                <button className="primary" onClick={startGame}>
+                  Play again
+                </button>
               </>
             ) : (
               <>
                 <strong>Ready?</strong>
                 <span>Two-beat count-in, then the notes start falling.</span>
-                <button className="primary" onClick={startGame}>Start Beat Game</button>
+                <button className="primary" onClick={startGame}>
+                  Start Beat Game
+                </button>
               </>
             )}
           </div>
         )}
       </div>
 
-      <div className={`beatGameFeedback ${feedback === "Perfect!" ? "perfect" : ""}`}>
+      <div
+        className={`beatGameFeedback ${feedback === "Perfect!" ? "perfect" : ""}`}
+      >
         {feedback}
       </div>
 
       <div className="beatGameLegend">
-        <span><b>Perfect</b> ±0.10 beat</span>
-        <span><b>Good</b> ±0.23 beat</span>
-        <span><b>Long notes</b> keep holding while the block crosses HIT</span>
+        <span>
+          <b>Perfect</b> ±0.10 beat
+        </span>
+        <span>
+          <b>Good</b> ±0.23 beat
+        </span>
+        <span>
+          <b>Long notes</b> keep holding while the block crosses HIT
+        </span>
       </div>
     </div>
   );

@@ -95,7 +95,9 @@ export function SongDemoControls({
           <span>Guide sound</span>
           <select
             value={guideLevel}
-            onChange={event => onGuideLevelChange(event.target.value as GuideLevel)}
+            onChange={(event) =>
+              onGuideLevelChange(event.target.value as GuideLevel)
+            }
           >
             <option value="off">Off</option>
             <option value="soft">Soft</option>

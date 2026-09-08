@@ -1549,6 +1549,11 @@ code {
   border-color: var(--accent);
 }
 
+.fallingNote.judged.too-short .noteHead {
+  border-color: #ffb347;
+  box-shadow: 0 0 0 2px rgba(255, 179, 71, .35);
+}
+
 .fallingNote.judged.miss .noteHead {
   border-color: var(--danger);
 }
@@ -2339,4 +2344,47 @@ code {
 .hitLine {
   left: auto;
 }
-\n\n/* Musical time grid: every vertical line is exactly one beat.\n   Stronger lines mark the start of each 4/4 bar. */\n.timeGrid {\n  position: absolute;\n  inset: 0;\n  pointer-events: none;\n  z-index: 1;\n}\n\n.timeGridLine {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  width: 1px;\n  background: rgba(255,255,255,.075);\n}\n\n.timeGridLine.barLine {\n  width: 2px;\n  background: rgba(255,255,255,.17);\n}\n\n.timeGridLine > span {\n  position: absolute;\n  top: 8px;\n  left: 5px;\n  color: rgba(255,255,255,.34);\n  font-size: 9px;\n  font-weight: 900;\n  line-height: 1;\n}\n\n.timeGridLine.barLine > span {\n  color: rgba(255,255,255,.56);\n}\n\n.pitchScale {\n  z-index: 0;\n}\n\n.fallingNote {\n  z-index: 3;\n}\n
+
+/* Musical time grid: every vertical line is exactly one beat.
+   Stronger lines mark the start of each 4/4 bar. */
+.timeGrid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.timeGridLine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(255,255,255,.075);
+}
+
+.timeGridLine.barLine {
+  width: 2px;
+  background: rgba(255,255,255,.17);
+}
+
+.timeGridLine > span {
+  position: absolute;
+  top: 8px;
+  left: 5px;
+  color: rgba(255,255,255,.34);
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.timeGridLine.barLine > span {
+  color: rgba(255,255,255,.56);
+}
+
+.pitchScale {
+  z-index: 0;
+}
+
+.fallingNote {
+  z-index: 3;
+}

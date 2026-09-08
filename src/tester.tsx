@@ -23,8 +23,14 @@ export function MidiTester({ lastNote, lastMidi, velocity, messages }: Props) {
         <div className="note">{lastNote}</div>
 
         <div className="meta">
-          <div><span>MIDI</span><strong>{lastMidi ?? "—"}</strong></div>
-          <div><span>Velocity</span><strong>{velocity}</strong></div>
+          <div>
+            <span>MIDI</span>
+            <strong>{lastMidi ?? "—"}</strong>
+          </div>
+          <div>
+            <span>Velocity</span>
+            <strong>{velocity}</strong>
+          </div>
         </div>
       </section>
 
@@ -46,7 +52,11 @@ export function MidiTester({ lastNote, lastMidi, velocity, messages }: Props) {
 
             <tbody>
               {messages.length === 0 ? (
-                <tr><td colSpan={6} className="empty">Play something…</td></tr>
+                <tr>
+                  <td colSpan={6} className="empty">
+                    Play something…
+                  </td>
+                </tr>
               ) : (
                 messages.map((m, idx) => (
                   <tr key={idx}>
@@ -55,7 +65,9 @@ export function MidiTester({ lastNote, lastMidi, velocity, messages }: Props) {
                     <td>{m.channel}</td>
                     <td>{m.data1}</td>
                     <td>{m.data2}</td>
-                    <td><code>{m.raw}</code></td>
+                    <td>
+                      <code>{m.raw}</code>
+                    </td>
                   </tr>
                 ))
               )}
