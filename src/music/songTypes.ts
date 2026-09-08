@@ -23,7 +23,7 @@ export type Song = {
 export const noteEvent = (
   note: string,
   beats = 1,
-  options: Omit<SongEvent, "note" | "beats"> = {},
+  options: Omit<SongEvent, "note" | "beats"> = {}
 ): SongEvent => ({
   note,
   beats,
@@ -31,7 +31,7 @@ export const noteEvent = (
 });
 
 export const notesToEvents = (notes: string[] = []): SongEvent[] =>
-  notes.map((note) => noteEvent(note, 1));
+  notes.map(note => noteEvent(note, 1));
 
 export function eventLengthLabel(event: SongEvent) {
   if (event.beats === 0.25) return "¼ beat";
