@@ -3,6 +3,8 @@ import { createRoot } from "react-dom/client";
 import "./styles.css";
 
 import { CalibrationPanel } from "./calibration";
+import { SongDemoControls } from "./audio/SongDemoControls";
+import type { GuideLevel } from "./audio/recorderSynth";
 import { BeatGame, type BeatMidiSignal } from "./beatGame";
 import { MidiTester, type MidiMessage } from "./tester";
 import {
@@ -41,10 +43,14 @@ function loadMidiMap(): MidiMap {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return { ...DEFAULT_MIDI_MAP };
 
-    const parsed = JSON.parse(raw) as { version?: number; mappings?: MidiMap } | MidiMap;
+    const parsed = JSON.parse(raw) as unknown;
     const mappings: MidiMap =
-      "mappings" in parsed && parsed.mappings
-        ? parsed.mappings
+      typeof parsed === "object" &&
+      parsed !== null &&
+      "mappings" in parsed &&
+      typeof (parsed as { mappings?: unknown }).mappings === "object" &&
+      (parsed as { mappings?: unknown }).mappings !== null
+        ? ((parsed as { mappings: MidiMap }).mappings)
         : (parsed as MidiMap);
 
     return { ...DEFAULT_MIDI_MAP, ...mappings };
@@ -155,6 +161,7 @@ function App() {
   const [focusMode, setFocusMode] = useState(false);
   const [metronomeEnabled, setMetronomeEnabled] = useState(false);
   const [bpm, setBpm] = useState(90);
+  const [guideLevel, setGuideLevel] = useState<GuideLevel>("soft");
   const [songMode, setSongMode] = useState<"practice" | "beat">("practice");
   const [beatMidiSignal, setBeatMidiSignal] = useState<BeatMidiSignal | null>(null);
   const [beatGameResetKey, setBeatGameResetKey] = useState(0);
@@ -691,6 +698,14 @@ function App() {
             </div>
           </div>
 
+          <SongDemoControls
+            events={activeSongEvents}
+            bpm={bpm}
+            guideLevel={guideLevel}
+            metronome={metronomeEnabled}
+            onGuideLevelChange={setGuideLevel}
+          />
+
           {selectedSong.rhythmVerified === false && (
             <div className="rhythmUnverified">
               Timing for this arrangement has not been verified yet, so its notes currently display as equal 1-beat notes.
@@ -833,6 +848,8 @@ function App() {
             midiSignal={beatMidiSignal}
             resetMidi={midiMap[RESET_NOTE_ID] ?? DEFAULT_MIDI_MAP[RESET_NOTE_ID]}
             resetKey={beatGameResetKey}
+            guideLevel={guideLevel}
+            onGuideLevelChange={setGuideLevel}
             onBpmChange={setBpm}
           />
         )}

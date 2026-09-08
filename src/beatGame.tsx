@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { RecorderPattern, noteColourStyle, type TrainingNote } from "./training";
 import { eventLengthLabel, type SongEvent } from "./music/songTypes";
+import { SongTransport } from "./audio/songTransport";
+import type { GuideLevel } from "./audio/recorderSynth";
 
 export type BeatMidiSignal = {
   nonce: number;
@@ -18,6 +20,8 @@ type Props = {
   midiSignal: BeatMidiSignal | null;
   resetMidi: number;
   resetKey: number;
+  guideLevel: GuideLevel;
+  onGuideLevelChange: (level: GuideLevel) => void;
   onBpmChange: (bpm: number) => void;
 };
 
@@ -121,11 +125,13 @@ export function BeatGame({
   midiSignal,
   resetMidi: _resetMidi,
   resetKey,
+  guideLevel,
+  onGuideLevelChange,
   onBpmChange,
 }: Props) {
   const [running, setRunning] = useState(false);
   const [finished, setFinished] = useState(false);
-  const [now, setNow] = useState(0);
+  const [, setClockTick] = useState(0);
   const [score, setScore] = useState(0);
   const [combo, setCombo] = useState(0);
   const [bestCombo, setBestCombo] = useState(0);
@@ -136,8 +142,7 @@ export function BeatGame({
 
   const startAtRef = useRef(0);
   const frameRef = useRef<number | null>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const lastClickBeatRef = useRef(-1);
+  const transportRef = useRef<SongTransport | null>(null);
 
   const beatMs = 60000 / bpm;
 
@@ -156,46 +161,29 @@ export function BeatGame({
   }, [events]);
 
   const totalBeats = timeline.length ? timeline[timeline.length - 1].endBeat : 0;
-  const elapsedMs = running ? Math.max(0, now - startAtRef.current) : 0;
-  const currentBeat = elapsedMs / beatMs;
+  const currentBeat =
+    running && transportRef.current
+      ? transportRef.current.currentBeat()
+      : 0;
 
   const noteById = (id: string) => notes.find(note => note.id === id);
 
-  const playClick = (accent = false) => {
-    const AudioContextCtor = window.AudioContext ?? (window as any).webkitAudioContext;
-    if (!AudioContextCtor) return;
-
-    const context = audioContextRef.current ?? new AudioContextCtor();
-    audioContextRef.current = context;
-
-    if (context.state === "suspended") {
-      void context.resume();
-    }
-
-    const oscillator = context.createOscillator();
-    const gain = context.createGain();
-
-    oscillator.frequency.value = accent ? 1100 : 760;
-    gain.gain.setValueAtTime(accent ? 0.11 : 0.075, context.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.045);
-
-    oscillator.connect(gain);
-    gain.connect(context.destination);
-    oscillator.start();
-    oscillator.stop(context.currentTime + 0.05);
+  const getTransport = () => {
+    if (!transportRef.current) transportRef.current = new SongTransport();
+    return transportRef.current;
   };
 
   const resetGame = () => {
     setRunning(false);
     setFinished(false);
-    setNow(0);
+    setClockTick(0);
     setScore(0);
     setCombo(0);
     setBestCombo(0);
     setFeedback("Press Start when you're ready");
     setJudgements({});
     setHoldStarts({});
-    lastClickBeatRef.current = -1;
+    transportRef.current?.stop();
 
     if (frameRef.current !== null) {
       cancelAnimationFrame(frameRef.current);
@@ -203,7 +191,7 @@ export function BeatGame({
     }
   };
 
-  const startGame = () => {
+  const startGame = async () => {
     setScore(0);
     setCombo(0);
     setBestCombo(0);
@@ -211,13 +199,23 @@ export function BeatGame({
     setHoldStarts({});
     setFinished(false);
     setFeedback("Get ready…");
-    lastClickBeatRef.current = -1;
 
-    // Two-beat lead-in: notes begin after the player hears two clicks.
-    startAtRef.current = performance.now() + beatMs * 2;
-    setNow(performance.now());
-    setRunning(true);
-    playClick(true);
+    try {
+      const transport = getTransport();
+      const info = await transport.start(events, bpm, {
+        guideLevel,
+        metronome: true,
+        leadInBeats: 2,
+      });
+
+      startAtRef.current = info.startPerformanceTime;
+      setClockTick(performance.now());
+      setRunning(true);
+    } catch (error) {
+      console.error(error);
+      setFeedback("Audio could not start");
+      setRunning(false);
+    }
   };
 
   useEffect(() => {
@@ -225,19 +223,14 @@ export function BeatGame({
   }, [resetKey]);
 
   useEffect(() => {
+    return () => transportRef.current?.stop();
+  }, []);
+
+  useEffect(() => {
     if (!running) return;
 
     const tick = (time: number) => {
-      setNow(time);
-
-      const relativeBeat = (time - startAtRef.current) / beatMs;
-      const clickBeat = Math.floor(relativeBeat);
-
-      if (clickBeat >= -2 && clickBeat !== lastClickBeatRef.current) {
-        lastClickBeatRef.current = clickBeat;
-        playClick(clickBeat % 4 === 0);
-      }
-
+      setClockTick(time);
       frameRef.current = requestAnimationFrame(tick);
     };
 
@@ -249,7 +242,7 @@ export function BeatGame({
         frameRef.current = null;
       }
     };
-  }, [running, beatMs]);
+  }, [running]);
 
   useEffect(() => {
     if (!running || finished) return;
@@ -274,6 +267,7 @@ export function BeatGame({
     });
 
     if (currentBeat > totalBeats + 0.65) {
+      transportRef.current?.stop();
       setRunning(false);
       setFinished(true);
       setFeedback("Song complete");
@@ -398,10 +392,23 @@ export function BeatGame({
         <div className="beatHudStat"><span>Combo</span><strong>{combo}×</strong></div>
         <div className="beatHudStat"><span>Accuracy</span><strong>{accuracy}%</strong></div>
 
+        <label className="beatGuideSelect">
+          <span>Guide</span>
+          <select
+            value={guideLevel}
+            disabled={running}
+            onChange={event => onGuideLevelChange(event.target.value as GuideLevel)}
+          >
+            <option value="off">Off</option>
+            <option value="soft">Soft</option>
+            <option value="full">Full</option>
+          </select>
+        </label>
+
         <div className="beatGameSpeed">
-          <button className="secondary" onClick={() => onBpmChange(Math.max(40, bpm - 5))}>−</button>
+          <button className="secondary" disabled={running} onClick={() => onBpmChange(Math.max(40, bpm - 5))}>−</button>
           <strong>{bpm} BPM</strong>
-          <button className="secondary" onClick={() => onBpmChange(Math.min(200, bpm + 5))}>+</button>
+          <button className="secondary" disabled={running} onClick={() => onBpmChange(Math.min(200, bpm + 5))}>+</button>
         </div>
       </div>
 
