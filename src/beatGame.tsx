@@ -18,6 +18,9 @@ type Props = {
   midiSignal: BeatMidiSignal | null;
   resetMidi: number;
   resetKey: number;
+  focusMode: boolean;
+  onFocusModeChange: (value: boolean) => void;
+  onBackToPractice: () => void;
   onBpmChange: (bpm: number) => void;
 };
 
@@ -51,6 +54,9 @@ export function BeatGame({
   midiSignal,
   resetMidi: _resetMidi,
   resetKey,
+  focusMode,
+  onFocusModeChange,
+  onBackToPractice,
   onBpmChange,
 }: Props) {
   const [running, setRunning] = useState(false);
@@ -321,18 +327,65 @@ export function BeatGame({
   const hitCount = Object.values(judgements).filter(value => value !== "miss").length;
   const accuracy = judgedCount === 0 ? 0 : Math.round((hitCount / judgedCount) * 100);
 
+  if (focusMode) {
+    const nextEvent =
+      timeline.find(event => !judgements[event.index] && event.startBeat >= currentBeat - HIT_WINDOW_BEATS) ??
+      timeline.find(event => !judgements[event.index]) ??
+      timeline[0];
+
+    const nextNote = nextEvent ? noteById(nextEvent.note) : null;
+
+    return (
+      <div className="beatGameFocus">
+        <div className="beatGameFocusTop">
+          <button className="focusBackButton" onClick={() => onFocusModeChange(false)}>← Back</button>
+          <button className="focusBackButton secondary" onClick={onBackToPractice}>Practice</button>
+        </div>
+
+        <div className="beatGameFocusCenter">
+          {nextNote ? (
+            <>
+              <div className="beatGameFocusNote">{nextNote.label}</div>
+              <div className="beatGameFocusFingering">
+                <RecorderPattern note={nextNote} large />
+              </div>
+              <div className="beatGameFocusMeta">
+                <span>{eventLengthLabel(nextEvent)}</span>
+                <strong>{combo}× combo</strong>
+              </div>
+            </>
+          ) : (
+            <div className="beatGameFocusNote">Ready</div>
+          )}
+
+          <div className="beatGameFocusFeedback">{feedback}</div>
+
+          {!running && (
+            <button className="primary beatGameFocusStart" onClick={startGame}>
+              {finished ? "Play again" : "Start"}
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="beatGame">
       <div className="beatGameToolbar">
         <div>
           <strong>Beat Game</strong>
-          <span>Hit the note as it reaches the line</span>
+          <span>Hit the note as it reaches the line on the left</span>
         </div>
 
-        <div className="beatGameSpeed">
+        <div className="beatGameToolbarActions">
+          <button className="secondary" onClick={() => onFocusModeChange(true)}>Focus</button>
+
+          <div className="beatGameSpeed">
           <button className="secondary" onClick={() => onBpmChange(Math.max(40, bpm - 5))}>−</button>
           <strong>{bpm} BPM</strong>
           <button className="secondary" onClick={() => onBpmChange(Math.min(200, bpm + 5))}>+</button>
+          </div>
         </div>
       </div>
 
@@ -354,8 +407,8 @@ export function BeatGame({
 
           const beatsUntilHit = event.startBeat - currentBeat;
           const progress = 1 - (beatsUntilHit / LOOKAHEAD_BEATS);
-          const y = Math.max(-8, Math.min(93, progress * 86));
-          const durationHeight = Math.max(38, Math.min(170, event.beats * 54));
+          const x = Math.max(-8, Math.min(93, progress * 86));
+          const durationWidth = Math.max(78, Math.min(250, event.beats * 92));
           const judgement = judgements[event.index];
 
           return (
@@ -363,8 +416,8 @@ export function BeatGame({
               key={event.index}
               className={`fallingNote ${judgement ? `judged ${judgement}` : ""}`}
               style={{
-                top: `${y}%`,
-                minHeight: `${durationHeight}px`,
+                left: `${x}%`,
+                minWidth: `${durationWidth}px`,
               }}
             >
               <strong>{note.label}</strong>

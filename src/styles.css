@@ -1437,14 +1437,14 @@ code {
 
 .beatLane {
   position: relative;
-  height: 540px;
+  height: 360px;
   overflow: hidden;
   border: 1px solid var(--border);
   border-radius: 16px;
   background:
     linear-gradient(180deg, rgba(255,255,255,.025), rgba(0,0,0,.18)),
     repeating-linear-gradient(
-      90deg,
+      0deg,
       transparent 0,
       transparent calc(25% - 1px),
       rgba(255,255,255,.035) calc(25% - 1px),
@@ -1455,22 +1455,22 @@ code {
 
 .beatLaneGuide {
   position: absolute;
-  left: 0;
-  right: 0;
-  height: 1px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
   background: rgba(255,255,255,.055);
 }
 
-.beatLaneGuide1 { top: 25%; }
-.beatLaneGuide2 { top: 50%; }
-.beatLaneGuide3 { top: 75%; }
+.beatLaneGuide1 { left: 25%; }
+.beatLaneGuide2 { left: 50%; }
+.beatLaneGuide3 { left: 75%; }
 
 .hitLine {
   position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 14%;
-  height: 4px;
+  top: 0;
+  bottom: 0;
+  left: 12%;
+  width: 4px;
   background: var(--accent);
   box-shadow: 0 0 18px rgba(255,255,255,.12);
   z-index: 4;
@@ -1478,8 +1478,8 @@ code {
 
 .hitLine span {
   position: absolute;
-  right: 12px;
-  top: -24px;
+  left: 10px;
+  top: 10px;
   color: var(--accent);
   font-size: 11px;
   font-weight: 950;
@@ -1488,10 +1488,10 @@ code {
 
 .fallingNote {
   position: absolute;
-  left: 50%;
-  width: 94px;
-  margin-left: -47px;
-  padding: 8px 7px 7px;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  min-height: 112px;
+  padding: 10px 12px;
   border: 2px solid var(--accent);
   border-radius: 12px;
   background: var(--panel-soft);
@@ -1499,6 +1499,7 @@ code {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   z-index: 3;
   transition: opacity .1s ease, border-color .1s ease;
@@ -1587,11 +1588,175 @@ code {
   }
 
   .beatLane {
-    height: 470px;
+    height: 320px;
   }
 
   .fallingNote {
-    width: 84px;
-    margin-left: -42px;
+    min-height: 104px;
   }
+}
+
+
+/* True focus modes: almost nothing but the note + fingering + back */
+.practiceFocus {
+  position: relative;
+  min-height: 720px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.focusBackButton {
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-height: 44px;
+  padding: 9px 13px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--button);
+  color: var(--text);
+  font-weight: 900;
+}
+
+.practiceFocusCenter,
+.beatGameFocusCenter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  width: 100%;
+  text-align: center;
+}
+
+.practiceFocusNote,
+.beatGameFocusNote {
+  font-size: clamp(96px, 16vw, 220px);
+  line-height: .82;
+  font-weight: 950;
+  letter-spacing: -.06em;
+}
+
+.practiceFocusFingering,
+.beatGameFocusFingering {
+  padding: 34px 54px;
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.26), rgba(0,0,0,.04)),
+    var(--hole-stage);
+}
+
+.practiceFocusFingering .recorderPattern.large .recorderHole,
+.beatGameFocusFingering .recorderPattern.large .recorderHole {
+  width: 64px;
+  height: 64px;
+  border-width: 7px;
+}
+
+.practiceFocusFingering .recorderPattern.large .patternTopRow,
+.beatGameFocusFingering .recorderPattern.large .patternTopRow {
+  gap: 24px;
+}
+
+.practiceFocusFingering .recorderPattern.large .patternFrontColumn,
+.beatGameFocusFingering .recorderPattern.large .patternFrontColumn {
+  gap: 13px;
+  padding-left: 82px;
+}
+
+.practiceFocusRhythm,
+.beatGameFocusMeta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 18px;
+  font-weight: 850;
+}
+
+.practiceFocusRhythm strong,
+.beatGameFocusMeta strong {
+  color: var(--text);
+}
+
+.beatGameFocus {
+  position: relative;
+  min-height: 760px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.beatGameFocusTop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.beatGameFocusTop .focusBackButton {
+  position: static;
+}
+
+.beatGameFocusFeedback {
+  min-height: 44px;
+  font-size: 28px;
+  font-weight: 950;
+}
+
+.beatGameFocusStart {
+  min-width: 170px;
+  font-size: 18px;
+}
+
+.beatGameToolbarActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 700px) {
+  .practiceFocus,
+  .beatGameFocus {
+    min-height: 620px;
+  }
+
+  .practiceFocusFingering,
+  .beatGameFocusFingering {
+    padding: 26px 38px;
+  }
+
+  .practiceFocusFingering .recorderPattern.large .recorderHole,
+  .beatGameFocusFingering .recorderPattern.large .recorderHole {
+    width: 50px;
+    height: 50px;
+    border-width: 6px;
+  }
+
+  .practiceFocusFingering .recorderPattern.large .patternFrontColumn,
+  .beatGameFocusFingering .recorderPattern.large .patternFrontColumn {
+    padding-left: 64px;
+  }
+}
+
+
+.beatLane::after {
+  content: "←";
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: 28px;
+  font-weight: 900;
+  opacity: .45;
+}
+
+.fallingNote {
+  max-width: 250px;
 }

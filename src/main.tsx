@@ -681,32 +681,53 @@ function App() {
           <div className="progressFill" style={{ width: `${songProgress}%` }} />
         </div>
 
-        <div className="songNow">
-          <div className="trainingTop songTarget">
-            <span className="trainingLabel">Next note</span>
-            <span className="targetNote">{currentSongNote.label}</span>
+        {focusMode ? (
+          <div className="practiceFocus">
+            <button className="focusBackButton" onClick={() => setFocusMode(false)}>← Back</button>
+
+            <div className="practiceFocusCenter">
+              <div className="practiceFocusNote">{currentSongNote.label}</div>
+
+              <div className="practiceFocusFingering">
+                <RecorderPattern note={currentSongNote} large />
+              </div>
+
+              <div className="practiceFocusRhythm">
+                <strong>{eventLengthLabel(currentSongEvent)}</strong>
+                {articulationLabel(currentSongEvent) && (
+                  <span>{articulationLabel(currentSongEvent)}</span>
+                )}
+              </div>
+            </div>
           </div>
+        ) : (
+          <div className="songNow">
+            <div className="trainingTop songTarget">
+              <span className="trainingLabel">Next note</span>
+              <span className="targetNote">{currentSongNote.label}</span>
+            </div>
 
-          <div className="fingeringStage">
-            <RecorderPattern note={currentSongNote} large />
-          </div>
+            <div className="fingeringStage">
+              <RecorderPattern note={currentSongNote} large />
+            </div>
 
-          {currentSongNote.hint && (
-            <div className="fingeringHint">{currentSongNote.hint}</div>
-          )}
-
-          <div className="currentRhythm">
-            <span className="rhythmLength">{eventLengthLabel(currentSongEvent)}</span>
-            {articulationLabel(currentSongEvent) && (
-              <span className="rhythmArticulation">{articulationLabel(currentSongEvent)}</span>
+            {currentSongNote.hint && (
+              <div className="fingeringHint">{currentSongNote.hint}</div>
             )}
-            <span
-              className="rhythmBar rhythmBarLarge"
-              style={{ width: `${Math.max(18, Math.min(100, currentSongEvent.beats * 42))}%` }}
-              aria-hidden="true"
-            />
+
+            <div className="currentRhythm">
+              <span className="rhythmLength">{eventLengthLabel(currentSongEvent)}</span>
+              {articulationLabel(currentSongEvent) && (
+                <span className="rhythmArticulation">{articulationLabel(currentSongEvent)}</span>
+              )}
+              <span
+                className="rhythmBar rhythmBarLarge"
+                style={{ width: `${Math.max(18, Math.min(100, currentSongEvent.beats * 42))}%` }}
+                aria-hidden="true"
+              />
+            </div>
           </div>
-        </div>
+        )}
 
         <div className={`feedback ${songFeedback.startsWith("✓") ? "correct" : songFeedback.startsWith("✗") ? "wrong" : ""}`}>
           {songFeedback}
@@ -790,6 +811,13 @@ function App() {
             midiSignal={beatMidiSignal}
             resetMidi={midiMap[RESET_NOTE_ID] ?? DEFAULT_MIDI_MAP[RESET_NOTE_ID]}
             resetKey={beatGameResetKey}
+            focusMode={focusMode}
+            onFocusModeChange={setFocusMode}
+            onBackToPractice={() => {
+              setSongMode("practice");
+              setFocusMode(false);
+              setBeatGameResetKey(value => value + 1);
+            }}
             onBpmChange={setBpm}
           />
         )}
