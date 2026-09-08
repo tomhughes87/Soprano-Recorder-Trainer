@@ -43,19 +43,31 @@ const NOTE_HEIGHT_ORDER = [
   "C4",
 ] as const;
 
-function verticalPositionForNoteId(noteId: string) {
+const PITCH_GRID_TOP = 24;
+const PITCH_GRID_ROW_HEIGHT = 40;
+
+function pitchRowIndexForNoteId(noteId: string) {
   const index = NOTE_HEIGHT_ORDER.indexOf(noteId as (typeof NOTE_HEIGHT_ORDER)[number]);
-  const safeIndex = index >= 0 ? index : NOTE_HEIGHT_ORDER.length - 1;
+  return index >= 0 ? index : NOTE_HEIGHT_ORDER.length - 1;
+}
 
-  // Higher note = higher on screen.
-  // The range is compressed so adjacent notes overlap a bit vertically,
-  // which keeps the full recorder range visible without making the lane too tall.
-  const top = 10;
-  const bottom = 88;
-  const spread = bottom - top;
-  const ratio = safeIndex / Math.max(1, NOTE_HEIGHT_ORDER.length - 1);
+function verticalPositionForNoteId(noteId: string) {
+  return PITCH_GRID_TOP + pitchRowIndexForNoteId(noteId) * PITCH_GRID_ROW_HEIGHT;
+}
 
-  return top + ratio * spread;
+
+function primaryGameLabel(label: string) {
+  return label.split("/")[0].trim();
+}
+
+function noteBoxWidth(beats: number) {
+  if (beats <= 0.25) return 86;
+  if (beats <= 0.5) return 98;
+  if (beats <= 0.75) return 112;
+  if (beats <= 1) return 126;
+  if (beats <= 1.5) return 142;
+  if (beats <= 2) return 160;
+  return 176;
 }
 
 
@@ -375,7 +387,7 @@ export function BeatGame({
             <div
               key={noteId}
               className="pitchScaleMark"
-              style={{ top: `${verticalPositionForNoteId(noteId)}%` }}
+              style={{ top: `${verticalPositionForNoteId(noteId)}px` }}
             >
               {noteId.replace("s", "♯")}
             </div>
@@ -396,26 +408,38 @@ export function BeatGame({
           const y = verticalPositionForNoteId(event.note);
           const judgement = judgements[event.index];
 
+          const headWidth = noteBoxWidth(event.beats);
+          const tailWidth =
+            event.beats > 1
+              ? Math.max(36, Math.min(180, (event.beats - 1) * 86))
+              : 0;
+
           return (
             <div
               key={event.index}
               className={`fallingNote ${judgement ? `judged ${judgement}` : ""}`}
               style={{
                 left: `${x}%`,
-                top: `${y}%`,
+                top: `${y}px`,
               }}
             >
-              <div className="noteHead noteColourCard" style={noteColourStyle(note.id)}>
-                <strong>{note.label}</strong>
+              <div
+                className="noteHead noteColourCard"
+                style={{
+                  ...noteColourStyle(note.id),
+                  width: `${headWidth}px`,
+                }}
+              >
+                <strong>{primaryGameLabel(note.label)}</strong>
                 <RecorderPattern note={note} compact />
               </div>
 
-              {/* Only notes longer than 1 beat need an explicit sustain tail.
-                  Shorter durations are represented by their timing/spacing. */}
+              {/* Short notes use smaller heads, 1-beat notes use normal heads,
+                  and held notes get both a wider head and a sustain tail. */}
               {event.beats > 1 && (
                 <span
                   className="sustainTail"
-                  style={{ width: `${Math.max(38, Math.min(180, (event.beats - 1) * 78))}px` }}
+                  style={{ width: `${tailWidth}px` }}
                   aria-hidden="true"
                 />
               )}
