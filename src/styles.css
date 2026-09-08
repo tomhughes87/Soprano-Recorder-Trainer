@@ -711,6 +711,46 @@ code {
   margin-top: 6px;
 }
 
+/* Level 0: quiet teal for the first one- and two-note exercises */
+.themeLevel0 {
+  --bg: #0c1c1b;
+  --panel: #142d2b;
+  --panel-soft: #1c3d39;
+  --text: #eef5ed;
+  --muted: #b3c8c2;
+  --border: #315c55;
+  --accent: #8ed8ad;
+  --accent-strong: #b6ebca;
+  --button: #214a44;
+  --button-hover: #2b5e56;
+  --hole-stage: #dce5da;
+  --hole-open: #fbfff9;
+  --hole-stroke: #163a35;
+  --hole-closed: #163a35;
+}
+
+.themeLevel0 .songLibrary,
+.themeLevel0 .songPlayer,
+.themeLevel0 .noticeCard {
+  border-color: #417169;
+  background:
+    linear-gradient(145deg, rgba(255,255,255,.03), rgba(0,0,0,.055)),
+    var(--panel);
+}
+
+.themeLevel0 .songLibrary h2,
+.themeLevel0 .songPlayer h2 {
+  color: var(--accent-strong);
+}
+
+.themeLevel0 .songCard {
+  border-color: #38675f;
+}
+
+.themeLevel0 .songCard:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
 /* Level 1: calm classroom blue + warm exercise-book yellow */
 .themeLevel1 {
   --bg: #101b25;

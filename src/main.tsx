@@ -18,6 +18,7 @@ import {
   type MidiMap,
 } from "./training";
 import { ENGLISH_FOLK_SONGS } from "./music/english-folk";
+import { LEVEL_0_SONGS } from "./music/level-0";
 import { LEVEL_1_SONGS } from "./music/level-1";
 import { SEA_SHANTIES } from "./music/sea-shanties";
 import { ZELDA_SONGS } from "./music/zelda";
@@ -34,12 +35,19 @@ type Tab =
   | "tester"
   | "training"
   | "calibration"
+  | "level0"
   | "level1"
   | "songs"
   | "shanties"
   | "zelda"
   | "lotr";
-type SongSection = "level1" | "songs" | "shanties" | "zelda" | "lotr";
+type SongSection =
+  | "level0"
+  | "level1"
+  | "songs"
+  | "shanties"
+  | "zelda"
+  | "lotr";
 
 const STORAGE_KEY = "carryon-recorder-midi-map-v1";
 const RESET_NOTE_ID = "Cs5";
@@ -104,8 +112,10 @@ function SongLibrary({
       className={`panel songLibrary ${
         section === "songs"
           ? "folkPanel"
-          : section === "level1"
-            ? "levelOnePanel"
+          : section === "level0"
+            ? "levelZeroPanel"
+            : section === "level1"
+              ? "levelOnePanel"
             : section === "shanties"
               ? "shantyPanel"
           : section === "zelda"
@@ -207,7 +217,9 @@ function App() {
           ? SEA_SHANTIES
           : selectedSongSection === "level1"
             ? LEVEL_1_SONGS
-            : (ENGLISH_FOLK_SONGS as Song[]);
+            : selectedSongSection === "level0"
+              ? LEVEL_0_SONGS
+              : (ENGLISH_FOLK_SONGS as Song[]);
 
   const selectedSong =
     songCollection.find((song) => song.id === selectedSongId) ?? null;
@@ -237,7 +249,9 @@ function App() {
     : DEFAULT_RESET_BLOWS;
 
   const pageTheme =
-    tab === "level1"
+    tab === "level0"
+      ? "themeLevel0"
+      : tab === "level1"
       ? "themeLevel1"
       : tab === "songs"
       ? "themeFolk"
@@ -455,6 +469,7 @@ function App() {
         }
 
         const inSongSection =
+          tab === "level0" ||
           tab === "level1" ||
           tab === "songs" ||
           tab === "shanties" ||
@@ -585,8 +600,10 @@ function App() {
         className={`panel songPlayer ${focusMode ? "focusMode" : ""} ${
           selectedSongSection === "songs"
             ? "folkPanel"
-            : selectedSongSection === "level1"
-              ? "levelOnePanel"
+            : selectedSongSection === "level0"
+              ? "levelZeroPanel"
+              : selectedSongSection === "level1"
+                ? "levelOnePanel"
             : selectedSongSection === "shanties"
               ? "shantyPanel"
               : selectedSongSection === "zelda"
@@ -1083,6 +1100,16 @@ function App() {
             </button>
 
             <button
+              className={tab === "level0" ? "tab active" : "tab"}
+              onClick={() => {
+                setTab("level0");
+                leaveSong();
+              }}
+            >
+              Level 0
+            </button>
+
+            <button
               className={tab === "level1" ? "tab active" : "tab"}
               onClick={() => {
                 setTab("level1");
@@ -1218,6 +1245,19 @@ function App() {
             onResetAll={resetMappings}
           />
         )}
+
+        {tab === "level0" &&
+          (selectedSongSection === "level0" && selectedSong ? (
+            renderSongPlayer()
+          ) : (
+            <SongLibrary
+              songs={LEVEL_0_SONGS}
+              title="Level 0 — your first two notes"
+              subtitle="Start with B only, then add A through eight short rhythm and fingering exercises."
+              onStart={(song) => startSong(song, "level0")}
+              section="level0"
+            />
+          ))}
 
         {tab === "level1" &&
           (selectedSongSection === "level1" && selectedSong ? (
