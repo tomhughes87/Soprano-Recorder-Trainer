@@ -1239,7 +1239,7 @@ function App() {
                 leaveSong();
               }}
             >
-              Calibration
+              Settings
             </button>
 
             <button
@@ -1303,46 +1303,6 @@ function App() {
             </button>
           </div>
 
-          <div className="setupNote">
-            <div className="setupTitle">Before connecting</div>
-
-            <div className="setupSettings">
-              <span>
-                <strong>Voice:</strong> Soprano Recorder - press v, and set to 1
-              </span>
-              <span>
-                <strong>Fingering:</strong> R (Recorder) press: f, and set to r
-              </span>
-            </div>
-
-            <p>
-              The Carry-on defaults are preloaded. If your notes do not match,
-              connect MIDI and use the Calibration tab.
-            </p>
-          </div>
-
-          <div className="actions">
-            <button className="primary" onClick={connect}>
-              Connect MIDI
-            </button>
-            <span className="status">{status}</span>
-          </div>
-
-          {inputs.length > 0 && (
-            <label className="selectRow">
-              MIDI input
-              <select
-                value={selectedId}
-                onChange={(event) => selectMidiInput(event.target.value)}
-              >
-                {inputs.map((input) => (
-                  <option key={input.id} value={input.id}>
-                    {input.name || "Unnamed MIDI device"}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )}
         </section>
 
         {tab === "tester" && (
@@ -1377,16 +1337,72 @@ function App() {
         )}
 
         {tab === "calibration" && (
-          <CalibrationPanel
-            notes={trainingNotes}
-            midiMap={midiMap}
-            selectedId={calibrationNoteId}
-            lastMidi={lastMidi}
-            lastNote={lastNote}
-            onSelect={setCalibrationNoteId}
-            onSave={updateMapping}
-            onResetAll={resetMappings}
-          />
+          <>
+            <section className="panel midiSettingsPanel">
+              <div className="settingsHeading">
+                <div>
+                  <div className="eyebrow">Settings</div>
+                  <h2>MIDI connection</h2>
+                  <p className="sub">
+                    Your chosen input is remembered and reconnected
+                    automatically when possible.
+                  </p>
+                </div>
+                <span className="status">{status}</span>
+              </div>
+
+              <div className="setupNote">
+                <div className="setupTitle">Carry-on instrument setup</div>
+                <div className="setupSettings">
+                  <span>
+                    <strong>Voice:</strong> Soprano Recorder — press V and set
+                    it to 1
+                  </span>
+                  <span>
+                    <strong>Fingering:</strong> Recorder — press F and set it to
+                    R
+                  </span>
+                </div>
+                <p>
+                  The Carry-on defaults are preloaded. If its notes do not
+                  match, use the calibration map below.
+                </p>
+              </div>
+
+              <div className="actions">
+                <button className="primary" onClick={connect}>
+                  {selectedInput ? "Reconnect MIDI" : "Connect MIDI"}
+                </button>
+              </div>
+
+              {inputs.length > 0 && (
+                <label className="selectRow">
+                  MIDI input
+                  <select
+                    value={selectedId}
+                    onChange={(event) => selectMidiInput(event.target.value)}
+                  >
+                    {inputs.map((input) => (
+                      <option key={input.id} value={input.id}>
+                        {input.name || "Unnamed MIDI device"}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+            </section>
+
+            <CalibrationPanel
+              notes={trainingNotes}
+              midiMap={midiMap}
+              selectedId={calibrationNoteId}
+              lastMidi={lastMidi}
+              lastNote={lastNote}
+              onSelect={setCalibrationNoteId}
+              onSave={updateMapping}
+              onResetAll={resetMappings}
+            />
+          </>
         )}
 
         {tab === "level0" &&
