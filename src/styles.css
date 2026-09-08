@@ -1493,8 +1493,8 @@ code {
   position: relative;
   z-index: 2;
   min-width: 76px;
-  min-height: 92px;
-  padding: 8px 9px;
+  min-height: 82px;
+  padding: 7px 9px;
   border: 2px solid var(--accent);
   border-radius: 11px;
   background: var(--panel-soft);
@@ -1502,7 +1502,7 @@ code {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 4px;
   box-sizing: border-box;
 }
 
@@ -1870,17 +1870,17 @@ code {
 
 .beatGamePage .noteHead {
   min-width: 104px;
-  min-height: 126px;
-  padding: 10px 12px;
+  min-height: 108px;
+  padding: 8px 12px;
 }
 
 .beatGamePage .noteHead > strong {
-  font-size: 24px;
+  font-size: 22px;
 }
 
 .beatGamePage .noteHead .recorderPattern.compact .recorderHole {
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
   border-width: 2px;
 }
 
@@ -2162,4 +2162,14 @@ code {
 
 .beatLane {
   overflow: hidden;
+}
+
+
+/* Refined pitch spacing: more musical separation between naturals, accidentals between them. */
+.pitchScaleMark {
+  font-size: 11px;
+}
+
+.pitchScaleMark::after {
+  background: rgba(255,255,255,.04);
 }

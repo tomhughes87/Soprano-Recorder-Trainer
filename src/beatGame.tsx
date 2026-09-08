@@ -43,8 +43,27 @@ const NOTE_HEIGHT_ORDER = [
   "C4",
 ] as const;
 
-const PITCH_GRID_TOP = 24;
-const PITCH_GRID_ROW_HEIGHT = 40;
+// Musically clearer vertical spacing:
+// - naturals get the main spacing
+// - accidentals sit between them
+// - this still allows some overlap, but reads less like a compressed spreadsheet
+const NOTE_GRID_POSITIONS: Record<(typeof NOTE_HEIGHT_ORDER)[number], number> = {
+  D5: 36,
+  Cs5: 64,
+  C5: 92,
+  B4: 148,
+  Bb4: 176,
+  A4: 204,
+  Gs4: 232,
+  G4: 260,
+  Fs4: 288,
+  F4: 316,
+  E4: 372,
+  Ds4: 400,
+  D4: 428,
+  Cs4: 456,
+  C4: 484,
+};
 
 function pitchRowIndexForNoteId(noteId: string) {
   const index = NOTE_HEIGHT_ORDER.indexOf(noteId as (typeof NOTE_HEIGHT_ORDER)[number]);
@@ -52,7 +71,12 @@ function pitchRowIndexForNoteId(noteId: string) {
 }
 
 function verticalPositionForNoteId(noteId: string) {
-  return PITCH_GRID_TOP + pitchRowIndexForNoteId(noteId) * PITCH_GRID_ROW_HEIGHT;
+  const key =
+    (NOTE_HEIGHT_ORDER.includes(noteId as (typeof NOTE_HEIGHT_ORDER)[number])
+      ? noteId
+      : "C4") as (typeof NOTE_HEIGHT_ORDER)[number];
+
+  return NOTE_GRID_POSITIONS[key];
 }
 
 
