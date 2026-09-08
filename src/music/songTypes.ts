@@ -68,7 +68,7 @@ export function articulationLabel(event: SongEvent) {
  * becomes:
  *   E4 (2 beats)
  *
- * This is used by playback, Beat Game and any future rhythm views so a tie
+ * This is used by playback, Rhythm Game and any future rhythm views so a tie
  * is never treated as two separate attacks.
  */
 export function mergeTiedEvents(events: SongEvent[]): SongEvent[] {

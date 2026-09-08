@@ -11,7 +11,7 @@ import "./styles.css";
 import { CalibrationPanel } from "./calibration";
 import { SongDemoControls } from "./audio/SongDemoControls";
 import type { GuideLevel } from "./audio/recorderSynth";
-import { BeatGame, type BeatGameResult, type BeatMidiSignal } from "./beatGame";
+import { RhythmGame, type RhythmGameResult, type RhythmMidiSignal } from "./rhythmGame";
 import { MidiTester, type MidiMessage } from "./tester";
 import {
   DEFAULT_MIDI_MAP,
@@ -279,11 +279,11 @@ function App() {
   const [metronomeEnabled, setMetronomeEnabled] = useState(false);
   const [bpm, setBpm] = useState(90);
   const [guideLevel, setGuideLevel] = useState<GuideLevel>("soft");
-  const [songMode, setSongMode] = useState<"practice" | "beat">("practice");
-  const [beatMidiSignal, setBeatMidiSignal] = useState<BeatMidiSignal | null>(
+  const [songMode, setSongMode] = useState<"practice" | "rhythm">("practice");
+  const [rhythmMidiSignal, setRhythmMidiSignal] = useState<RhythmMidiSignal | null>(
     null,
   );
-  const [beatGameResetKey, setBeatGameResetKey] = useState(0);
+  const [rhythmGameResetKey, setRhythmGameResetKey] = useState(0);
   const [songRatings, setSongRatings] = useState<SongRatings>(() =>
     loadSongRatings(),
   );
@@ -316,8 +316,8 @@ function App() {
   const selectedSong =
     songCollection.find((song) => song.id === selectedSongId) ?? null;
 
-  const saveBeatGameRating = useCallback(
-    (result: BeatGameResult) => {
+  const saveRhythmGameRating = useCallback(
+    (result: RhythmGameResult) => {
       if (!selectedSong) return;
       setSongRatings(saveSongResult(selectedSong.id, result.percentage));
     },
@@ -506,7 +506,7 @@ function App() {
     setFocusMode(false);
     setMetronomeEnabled(false);
     setSongMode("practice");
-    setBeatGameResetKey((value) => value + 1);
+    setRhythmGameResetKey((value) => value + 1);
 
     if (section === "zelda") {
       setZeldaVersion("short");
@@ -521,7 +521,7 @@ function App() {
     setFocusMode(false);
     setMetronomeEnabled(false);
     setSongMode("practice");
-    setBeatGameResetKey((value) => value + 1);
+    setRhythmGameResetKey((value) => value + 1);
   };
 
   const resetCurrentSong = () => {
@@ -595,7 +595,7 @@ function App() {
         setLastNote(noteName);
         setLastMidi(data1);
         setVelocity(String(data2));
-        setBeatMidiSignal({
+        setRhythmMidiSignal({
           nonce: performance.now(),
           kind: "on",
           midi: data1,
@@ -641,9 +641,9 @@ function App() {
             resetBlowCountRef.current += 1;
 
             if (resetBlowCountRef.current >= resetBlowsRequired) {
-              if (songMode === "beat") {
-                setBeatGameResetKey((value) => value + 1);
-                setSongFeedback("↺ Beat game reset");
+              if (songMode === "rhythm") {
+                setRhythmGameResetKey((value) => value + 1);
+                setSongFeedback("↺ Rhythm game reset");
               } else {
                 resetCurrentSong();
               }
@@ -686,7 +686,7 @@ function App() {
         }
       } else if (command === 0x80 || (command === 0x90 && data2 === 0)) {
         type = "Note Off";
-        setBeatMidiSignal({
+        setRhythmMidiSignal({
           nonce: performance.now(),
           kind: "off",
           midi: data1,
@@ -763,21 +763,21 @@ function App() {
                     : "lotrPanel"
         }`}
       >
-        {songMode === "beat" ? (
-          <div className="beatOnlyHeader">
+        {songMode === "rhythm" ? (
+          <div className="rhythmOnlyHeader">
             <button
               className="secondary"
               onClick={() => {
                 setSongMode("practice");
-                setBeatGameResetKey((value) => value + 1);
+                setRhythmGameResetKey((value) => value + 1);
               }}
             >
               ← Practice
             </button>
 
-            <div className="beatOnlyTitle">
+            <div className="rhythmOnlyTitle">
               <strong>{selectedSong.title}</strong>
-              <span>Beat Game</span>
+              <span>Rhythm Game</span>
             </div>
 
             <button className="secondary" onClick={leaveSong}>
@@ -833,18 +833,18 @@ function App() {
                 className="secondary"
                 disabled={selectedSong.rhythmVerified !== true}
                 onClick={() => {
-                  setSongMode("beat");
+                  setSongMode("rhythm");
                   setMetronomeEnabled(false);
                   setFocusMode(false);
-                  setBeatGameResetKey((value) => value + 1);
+                  setRhythmGameResetKey((value) => value + 1);
                 }}
               >
-                Beat Game
+                Rhythm Game
               </button>
 
               {selectedSong.rhythmVerified !== true && (
                 <span className="sub small">
-                  Beat Game needs verified rhythm
+                  Rhythm Game needs verified rhythm
                 </span>
               )}
             </div>
@@ -1182,20 +1182,20 @@ function App() {
             </div>
           </>
         ) : (
-          <BeatGame
+          <RhythmGame
             events={activeSongEvents}
             notes={trainingNotes}
             bpm={bpm}
-            midiSignal={beatMidiSignal}
+            midiSignal={rhythmMidiSignal}
             resetMidi={
               midiMap[RESET_NOTE_ID] ?? DEFAULT_MIDI_MAP[RESET_NOTE_ID]
             }
-            resetKey={beatGameResetKey}
+            resetKey={rhythmGameResetKey}
             guideLevel={guideLevel}
             onGuideLevelChange={setGuideLevel}
             onBpmChange={setBpm}
             savedRating={songRatings[selectedSong.id]}
-            onComplete={saveBeatGameRating}
+            onComplete={saveRhythmGameRating}
           />
         )}
       </section>
@@ -1204,7 +1204,7 @@ function App() {
 
   return (
     <div
-      className={`appShell ${pageTheme} ${songMode === "beat" && selectedSong ? "beatGamePage" : ""}`}
+      className={`appShell ${pageTheme} ${songMode === "rhythm" && selectedSong ? "rhythmGamePage" : ""}`}
     >
       <main className="page">
         <section className="panel appHeader">

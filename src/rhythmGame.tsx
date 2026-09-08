@@ -20,7 +20,7 @@ import { SongTransport } from "./audio/songTransport";
 import type { GuideLevel } from "./audio/recorderSynth";
 import { gradeForPercentage, type Grade, type SongRating } from "./songRatings";
 
-export type BeatMidiSignal = {
+export type RhythmMidiSignal = {
   nonce: number;
   kind: "on" | "off";
   midi: number;
@@ -33,17 +33,17 @@ type Props = {
   events: SongEvent[];
   notes: TrainingNote[];
   bpm: number;
-  midiSignal: BeatMidiSignal | null;
+  midiSignal: RhythmMidiSignal | null;
   resetMidi: number;
   resetKey: number;
   guideLevel: GuideLevel;
   onGuideLevelChange: (level: GuideLevel) => void;
   onBpmChange: (bpm: number) => void;
   savedRating?: SongRating;
-  onComplete: (result: BeatGameResult) => void;
+  onComplete: (result: RhythmGameResult) => void;
 };
 
-export type BeatGameResult = {
+export type RhythmGameResult = {
   score: number;
   maximumScore: number;
   percentage: number;
@@ -116,7 +116,7 @@ function primaryGameLabel(label: string) {
   return label.split("/")[0].trim();
 }
 
-export function BeatGame({
+export function RhythmGame({
   events,
   notes,
   bpm,
@@ -137,7 +137,7 @@ export function BeatGame({
   const [bestCombo, setBestCombo] = useState(0);
   const [feedback, setFeedback] = useState("Press Start when you're ready");
   const [judgements, setJudgements] = useState<Record<number, Judgement>>({});
-  const [finalResult, setFinalResult] = useState<BeatGameResult | null>(null);
+  const [finalResult, setFinalResult] = useState<RhythmGameResult | null>(null);
   const [holdStarts, setHoldStarts] = useState<
     Record<number, { at: number; eventIndex: number }>
   >({});
@@ -308,7 +308,7 @@ export function BeatGame({
         maximumScore === 0
           ? 0
           : Math.min(100, Math.round((score / maximumScore) * 100));
-      const result: BeatGameResult = {
+      const result: RhythmGameResult = {
         score,
         maximumScore,
         percentage,
@@ -483,26 +483,26 @@ export function BeatGame({
           : "GO!";
 
   return (
-    <div className="beatGame">
-      <div className="beatHud">
-        <div className="beatHudStat">
+    <div className="rhythmGame">
+      <div className="rhythmHud">
+        <div className="rhythmHudStat">
           <span>Score</span>
           <strong>{score}</strong>
         </div>
-        <div className="beatHudStat">
+        <div className="rhythmHudStat">
           <span>Combo</span>
           <strong>{combo}×</strong>
         </div>
-        <div className="beatHudStat">
+        <div className="rhythmHudStat">
           <span>Accuracy</span>
           <strong>{accuracy}%</strong>
         </div>
-        <div className="beatHudStat">
+        <div className="rhythmHudStat">
           <span>Rating</span>
           <strong>{finalResult?.grade ?? "—"}</strong>
         </div>
 
-        <label className="beatGuideSelect">
+        <label className="rhythmGuideSelect">
           <span>Guide</span>
           <select
             value={guideLevel}
@@ -517,7 +517,7 @@ export function BeatGame({
           </select>
         </label>
 
-        <div className="beatGameSpeed">
+        <div className="rhythmGameSpeed">
           <button
             className="secondary"
             disabled={running}
@@ -538,8 +538,8 @@ export function BeatGame({
 
       <div
         ref={laneRef}
-        className="beatLane"
-        aria-label="Beat game note highway"
+        className="rhythmLane"
+        aria-label="Rhythm game note highway"
       >
         <div className="pitchScale" aria-hidden="true">
           {NOTE_HEIGHT_ORDER.map((noteId) => (
@@ -616,10 +616,10 @@ export function BeatGame({
 
         {(!running || currentBeat < 0) && (
           <div
-            className={`beatGameOverlay ${running ? "beatCountdownOverlay" : ""}`}
+            className={`rhythmGameOverlay ${running ? "rhythmCountdownOverlay" : ""}`}
           >
             {running ? (
-              <strong key={countdownLabel} className="beatCountdownNumber">
+              <strong key={countdownLabel} className="rhythmCountdownNumber">
                 {countdownLabel}
               </strong>
             ) : finished ? (
@@ -644,7 +644,7 @@ export function BeatGame({
                 <strong>Ready?</strong>
                 <span>Press Start for a 3, 2, 1, GO count-in.</span>
                 <button className="primary" onClick={startGame}>
-                  Start Beat Game
+                  Start Rhythm Game
                 </button>
               </>
             )}
@@ -653,12 +653,12 @@ export function BeatGame({
       </div>
 
       <div
-        className={`beatGameFeedback ${feedback === "Perfect!" ? "perfect" : ""}`}
+        className={`rhythmGameFeedback ${feedback === "Perfect!" ? "perfect" : ""}`}
       >
         {feedback}
       </div>
 
-      <div className="beatGameLegend">
+      <div className="rhythmGameLegend">
         <span>
           <b>Perfect</b> ±0.10 beat
         </span>

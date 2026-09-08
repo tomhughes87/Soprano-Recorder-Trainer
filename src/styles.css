@@ -1563,7 +1563,7 @@ code {
 }
 
 
-/* Practice / Beat Game selector */
+/* Practice / Rhythm Game selector */
 .songModeSwitch {
   display: flex;
   justify-content: center;
@@ -1573,12 +1573,12 @@ code {
   margin: 0 0 18px;
 }
 
-/* Beat Game */
-.beatGame {
+/* Rhythm Game */
+.rhythmGame {
   text-align: left;
 }
 
-.beatGameToolbar {
+.rhythmGameToolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1587,39 +1587,39 @@ code {
   margin-bottom: 13px;
 }
 
-.beatGameToolbar > div:first-child {
+.rhythmGameToolbar > div:first-child {
   display: grid;
   gap: 2px;
 }
 
-.beatGameToolbar > div:first-child > strong {
+.rhythmGameToolbar > div:first-child > strong {
   font-size: 22px;
 }
 
-.beatGameToolbar > div:first-child > span {
+.rhythmGameToolbar > div:first-child > span {
   color: var(--muted);
   font-size: 13px;
 }
 
-.beatGameSpeed {
+.rhythmGameSpeed {
   display: inline-flex;
   align-items: center;
   gap: 9px;
 }
 
-.beatGameSpeed .secondary {
+.rhythmGameSpeed .secondary {
   width: 40px;
   padding: 8px 0;
 }
 
-.beatGameStats {
+.rhythmGameStats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
   margin-bottom: 12px;
 }
 
-.beatGameStats div {
+.rhythmGameStats div {
   display: grid;
   gap: 3px;
   padding: 9px 10px;
@@ -1628,7 +1628,7 @@ code {
   background: rgba(0,0,0,.09);
 }
 
-.beatGameStats span {
+.rhythmGameStats span {
   color: var(--muted);
   font-size: 10px;
   font-weight: 900;
@@ -1636,11 +1636,11 @@ code {
   text-transform: uppercase;
 }
 
-.beatGameStats strong {
+.rhythmGameStats strong {
   font-size: 20px;
 }
 
-.beatLane {
+.rhythmLane {
   position: relative;
   height: 360px;
   overflow: hidden;
@@ -1768,7 +1768,7 @@ code {
   border-color: var(--danger);
 }
 
-.beatGameOverlay {
+.rhythmGameOverlay {
   position: absolute;
   inset: 0;
   z-index: 8;
@@ -1783,29 +1783,29 @@ code {
   text-align: center;
 }
 
-.beatGameOverlay > strong {
+.rhythmGameOverlay > strong {
   font-size: 34px;
 }
 
-.beatGameOverlay > span {
+.rhythmGameOverlay > span {
   max-width: 430px;
   color: var(--muted);
 }
 
-.beatCountdownOverlay {
+.rhythmCountdownOverlay {
   background: rgba(10,12,11,.58);
   pointer-events: none;
 }
 
-.beatGameOverlay > .beatCountdownNumber {
+.rhythmGameOverlay > .rhythmCountdownNumber {
   color: var(--accent-strong);
   font-size: clamp(78px, 15vw, 170px);
   line-height: 1;
   text-shadow: 0 7px 28px rgba(0,0,0,.5);
-  animation: beatCountdownPop .32s ease-out;
+  animation: rhythmCountdownPop .32s ease-out;
 }
 
-@keyframes beatCountdownPop {
+@keyframes rhythmCountdownPop {
   from {
     opacity: .25;
     transform: scale(.72);
@@ -1817,7 +1817,7 @@ code {
   }
 }
 
-.beatGameFeedback {
+.rhythmGameFeedback {
   min-height: 34px;
   padding-top: 11px;
   text-align: center;
@@ -1825,11 +1825,11 @@ code {
   font-weight: 950;
 }
 
-.beatGameFeedback.perfect {
+.rhythmGameFeedback.perfect {
   color: var(--success);
 }
 
-.beatGameLegend {
+.rhythmGameLegend {
   display: flex;
   justify-content: center;
   gap: 12px 22px;
@@ -1839,16 +1839,16 @@ code {
   font-size: 11px;
 }
 
-.beatGameLegend b {
+.rhythmGameLegend b {
   color: var(--text);
 }
 
 @media (max-width: 700px) {
-  .beatGameStats {
+  .rhythmGameStats {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .beatLane {
+  .rhythmLane {
     height: 320px;
   }
 
@@ -1881,7 +1881,7 @@ code {
 }
 
 .practiceFocusCenter,
-.beatGameFocusCenter {
+.rhythmGameFocusCenter {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1892,7 +1892,7 @@ code {
 }
 
 .practiceFocusNote,
-.beatGameFocusNote {
+.rhythmGameFocusNote {
   font-size: clamp(96px, 16vw, 220px);
   line-height: .82;
   font-weight: 950;
@@ -1900,7 +1900,7 @@ code {
 }
 
 .practiceFocusFingering,
-.beatGameFocusFingering {
+.rhythmGameFocusFingering {
   padding: 34px 54px;
   border-radius: 24px;
   background:
@@ -1909,25 +1909,25 @@ code {
 }
 
 .practiceFocusFingering .recorderPattern.large .recorderHole,
-.beatGameFocusFingering .recorderPattern.large .recorderHole {
+.rhythmGameFocusFingering .recorderPattern.large .recorderHole {
   width: 64px;
   height: 64px;
   border-width: 7px;
 }
 
 .practiceFocusFingering .recorderPattern.large .patternTopRow,
-.beatGameFocusFingering .recorderPattern.large .patternTopRow {
+.rhythmGameFocusFingering .recorderPattern.large .patternTopRow {
   gap: 24px;
 }
 
 .practiceFocusFingering .recorderPattern.large .patternFrontColumn,
-.beatGameFocusFingering .recorderPattern.large .patternFrontColumn {
+.rhythmGameFocusFingering .recorderPattern.large .patternFrontColumn {
   gap: 13px;
   padding-left: 82px;
 }
 
 .practiceFocusRhythm,
-.beatGameFocusMeta {
+.rhythmGameFocusMeta {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -1937,11 +1937,11 @@ code {
 }
 
 .practiceFocusRhythm strong,
-.beatGameFocusMeta strong {
+.rhythmGameFocusMeta strong {
   color: var(--text);
 }
 
-.beatGameFocus {
+.rhythmGameFocus {
   position: relative;
   min-height: 760px;
   display: flex;
@@ -1949,7 +1949,7 @@ code {
   justify-content: center;
 }
 
-.beatGameFocusTop {
+.rhythmGameFocusTop {
   position: absolute;
   top: 0;
   left: 0;
@@ -1959,22 +1959,22 @@ code {
   align-items: center;
 }
 
-.beatGameFocusTop .focusBackButton {
+.rhythmGameFocusTop .focusBackButton {
   position: static;
 }
 
-.beatGameFocusFeedback {
+.rhythmGameFocusFeedback {
   min-height: 44px;
   font-size: 28px;
   font-weight: 950;
 }
 
-.beatGameFocusStart {
+.rhythmGameFocusStart {
   min-width: 170px;
   font-size: 18px;
 }
 
-.beatGameToolbarActions {
+.rhythmGameToolbarActions {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -1983,30 +1983,30 @@ code {
 
 @media (max-width: 700px) {
   .practiceFocus,
-  .beatGameFocus {
+  .rhythmGameFocus {
     min-height: 620px;
   }
 
   .practiceFocusFingering,
-  .beatGameFocusFingering {
+  .rhythmGameFocusFingering {
     padding: 26px 38px;
   }
 
   .practiceFocusFingering .recorderPattern.large .recorderHole,
-  .beatGameFocusFingering .recorderPattern.large .recorderHole {
+  .rhythmGameFocusFingering .recorderPattern.large .recorderHole {
     width: 50px;
     height: 50px;
     border-width: 6px;
   }
 
   .practiceFocusFingering .recorderPattern.large .patternFrontColumn,
-  .beatGameFocusFingering .recorderPattern.large .patternFrontColumn {
+  .rhythmGameFocusFingering .recorderPattern.large .patternFrontColumn {
     padding-left: 64px;
   }
 }
 
 
-.beatLane::after {
+.rhythmLane::after {
   content: "←";
   position: absolute;
   right: 18px;
@@ -2018,23 +2018,23 @@ code {
   opacity: .45;
 }
 
-/* Beat Game is its own clean performance screen */
-.beatGamePage .page {
+/* Rhythm Game is its own clean performance screen */
+.rhythmGamePage .page {
   width: min(1500px, calc(100% - 24px));
   padding-top: 12px;
 }
 
-.beatGamePage .appHeader {
+.rhythmGamePage .appHeader {
   display: none;
 }
 
-.beatGamePage .songPlayer {
+.rhythmGamePage .songPlayer {
   padding: 16px 18px 18px;
   border-radius: 14px;
   min-height: calc(100vh - 28px);
 }
 
-.beatOnlyHeader {
+.rhythmOnlyHeader {
   display: grid;
   grid-template-columns: 120px minmax(0, 1fr) 120px;
   align-items: center;
@@ -2042,7 +2042,7 @@ code {
   margin-bottom: 12px;
 }
 
-.beatOnlyTitle {
+.rhythmOnlyTitle {
   display: flex;
   justify-content: center;
   align-items: baseline;
@@ -2050,11 +2050,11 @@ code {
   min-width: 0;
 }
 
-.beatOnlyTitle strong {
+.rhythmOnlyTitle strong {
   font-size: 22px;
 }
 
-.beatOnlyTitle span {
+.rhythmOnlyTitle span {
   color: var(--muted);
   font-size: 12px;
   font-weight: 900;
@@ -2062,18 +2062,18 @@ code {
   text-transform: uppercase;
 }
 
-.beatOnlyHeader > button:last-child {
+.rhythmOnlyHeader > button:last-child {
   justify-self: end;
 }
 
-.beatHud {
+.rhythmHud {
   display: flex;
   align-items: center;
   gap: 10px;
   margin-bottom: 10px;
 }
 
-.beatHudStat {
+.rhythmHudStat {
   display: flex;
   align-items: baseline;
   gap: 6px;
@@ -2083,7 +2083,7 @@ code {
   background: rgba(0,0,0,.08);
 }
 
-.beatHudStat span {
+.rhythmHudStat span {
   color: var(--muted);
   font-size: 9px;
   font-weight: 900;
@@ -2091,120 +2091,120 @@ code {
   text-transform: uppercase;
 }
 
-.beatHudStat strong {
+.rhythmHudStat strong {
   font-size: 18px;
 }
 
-.beatHud .beatGameSpeed {
+.rhythmHud .rhythmGameSpeed {
   margin-left: auto;
 }
 
-.beatGamePage .beatLane {
+.rhythmGamePage .rhythmLane {
   height: 690px;
   border-radius: 14px;
 }
 
-.beatGamePage .noteHead {
+.rhythmGamePage .noteHead {
   min-width: 104px;
   min-height: 128px;
   padding: 6px 10px;
   gap: 3px;
 }
 
-.beatGamePage .noteHead > strong {
+.rhythmGamePage .noteHead > strong {
   font-size: 22px;
 }
 
-.beatGamePage .noteHead .recorderPattern.compact .recorderHole {
+.rhythmGamePage .noteHead .recorderPattern.compact .recorderHole {
   width: 10px;
   height: 10px;
   border-width: 2px;
 }
 
-.beatGamePage .noteHead .recorderPattern.compact {
+.rhythmGamePage .noteHead .recorderPattern.compact {
   gap: 2px;
 }
 
-.beatGamePage .noteHead .recorderPattern.compact .patternTopRow {
+.rhythmGamePage .noteHead .recorderPattern.compact .patternTopRow {
   gap: 4px;
 }
 
-.beatGamePage .noteHead .recorderPattern.compact .patternFrontColumn {
+.rhythmGamePage .noteHead .recorderPattern.compact .patternFrontColumn {
   gap: 2px;
   padding-left: 15px;
 }
 
-.beatGamePage .fallingDuration {
+.rhythmGamePage .fallingDuration {
   left: 52px;
   font-size: 10px;
 }
 
-.beatGamePage .sustainTail {
+.rhythmGamePage .sustainTail {
   left: calc(100% - 14px);
   height: 9px;
 }
 
-.beatGamePage .beatGameFeedback {
+.rhythmGamePage .rhythmGameFeedback {
   padding-top: 8px;
   font-size: 24px;
 }
 
-.beatGamePage .beatGameLegend {
+.rhythmGamePage .rhythmGameLegend {
   margin-top: 0;
   opacity: .7;
 }
 
 @media (max-width: 800px) {
-  .beatGamePage .page {
+  .rhythmGamePage .page {
     width: calc(100% - 10px);
   }
 
-  .beatGamePage .songPlayer {
+  .rhythmGamePage .songPlayer {
     min-height: auto;
     padding: 10px;
   }
 
-  .beatOnlyHeader {
+  .rhythmOnlyHeader {
     grid-template-columns: auto 1fr auto;
   }
 
-  .beatOnlyTitle span {
+  .rhythmOnlyTitle span {
     display: none;
   }
 
-  .beatHud {
+  .rhythmHud {
     flex-wrap: wrap;
   }
 
-  .beatHud .beatGameSpeed {
+  .rhythmHud .rhythmGameSpeed {
     margin-left: 0;
   }
 
-  .beatGamePage .beatLane {
+  .rhythmGamePage .rhythmLane {
     height: 560px;
   }
 }
 
 
-/* English folk Beat Game note cards: light parchment for fast reading */
-.themeFolk .beatGame .noteHead {
+/* English folk Rhythm Game note cards: light parchment for fast reading */
+.themeFolk .rhythmGame .noteHead {
   background: #e7d7b8;
   color: #302217;
   border-color: #d7b878;
   box-shadow: 0 5px 14px rgba(0,0,0,.22);
 }
 
-.themeFolk .beatGame .noteHead .recorderHole {
+.themeFolk .rhythmGame .noteHead .recorderHole {
   --hole-open: #fff8e8;
   --hole-stroke: #35271c;
   --hole-closed: #35271c;
 }
 
-.themeFolk .beatGame .fallingDuration {
+.themeFolk .rhythmGame .fallingDuration {
   color: #dcc79f;
 }
 
-.themeFolk .beatGame .sustainTail {
+.themeFolk .rhythmGame .sustainTail {
   background: #d7b878;
   opacity: .72;
 }
@@ -2255,8 +2255,8 @@ code {
   color: #141414;
 }
 
-/* Beat Game: strong, unmistakable solid pitch cards. */
-.beatGame .noteHead.noteColourCard {
+/* Rhythm Game: strong, unmistakable solid pitch cards. */
+.rhythmGame .noteHead.noteColourCard {
   background: var(--note-colour);
   border-color: color-mix(in srgb, var(--note-colour) 72%, #ffffff 28%) !important;
   color: #111;
@@ -2265,39 +2265,39 @@ code {
     0 6px 16px rgba(0,0,0,.28);
 }
 
-.beatGame .noteHead.noteColourCard > strong {
+.rhythmGame .noteHead.noteColourCard > strong {
   color: #111;
   text-shadow: 0 1px 0 rgba(255,255,255,.2);
 }
 
-.beatGame .noteHead.noteColourCard .recorderHole {
+.rhythmGame .noteHead.noteColourCard .recorderHole {
   --hole-open: #fffdf5;
   --hole-stroke: #171717;
   --hole-closed: #171717;
 }
 
 /* English folk keeps its brown page, but the game notes use the same bold pitch colours. */
-.themeFolk .beatGame .noteHead.noteColourCard {
+.themeFolk .rhythmGame .noteHead.noteColourCard {
   background: var(--note-colour);
   border-color: color-mix(in srgb, var(--note-colour) 70%, #ffe9ae 30%) !important;
 }
 
 /* Sustain tails follow the same pitch colour, brighter and thicker. */
-.beatGame .fallingNote .sustainTail {
+.rhythmGame .fallingNote .sustainTail {
   background: var(--note-colour);
   opacity: .95;
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--note-colour) 75%, white 25%);
 }
 
 
-.beatGamePage .noteHead.noteColourCard > strong {
+.rhythmGamePage .noteHead.noteColourCard > strong {
   font-size: 24px;
   font-weight: 1000;
   line-height: 1;
   letter-spacing: -.02em;
 }
 
-.beatGamePage .noteHead.noteColourCard {
+.rhythmGamePage .noteHead.noteColourCard {
   filter: saturate(1.15);
 }
 
@@ -2345,7 +2345,7 @@ code {
   z-index: 6;
 }
 
-.beatLane::after {
+.rhythmLane::after {
   content: "←";
   position: absolute;
   right: 16px;
@@ -2373,12 +2373,12 @@ code {
 }
 
 
-/* Beat Game duration boxes scale with note length. */
-.beatGame .noteHead > strong {
+/* Rhythm Game duration boxes scale with note length. */
+.rhythmGame .noteHead > strong {
   white-space: nowrap;
 }
 
-.beatGame .fallingDuration {
+.rhythmGame .fallingDuration {
   font-weight: 950;
   letter-spacing: .02em;
 }
@@ -2402,7 +2402,7 @@ code {
   white-space: nowrap;
 }
 
-.beatLane {
+.rhythmLane {
   overflow: hidden;
 }
 
@@ -2435,7 +2435,7 @@ code {
 }
 
 .guideSelect,
-.beatGuideSelect {
+.rhythmGuideSelect {
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -2445,7 +2445,7 @@ code {
 }
 
 .guideSelect select,
-.beatGuideSelect select {
+.rhythmGuideSelect select {
   width: auto;
   min-width: 78px;
   padding: 7px 9px;
@@ -2465,11 +2465,11 @@ code {
   transition: width .06s linear;
 }
 
-.beatGuideSelect {
+.rhythmGuideSelect {
   margin-left: auto;
 }
 
-.beatGuideSelect + .beatGameSpeed {
+.rhythmGuideSelect + .rhythmGameSpeed {
   margin-left: 0;
 }
 
@@ -2483,29 +2483,29 @@ code {
     justify-content: space-between;
   }
 
-  .beatGuideSelect {
+  .rhythmGuideSelect {
     margin-left: 0;
   }
 }
 
 
-.beatGame .fallingNote .noteHead {
+.rhythmGame .fallingNote .noteHead {
   min-width: 0;
   overflow: hidden;
 }
 
-.beatGame .fallingNote:not(.heldNote) .noteHead {
+.rhythmGame .fallingNote:not(.heldNote) .noteHead {
   border-radius: 10px;
 }
 
-.beatGame .fallingNote.heldNote .noteHead {
+.rhythmGame .fallingNote.heldNote .noteHead {
   border-radius: 10px;
   box-shadow:
     inset -12px 0 18px rgba(255,255,255,.12),
     0 5px 16px rgba(0,0,0,.28);
 }
 
-.beatGame .fallingNote.heldNote::after {
+.rhythmGame .fallingNote.heldNote::after {
   content: "HOLD";
   position: absolute;
   right: 10px;
@@ -2516,35 +2516,35 @@ code {
   letter-spacing: .08em;
 }
 
-.beatGamePage .fallingNote {
+.rhythmGamePage .fallingNote {
   height: 128px;
   min-height: 128px;
 }
 
-.beatGamePage .fallingNote .noteHead {
+.rhythmGamePage .fallingNote .noteHead {
   min-height: 128px;
 }
 
-.beatGamePage .fallingDuration {
+.rhythmGamePage .fallingDuration {
   left: 50%;
   transform: translateX(-50%);
 }
 
 /* Old separate sustain tails are no longer needed:
    the coloured block itself is the sustain duration. */
-.beatGame .sustainTail {
+.rhythmGame .sustainTail {
   display: none;
 }
 
 
 /* Responsive beat geometry:
    .fallingNote is the musical duration block; note content must never change its width. */
-.beatGame .fallingNote {
+.rhythmGame .fallingNote {
   min-width: 0;
   overflow: visible;
 }
 
-.beatGame .fallingNote .noteHead {
+.rhythmGame .fallingNote .noteHead {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -2556,13 +2556,13 @@ code {
 
 /* For very short notes, keep a readable information badge without altering
    the actual duration geometry. */
-.beatGame .fallingNote .noteHead > strong,
-.beatGame .fallingNote .noteHead > .recorderPattern {
+.rhythmGame .fallingNote .noteHead > strong,
+.rhythmGame .fallingNote .noteHead > .recorderPattern {
   position: relative;
   z-index: 2;
 }
 
-.beatGame .fallingNote[data-short="true"] .noteHead::before {
+.rhythmGame .fallingNote[data-short="true"] .noteHead::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -2571,7 +2571,7 @@ code {
 }
 
 /* The duration label centers itself on the true musical block. */
-.beatGame .fallingDuration {
+.rhythmGame .fallingDuration {
   left: 50%;
   transform: translateX(-50%);
 }
