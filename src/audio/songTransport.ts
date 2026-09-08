@@ -24,6 +24,40 @@ type TimedEvent = SongEvent & {
   endBeat: number;
 };
 
+type PresentationClock = {
+  contextTime: number;
+  performanceTime: number;
+};
+
+/**
+ * Map the audio timeline to the moment samples reach the output device.
+ * AudioContext.currentTime can run ahead by the device output latency, which
+ * makes animation driven directly from it appear early.
+ */
+function getPresentationClock(context: AudioContext): PresentationClock {
+  if (typeof context.getOutputTimestamp === "function") {
+    const timestamp = context.getOutputTimestamp();
+
+    if (
+      Number.isFinite(timestamp.contextTime) &&
+      Number.isFinite(timestamp.performanceTime) &&
+      timestamp.performanceTime > 0
+    ) {
+      return timestamp;
+    }
+  }
+
+  const outputLatency =
+    Number.isFinite(context.outputLatency) && context.outputLatency > 0
+      ? context.outputLatency
+      : context.baseLatency;
+
+  return {
+    contextTime: context.currentTime - Math.max(0, outputLatency),
+    performanceTime: performance.now(),
+  };
+}
+
 function makeTimeline(events: SongEvent[]): TimedEvent[] {
   const result: TimedEvent[] = [];
   let beat = 0;
@@ -50,7 +84,8 @@ export class SongTransport {
     if (!this.context) {
       const AudioContextCtor =
         window.AudioContext ??
-        (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+        (window as typeof window & { webkitAudioContext?: typeof AudioContext })
+          .webkitAudioContext;
 
       if (!AudioContextCtor) {
         throw new Error("Web Audio is not supported in this browser.");
@@ -65,7 +100,7 @@ export class SongTransport {
   async start(
     events: SongEvent[],
     bpm: number,
-    options: TransportOptions = {}
+    options: TransportOptions = {},
   ): Promise<TransportStart> {
     this.stop();
 
@@ -79,20 +114,29 @@ export class SongTransport {
     const leadInBeats = Math.max(0, options.leadInBeats ?? 0);
     const guideLevel = options.guideLevel ?? "full";
     const timeline = makeTimeline(events);
-    const totalBeats = timeline.length ? timeline[timeline.length - 1].endBeat : 0;
+    const totalBeats = timeline.length
+      ? timeline[timeline.length - 1].endBeat
+      : 0;
 
     // Small scheduling cushion avoids first-note jitter.
     const nowAudio = context.currentTime;
     const startAudioTime = nowAudio + 0.08 + leadInBeats * secondsPerBeat;
+    const presentationClock = getPresentationClock(context);
     const startPerformanceTime =
-      performance.now() + (startAudioTime - nowAudio) * 1000;
+      presentationClock.performanceTime +
+      (startAudioTime - presentationClock.contextTime) * 1000;
 
     if (options.metronome) {
       for (let beat = -leadInBeats; beat <= Math.ceil(totalBeats); beat += 1) {
         const at = startAudioTime + beat * secondsPerBeat;
         if (at < context.currentTime) continue;
         this.voices.push(
-          scheduleMetronomeClick(context, context.destination, at, beat % 4 === 0)
+          scheduleMetronomeClick(
+            context,
+            context.destination,
+            at,
+            beat % 4 === 0,
+          ),
         );
       }
     }
@@ -108,7 +152,7 @@ export class SongTransport {
         at,
         duration,
         guideLevel,
-        event.articulation ?? "normal"
+        event.articulation ?? "normal",
       );
 
       if (voice) this.voices.push(voice);
@@ -126,7 +170,16 @@ export class SongTransport {
 
   currentBeat() {
     if (!this.context || !this.started) return 0;
-    return (this.context.currentTime - this.started.startAudioTime) / this.started.secondsPerBeat;
+
+    const presentationClock = getPresentationClock(this.context);
+    const presentedContextTime =
+      presentationClock.contextTime +
+      (performance.now() - presentationClock.performanceTime) / 1000;
+
+    return (
+      (presentedContextTime - this.started.startAudioTime) /
+      this.started.secondsPerBeat
+    );
   }
 
   isPastEnd(extraBeats = 0) {
