@@ -11,7 +11,11 @@ import "./styles.css";
 import { CalibrationPanel } from "./calibration";
 import { SongDemoControls } from "./audio/SongDemoControls";
 import type { GuideLevel } from "./audio/recorderSynth";
-import { RhythmGame, type RhythmGameResult, type RhythmMidiSignal } from "./rhythmGame";
+import {
+  RhythmGame,
+  type RhythmGameResult,
+  type RhythmMidiSignal,
+} from "./rhythmGame";
 import { MidiTester, type MidiMessage } from "./tester";
 import {
   DEFAULT_MIDI_MAP,
@@ -43,6 +47,15 @@ import {
   SONG_RATINGS_STORAGE_KEY,
   type SongRatings,
 } from "./songRatings";
+import {
+  deleteScore,
+  fetchLeaderboards,
+  loadPlayerName,
+  samePlayer,
+  savePlayerName,
+  submitScore,
+  type Leaderboards,
+} from "./leaderboard";
 
 type Tab =
   | "tester"
@@ -155,6 +168,8 @@ function SongLibrary({
   section,
   ratings,
   onClearRating,
+  leaderboards,
+  playerName,
 }: {
   songs: Song[];
   title: string;
@@ -163,6 +178,8 @@ function SongLibrary({
   section: SongSection;
   ratings: SongRatings;
   onClearRating: (songId: string) => void;
+  leaderboards: Leaderboards;
+  playerName: string;
 }) {
   return (
     <section
@@ -190,9 +207,20 @@ function SongLibrary({
       <div className="songGrid">
         {songs.map((song) => {
           const rating = ratings[song.id];
+          const leaders = leaderboards[song.id] ?? [];
+          const leader = leaders[0];
+          const playerIsLeader = Boolean(
+            playerName && leader && samePlayer(playerName, leader.playerName),
+          );
+          const playerHasServerScore = leaders.some((entry) =>
+            samePlayer(playerName, entry.playerName),
+          );
 
           return (
-            <div className="songCardShell" key={song.id}>
+            <div
+              className={`songCardShell ${playerIsLeader ? "topScorer" : ""}`}
+              key={song.id}
+            >
               <button
                 className={`songCard ${song.playable ? "" : "comingSoon"}`}
                 onClick={() => onStart(song)}
@@ -216,12 +244,38 @@ function SongLibrary({
                 </div>
 
                 <p>{song.description}</p>
+
+                {playerIsLeader && (
+                  <div className="topScorerMessage">
+                    🏆 You are the top scorer on this song!
+                  </div>
+                )}
+
+                <div className="songScoreboard">
+                  <strong>Top scores</strong>
+                  {leaders.length ? (
+                    <ol>
+                      {leaders.slice(0, 3).map((entry, index) => (
+                        <li key={entry.playerName.toLocaleLowerCase()}>
+                          <span>
+                            {index === 0 ? "🏆 " : ""}
+                            {entry.playerName}
+                          </span>
+                          <b>{entry.percentage}%</b>
+                        </li>
+                      ))}
+                    </ol>
+                  ) : (
+                    <span className="noScores">No scores yet</span>
+                  )}
+                </div>
+
                 <span className="songStatus">
                   {song.playable ? "Practise →" : "Add melody tab"}
                 </span>
               </button>
 
-              {rating && (
+              {(rating || playerHasServerScore) && (
                 <button
                   type="button"
                   className="clearSongRating"
@@ -280,12 +334,19 @@ function App() {
   const [bpm, setBpm] = useState(90);
   const [guideLevel, setGuideLevel] = useState<GuideLevel>("soft");
   const [songMode, setSongMode] = useState<"practice" | "rhythm">("practice");
-  const [rhythmMidiSignal, setRhythmMidiSignal] = useState<RhythmMidiSignal | null>(
-    null,
-  );
+  const [rhythmMidiSignal, setRhythmMidiSignal] =
+    useState<RhythmMidiSignal | null>(null);
   const [rhythmGameResetKey, setRhythmGameResetKey] = useState(0);
   const [songRatings, setSongRatings] = useState<SongRatings>(() =>
     loadSongRatings(),
+  );
+  const [playerName, setPlayerName] = useState(() => loadPlayerName());
+  const [playerNameDraft, setPlayerNameDraft] = useState(() =>
+    loadPlayerName(),
+  );
+  const [leaderboards, setLeaderboards] = useState<Leaderboards>({});
+  const [leaderboardStatus, setLeaderboardStatus] = useState(
+    "Loading server scores…",
   );
 
   const resetBlowCountRef = useRef(0);
@@ -320,13 +381,63 @@ function App() {
     (result: RhythmGameResult) => {
       if (!selectedSong) return;
       setSongRatings(saveSongResult(selectedSong.id, result.percentage));
+
+      if (!playerName) {
+        setLeaderboardStatus("Set a player name in Settings to submit scores.");
+        return;
+      }
+
+      void submitScore({
+        songId: selectedSong.id,
+        playerName,
+        percentage: result.percentage,
+        score: result.score,
+        maximumScore: result.maximumScore,
+      })
+        .then((next) => {
+          setLeaderboards(next);
+          setLeaderboardStatus("Scoreboard updated");
+        })
+        .catch(() => {
+          setLeaderboardStatus("Could not reach the score server");
+        });
     },
-    [selectedSong],
+    [playerName, selectedSong],
   );
 
   const clearSavedSongRating = (songId: string) => {
     setSongRatings(clearSongRating(songId));
+    if (!playerName) return;
+
+    void deleteScore(songId, playerName)
+      .then((next) => {
+        setLeaderboards(next);
+        setLeaderboardStatus("Saved score removed");
+      })
+      .catch(() => {
+        setLeaderboardStatus("Local rating cleared; server was unavailable");
+      });
   };
+
+  const savePlayerProfile = () => {
+    const next = savePlayerName(playerNameDraft);
+    setPlayerName(next);
+    setPlayerNameDraft(next);
+    setLeaderboardStatus(
+      next ? `Playing as ${next}` : "Enter a name to submit scores",
+    );
+  };
+
+  const refreshLeaderboards = useCallback(() => {
+    void fetchLeaderboards()
+      .then((next) => {
+        setLeaderboards(next);
+        setLeaderboardStatus("Server scoreboard connected");
+      })
+      .catch(() => {
+        setLeaderboardStatus("Score server unavailable");
+      });
+  }, []);
 
   const activeSongEvents: SongEvent[] = selectedSong
     ? selectedSongSection === "zelda"
@@ -390,12 +501,12 @@ function App() {
       if (current && list.some((input) => input.id === current)) return current;
 
       const rememberedInput = remembered
-        ? list.find((input) => input.id === remembered.id) ??
+        ? (list.find((input) => input.id === remembered.id) ??
           list.find(
             (input) =>
               (input.name ?? "") === remembered.name &&
               (input.manufacturer ?? "") === remembered.manufacturer,
-          )
+          ))
         : undefined;
 
       const carryOn = list.find((input) => {
@@ -484,6 +595,17 @@ function App() {
     window.addEventListener("storage", refreshRatings);
     return () => window.removeEventListener("storage", refreshRatings);
   }, []);
+
+  useEffect(() => {
+    refreshLeaderboards();
+    const timer = window.setInterval(refreshLeaderboards, 30_000);
+    window.addEventListener("focus", refreshLeaderboards);
+
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", refreshLeaderboards);
+    };
+  }, [refreshLeaderboards]);
 
   const useLastPlayedForTarget = () => {
     if (lastMidi === null) return;
@@ -1302,7 +1424,6 @@ function App() {
               Lord of the Rings
             </button>
           </div>
-
         </section>
 
         {tab === "tester" && (
