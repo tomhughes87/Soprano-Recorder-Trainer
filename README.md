@@ -17,7 +17,7 @@ An app to learn how to play the "carry-on" digital wind instrument as a soprano 
 
 ## Getting started
 
-Install dependencies:
+Install Dependencies:
 
 ```bash
 npm install
