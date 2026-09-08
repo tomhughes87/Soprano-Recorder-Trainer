@@ -218,6 +218,46 @@ h2 {
   margin-top: 12px;
 }
 
+.resetGestureSettings {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(0,0,0,.08);
+}
+
+.resetGestureSettings p {
+  margin-top: 5px;
+  max-width: 650px;
+}
+
+.resetGestureOptions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 7px;
+}
+
+.resetGestureOptions .selectedMode {
+  border-color: var(--accent);
+  outline: 2px solid color-mix(in srgb, var(--accent) 48%, transparent);
+  outline-offset: 1px;
+}
+
+@media (max-width: 700px) {
+  .resetGestureSettings {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .resetGestureOptions .secondary {
+    flex: 1;
+  }
+}
+
 .actions {
   display: flex;
   align-items: center;
@@ -772,21 +812,6 @@ code {
   font-weight: 850;
 }
 
-.songResetHint {
-  margin: 0 auto 18px;
-  padding: 10px 13px;
-  border: 1px dashed var(--border);
-  border-radius: 10px;
-  background: rgba(0,0,0,.08);
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.45;
-}
-
-.songResetHint strong {
-  color: var(--text);
-}
-
 .zeldaVersionSwitch {
   display: flex;
   justify-content: center;
@@ -1338,63 +1363,6 @@ code {
 }
 
 
-/* Per-song reset safety */
-.songResetHint {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 10px 18px;
-  text-align: left;
-}
-
-.songResetCopy {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  align-items: baseline;
-}
-
-.resetSafetyToggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 40px;
-  padding: 7px 10px;
-  border: 1px solid var(--border);
-  border-radius: 9px;
-  background: rgba(0,0,0,.08);
-  color: var(--text);
-  font-size: 13px;
-  font-weight: 850;
-  cursor: pointer;
-  user-select: none;
-}
-
-.resetSafetyToggle input {
-  width: 18px;
-  height: 18px;
-  margin: 0;
-  accent-color: var(--accent);
-}
-
-.resetSafetyHelp {
-  grid-column: 1 / -1;
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.4;
-}
-
-@media (max-width: 700px) {
-  .songResetHint {
-    grid-template-columns: 1fr;
-  }
-
-  .resetSafetyToggle {
-    justify-self: start;
-  }
-}
-
-
 /* Lord of the Rings: dark royal blue + antique gold */
 .themeLotr {
   --bg: #0b1020;
@@ -1610,7 +1578,6 @@ code {
   color: rgba(31,33,29,.7);
 }
 
-.songPlayer.focusMode .songResetHint,
 .songPlayer.focusMode .playModeTitle .sub,
 .songPlayer.focusMode .songStats,
 .songPlayer.focusMode .trainingActions,

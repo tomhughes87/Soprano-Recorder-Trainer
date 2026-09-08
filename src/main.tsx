@@ -77,15 +77,35 @@ type SongSection =
 
 const STORAGE_KEY = "carryon-recorder-midi-map-v1";
 const MIDI_INPUT_STORAGE_KEY = "carryon-midi-input-v1";
+const RESET_GESTURE_STORAGE_KEY = "carryon-reset-gesture-v1";
 const RESET_NOTE_ID = "Cs5";
-const DEFAULT_RESET_BLOWS = 3;
-const SAFE_RESET_BLOWS = 5;
+
+type ResetGestureSetting = 3 | 5 | "off";
 
 type SavedMidiInput = {
   id: string;
   name: string;
   manufacturer: string;
 };
+
+function loadResetGesture(): ResetGestureSetting {
+  try {
+    const saved = localStorage.getItem(RESET_GESTURE_STORAGE_KEY);
+    if (saved === "5") return 5;
+    if (saved === "off") return "off";
+  } catch {
+    // Use the default when local storage is unavailable.
+  }
+  return 3;
+}
+
+function saveResetGesture(setting: ResetGestureSetting) {
+  try {
+    localStorage.setItem(RESET_GESTURE_STORAGE_KEY, String(setting));
+  } catch {
+    // The setting still applies for the current session.
+  }
+}
 
 function loadSavedMidiInput(): SavedMidiInput | null {
   try {
@@ -341,7 +361,8 @@ function App() {
   const [songMistakes, setSongMistakes] = useState(0);
   const [songFeedback, setSongFeedback] = useState("Play the first note");
   const [zeldaVersion, setZeldaVersion] = useState<"short" | "long">("short");
-  const [safeResetMode, setSafeResetMode] = useState(false);
+  const [resetGesture, setResetGesture] =
+    useState<ResetGestureSetting>(loadResetGesture);
   const [focusMode, setFocusMode] = useState(false);
   const [metronomeEnabled, setMetronomeEnabled] = useState(false);
   const [bpm, setBpm] = useState(90);
@@ -472,9 +493,7 @@ function App() {
   const currentSongEvent = activeSongEvents[songStep] ?? null;
   const currentSongNote =
     trainingNotes.find((note) => note.id === currentSongEvent?.note) ?? null;
-  const resetBlowsRequired = safeResetMode
-    ? SAFE_RESET_BLOWS
-    : DEFAULT_RESET_BLOWS;
+  const resetBlowsRequired = resetGesture === "off" ? null : resetGesture;
 
   const pageTheme =
     tab === "level0"
@@ -503,6 +522,12 @@ function App() {
     const defaults = { ...DEFAULT_MIDI_MAP };
     setMidiMap(defaults);
     saveMidiMap(defaults);
+  };
+
+  const updateResetGesture = (setting: ResetGestureSetting) => {
+    setResetGesture(setting);
+    saveResetGesture(setting);
+    resetBlowCountRef.current = 0;
   };
 
   const refreshInputs = (access: MIDIAccess) => {
@@ -637,7 +662,6 @@ function App() {
     setSongMistakes(0);
     setSongFeedback("Play the first note");
     resetBlowCountRef.current = 0;
-    setSafeResetMode(false);
     setFocusMode(false);
     setMetronomeEnabled(false);
     setSongMode("practice");
@@ -772,7 +796,7 @@ function App() {
           const resetMidi =
             midiMap[RESET_NOTE_ID] ?? DEFAULT_MIDI_MAP[RESET_NOTE_ID];
 
-          if (data1 === resetMidi) {
+          if (resetBlowsRequired !== null && data1 === resetMidi) {
             resetBlowCountRef.current += 1;
 
             if (resetBlowCountRef.current >= resetBlowsRequired) {
@@ -933,33 +957,6 @@ function App() {
 
               <div className="songCounter">
                 {songStep + 1} / {activeSongEvents.length}
-              </div>
-            </div>
-
-            <div className="songResetHint">
-              <div className="songResetCopy">
-                <strong>Quick reset:</strong>
-                <span>
-                  play your calibrated C♯5 {resetBlowsRequired} times in a row.
-                </span>
-              </div>
-
-              <label className="resetSafetyToggle">
-                <input
-                  type="checkbox"
-                  checked={safeResetMode}
-                  onChange={(event) => {
-                    setSafeResetMode(event.target.checked);
-                    resetBlowCountRef.current = 0;
-                    setSongFeedback("Play the next note");
-                  }}
-                />
-                <span>5-blow safe reset</span>
-              </label>
-
-              <div className="resetSafetyHelp">
-                Turn this on for songs that contain repeated C♯5 notes, so
-                normal playing is less likely to reset the tune.
               </div>
             </div>
 
@@ -1536,6 +1533,39 @@ function App() {
                   The Carry-on defaults are preloaded. If its notes do not
                   match, use the calibration map below.
                 </p>
+              </div>
+
+              <div className="resetGestureSettings">
+                <div>
+                  <strong>Quick reset gesture</strong>
+                  <p className="sub small">
+                    During a song, play your calibrated C♯5 repeatedly to
+                    restart it. Choose 5× if the song itself contains repeated
+                    C♯5 notes.
+                  </p>
+                </div>
+
+                <div
+                  className="resetGestureOptions"
+                  role="group"
+                  aria-label="Quick reset gesture"
+                >
+                  {([3, 5, "off"] as const).map((setting) => (
+                    <button
+                      key={setting}
+                      type="button"
+                      className={
+                        resetGesture === setting
+                          ? "secondary selectedMode"
+                          : "secondary"
+                      }
+                      aria-pressed={resetGesture === setting}
+                      onClick={() => updateResetGesture(setting)}
+                    >
+                      {setting === "off" ? "Off" : `${setting}×`}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div className="actions">
