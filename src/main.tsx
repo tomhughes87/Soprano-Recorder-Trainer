@@ -17,10 +17,9 @@ import {
   midiToNote,
   type MidiMap,
 } from "./training";
-import { ENGLISH_FOLK_SONGS } from "./music/englishFolk";
-import { ZELDA_SHORT_SONGS } from "./music/zeldaShort";
-import { ZELDA_LONG_SONGS } from "./music/zeldaLong";
-import { LOTR_SONGS } from "./music/lordOfTheRings";
+import { ENGLISH_FOLK_SONGS } from "./music/english-folk";
+import { ZELDA_SONGS } from "./music/zelda";
+import { LOTR_SONGS } from "./music/lord-of-the-rings";
 import {
   articulationLabel,
   eventLengthLabel,
@@ -36,13 +35,6 @@ const STORAGE_KEY = "carryon-recorder-midi-map-v1";
 const RESET_NOTE_ID = "Cs5";
 const DEFAULT_RESET_BLOWS = 3;
 const SAFE_RESET_BLOWS = 5;
-
-const ZELDA_SONGS: Song[] = ZELDA_SHORT_SONGS.map((song) => ({
-  ...song,
-  playable: true,
-  rhythmVerified: false,
-  longNotes: ZELDA_LONG_SONGS[song.id],
-}));
 
 function loadMidiMap(): MidiMap {
   try {
