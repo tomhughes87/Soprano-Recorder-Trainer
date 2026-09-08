@@ -25,16 +25,37 @@ const HIT_WINDOW_BEATS = 0.42;
 const LOOKAHEAD_BEATS = 3;
 const RESULT_STORAGE = "carryon-beat-game-best-v1";
 
-type Lane = 1 | 2 | 3;
+const NOTE_HEIGHT_ORDER = [
+  "D5",
+  "Cs5",
+  "C5",
+  "B4",
+  "Bb4",
+  "A4",
+  "Gs4",
+  "G4",
+  "Fs4",
+  "F4",
+  "E4",
+  "Ds4",
+  "D4",
+  "Cs4",
+  "C4",
+] as const;
 
-function laneForNoteId(noteId: string): Lane {
-  // Group by fingering openness / hand position:
-  // 1 = more open / higher notes
-  // 2 = mid positions
-  // 3 = more covered / lower notes
-  if (["A4", "Bb4", "B4", "C5", "Cs5", "D5"].includes(noteId)) return 1;
-  if (["F4", "Fs4", "G4", "Gs4"].includes(noteId)) return 2;
-  return 3;
+function verticalPositionForNoteId(noteId: string) {
+  const index = NOTE_HEIGHT_ORDER.indexOf(noteId as (typeof NOTE_HEIGHT_ORDER)[number]);
+  const safeIndex = index >= 0 ? index : NOTE_HEIGHT_ORDER.length - 1;
+
+  // Higher note = higher on screen.
+  // The range is compressed so adjacent notes overlap a bit vertically,
+  // which keeps the full recorder range visible without making the lane too tall.
+  const top = 10;
+  const bottom = 88;
+  const spread = bottom - top;
+  const ratio = safeIndex / Math.max(1, NOTE_HEIGHT_ORDER.length - 1);
+
+  return top + ratio * spread;
 }
 
 
@@ -349,18 +370,17 @@ export function BeatGame({
       </div>
 
       <div className="beatLane" aria-label="Beat game note highway">
-        <div className="laneBand laneBand1">
-          <span>SET 1</span>
+        <div className="pitchScale" aria-hidden="true">
+          {NOTE_HEIGHT_ORDER.map(noteId => (
+            <div
+              key={noteId}
+              className="pitchScaleMark"
+              style={{ top: `${verticalPositionForNoteId(noteId)}%` }}
+            >
+              {noteId.replace("s", "♯")}
+            </div>
+          ))}
         </div>
-        <div className="laneBand laneBand2">
-          <span>SET 2</span>
-        </div>
-        <div className="laneBand laneBand3">
-          <span>SET 3</span>
-        </div>
-
-        <div className="beatLaneGuide beatLaneGuide1" />
-        <div className="beatLaneGuide beatLaneGuide2" />
 
         {visibleEvents.map(event => {
           const note = noteById(event.note);
@@ -373,21 +393,16 @@ export function BeatGame({
           // progress: 0 = far future, 1 = at hit time.
           const x = Math.max(8, Math.min(94, 92 - progress * 80));
 
-          const lane = laneForNoteId(event.note);
-          const laneTop =
-            lane === 1 ? 17 :
-            lane === 2 ? 50 :
-            83;
-
+          const y = verticalPositionForNoteId(event.note);
           const judgement = judgements[event.index];
 
           return (
             <div
               key={event.index}
-              className={`fallingNote lane${lane} ${judgement ? `judged ${judgement}` : ""}`}
+              className={`fallingNote ${judgement ? `judged ${judgement}` : ""}`}
               style={{
                 left: `${x}%`,
-                top: `${laneTop}%`,
+                top: `${y}%`,
               }}
             >
               <div className="noteHead noteColourCard" style={noteColourStyle(note.id)}>

@@ -1453,16 +1453,7 @@ code {
     rgba(0,0,0,.12);
 }
 
-.beatLaneGuide {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background: rgba(255,255,255,.055);
-}
 
-.beatLaneGuide1 { top: 33.333%; left: 0; right: 0; bottom: auto; width: auto; height: 1px; }
-.beatLaneGuide2 { top: 66.666%; left: 0; right: 0; bottom: auto; width: auto; height: 1px; }
 
 .hitLine {
   position: absolute;
@@ -1788,56 +1779,6 @@ code {
 }
 
 
-.laneBand {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 33.333%;
-  pointer-events: none;
-}
-
-.laneBand1 {
-  top: 0;
-  background: rgba(255,255,255,.012);
-}
-
-.laneBand2 {
-  top: 33.333%;
-  background: rgba(0,0,0,.035);
-}
-
-.laneBand3 {
-  top: 66.666%;
-  background: rgba(255,255,255,.012);
-}
-
-.laneBand > span {
-  position: absolute;
-  left: 10px;
-  top: 8px;
-  color: var(--muted);
-  font-size: 10px;
-  font-weight: 950;
-  letter-spacing: .11em;
-  opacity: .7;
-}
-
-.fallingNote.lane1 .noteHead,
-.fallingNote.lane2 .noteHead,
-.fallingNote.lane3 .noteHead {
-  box-shadow: 0 4px 12px rgba(0,0,0,.18);
-}
-
-/* All three lanes use the same hit line; vertical position encodes fingering openness. */
-.hitLine {
-  z-index: 6;
-}
-
-.beatLane::after {
-  content: "←";
-  right: 16px;
-  top: 50%;
-}
 
 
 /* Beat Game is its own clean performance screen */
@@ -2049,64 +1990,134 @@ code {
   color: var(--note-colour);
 }
 
-/* Gentle tint so colour is visible without sacrificing fingering contrast. */
+/* Bold pitch colours across the app. */
 .fingerRow.noteColourCard,
 .calibrationRow.noteColourCard,
 .songStripNote.noteColourCard {
   background:
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--note-colour) 10%, transparent),
-      color-mix(in srgb, var(--note-colour) 4%, transparent)
-    ),
-    var(--panel-soft);
+      color-mix(in srgb, var(--note-colour) 30%, var(--panel-soft) 70%),
+      color-mix(in srgb, var(--note-colour) 18%, var(--panel-soft) 82%)
+    );
 }
 
 .songStripNote.current.noteColourCard {
   background: var(--note-colour);
-  color: #171713;
-  border-color: var(--note-colour) !important;
+  color: #141414;
+  border-color: color-mix(in srgb, var(--note-colour) 88%, white 12%) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--note-colour) 35%, transparent);
 }
 
 .songStripNote.current.noteColourCard > strong {
-  color: #171713;
+  color: #141414;
 }
 
-/* Beat Game: use the pitch colour as the card background, with a pale readable tint. */
+/* Beat Game: strong, unmistakable solid pitch cards. */
 .beatGame .noteHead.noteColourCard {
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--note-colour) 34%, #f5efe1 66%),
-      color-mix(in srgb, var(--note-colour) 24%, #dfd4bf 76%)
-    );
-  border-color: var(--note-colour) !important;
-  color: #241d17;
+  background: var(--note-colour);
+  border-color: color-mix(in srgb, var(--note-colour) 72%, #ffffff 28%) !important;
+  color: #111;
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--note-colour) 30%, transparent),
+    0 6px 16px rgba(0,0,0,.28);
 }
 
 .beatGame .noteHead.noteColourCard > strong {
-  color: color-mix(in srgb, var(--note-colour) 72%, #251b16 28%);
+  color: #111;
+  text-shadow: 0 1px 0 rgba(255,255,255,.2);
 }
 
 .beatGame .noteHead.noteColourCard .recorderHole {
-  --hole-open: #fffaf0;
-  --hole-stroke: #2e261f;
-  --hole-closed: #2e261f;
+  --hole-open: #fffdf5;
+  --hole-stroke: #171717;
+  --hole-closed: #171717;
 }
 
-/* Keep English folk parchment feel, but let the standard pitch colour win. */
+/* English folk keeps its brown page, but the game notes use the same bold pitch colours. */
 .themeFolk .beatGame .noteHead.noteColourCard {
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--note-colour) 28%, #f0dfbd 72%),
-      color-mix(in srgb, var(--note-colour) 18%, #dec9a6 82%)
-    );
-  border-color: var(--note-colour) !important;
+  background: var(--note-colour);
+  border-color: color-mix(in srgb, var(--note-colour) 70%, #ffe9ae 30%) !important;
 }
 
-/* Sustain tails follow the same pitch colour. */
+/* Sustain tails follow the same pitch colour, brighter and thicker. */
 .beatGame .fallingNote .sustainTail {
   background: var(--note-colour);
-  opacity: .7;
+  opacity: .95;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--note-colour) 75%, white 25%);
+}
+
+
+.beatGamePage .noteHead.noteColourCard > strong {
+  font-size: 28px;
+  font-weight: 1000;
+  letter-spacing: -.02em;
+}
+
+.beatGamePage .noteHead.noteColourCard {
+  filter: saturate(1.15);
+}
+
+
+.pitchScale {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.pitchScaleMark {
+  position: absolute;
+  left: 12px;
+  transform: translateY(-50%);
+  color: color-mix(in srgb, var(--muted) 82%, white 18%);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .03em;
+  opacity: .78;
+  text-shadow: 0 1px 0 rgba(0,0,0,.25);
+}
+
+.pitchScaleMark::after {
+  content: "";
+  position: absolute;
+  left: 30px;
+  top: 50%;
+  width: calc(100vw - 260px);
+  max-width: 1400px;
+  height: 1px;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,.045);
+}
+
+.fallingNote .noteHead {
+  box-shadow: 0 4px 12px rgba(0,0,0,.18);
+}
+
+.hitLine {
+  z-index: 6;
+}
+
+.beatLane::after {
+  content: "←";
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: 28px;
+  font-weight: 900;
+  opacity: .45;
+}
+
+
+@media (max-width: 800px) {
+  .pitchScaleMark {
+    left: 8px;
+    font-size: 9px;
+  }
+
+  .pitchScaleMark::after {
+    left: 26px;
+    width: calc(100vw - 120px);
+  }
 }

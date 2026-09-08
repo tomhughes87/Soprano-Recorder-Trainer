@@ -17,13 +17,13 @@ const NOTE_NAMES = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A"
 // Common classroom / Boomwhackers-style pitch colours.
 // Accidentals inherit the colour of their letter name.
 export const NOTE_COLOURS: Record<string, string> = {
-  C: "#d85b5b",
-  D: "#dc8a43",
-  E: "#d8bc4f",
-  F: "#6fa66c",
-  G: "#5e91c5",
-  A: "#8b6fb5",
-  B: "#c97094",
+  C: "#e53935",
+  D: "#f57c00",
+  E: "#fbc02d",
+  F: "#43a047",
+  G: "#1e88e5",
+  A: "#8e44ad",
+  B: "#d81b60",
 };
 
 export function noteColour(noteIdOrLabel: string) {
