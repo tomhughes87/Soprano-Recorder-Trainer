@@ -31,6 +31,14 @@ npm run dev
 
 This starts a Vite dev server (default: http://localhost:5173) — open it in Chrome or Edge.
 
+Build and run the production version locally:
+
+```bash
+npm start
+```
+
+This builds the app into `dist/` and then starts the Vite preview server (default: http://localhost:4173).
+
 Other scripts:
 
 ```bash
