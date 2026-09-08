@@ -1516,7 +1516,7 @@ code {
 
 .sustainTail {
   position: absolute;
-  right: 58px;
+  left: 58px;
   top: 50%;
   height: 8px;
   transform: translateY(-50%);
@@ -1957,7 +1957,7 @@ code {
 }
 
 .beatGamePage .sustainTail {
-  right: 76px;
+  left: 76px;
   height: 9px;
 }
 
@@ -2000,4 +2000,113 @@ code {
   .beatGamePage .beatLane {
     height: 560px;
   }
+}
+
+
+/* English folk Beat Game note cards: light parchment for fast reading */
+.themeFolk .beatGame .noteHead {
+  background: #e7d7b8;
+  color: #302217;
+  border-color: #d7b878;
+  box-shadow: 0 5px 14px rgba(0,0,0,.22);
+}
+
+.themeFolk .beatGame .noteHead .recorderHole {
+  --hole-open: #fff8e8;
+  --hole-stroke: #35271c;
+  --hole-closed: #35271c;
+}
+
+.themeFolk .beatGame .fallingDuration {
+  color: #dcc79f;
+}
+
+.themeFolk .beatGame .sustainTail {
+  background: #d7b878;
+  opacity: .72;
+}
+
+
+/* Standard pitch colour coding across the app
+   C red · D orange · E yellow · F green · G blue · A purple · B pink */
+.noteColouredText {
+  color: var(--note-colour);
+}
+
+.noteColourSurface {
+  border: 3px solid color-mix(in srgb, var(--note-colour) 72%, #ffffff 28%);
+  box-shadow:
+    inset 0 0 0 2px color-mix(in srgb, var(--note-colour) 18%, transparent),
+    0 8px 24px rgba(0,0,0,.14);
+}
+
+.noteColourCard {
+  border-color: color-mix(in srgb, var(--note-colour) 78%, var(--border) 22%) !important;
+}
+
+.noteColourCard > strong,
+.noteColourCard .calibrationRowText > strong {
+  color: var(--note-colour);
+}
+
+/* Gentle tint so colour is visible without sacrificing fingering contrast. */
+.fingerRow.noteColourCard,
+.calibrationRow.noteColourCard,
+.songStripNote.noteColourCard {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--note-colour) 10%, transparent),
+      color-mix(in srgb, var(--note-colour) 4%, transparent)
+    ),
+    var(--panel-soft);
+}
+
+.songStripNote.current.noteColourCard {
+  background: var(--note-colour);
+  color: #171713;
+  border-color: var(--note-colour) !important;
+}
+
+.songStripNote.current.noteColourCard > strong {
+  color: #171713;
+}
+
+/* Beat Game: use the pitch colour as the card background, with a pale readable tint. */
+.beatGame .noteHead.noteColourCard {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--note-colour) 34%, #f5efe1 66%),
+      color-mix(in srgb, var(--note-colour) 24%, #dfd4bf 76%)
+    );
+  border-color: var(--note-colour) !important;
+  color: #241d17;
+}
+
+.beatGame .noteHead.noteColourCard > strong {
+  color: color-mix(in srgb, var(--note-colour) 72%, #251b16 28%);
+}
+
+.beatGame .noteHead.noteColourCard .recorderHole {
+  --hole-open: #fffaf0;
+  --hole-stroke: #2e261f;
+  --hole-closed: #2e261f;
+}
+
+/* Keep English folk parchment feel, but let the standard pitch colour win. */
+.themeFolk .beatGame .noteHead.noteColourCard {
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--note-colour) 28%, #f0dfbd 72%),
+      color-mix(in srgb, var(--note-colour) 18%, #dec9a6 82%)
+    );
+  border-color: var(--note-colour) !important;
+}
+
+/* Sustain tails follow the same pitch colour. */
+.beatGame .fallingNote .sustainTail {
+  background: var(--note-colour);
+  opacity: .7;
 }

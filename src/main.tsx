@@ -11,6 +11,7 @@ import {
   RecorderPattern,
   TrainingPanel,
   applyMidiMap,
+  noteColourStyle,
   midiToNote,
   type MidiMap,
 } from "./training";
@@ -706,9 +707,9 @@ function App() {
             <button className="focusBackButton" onClick={() => setFocusMode(false)}>← Back</button>
 
             <div className="practiceFocusCenter">
-              <div className="practiceFocusNote">{currentSongNote.label}</div>
+              <div className="practiceFocusNote noteColouredText" style={noteColourStyle(currentSongNote.id)}>{currentSongNote.label}</div>
 
-              <div className="practiceFocusFingering">
+              <div className="practiceFocusFingering noteColourSurface" style={noteColourStyle(currentSongNote.id)}>
                 <RecorderPattern note={currentSongNote} large />
               </div>
 
@@ -724,10 +725,10 @@ function App() {
           <div className="songNow">
             <div className="trainingTop songTarget">
               <span className="trainingLabel">Next note</span>
-              <span className="targetNote">{currentSongNote.label}</span>
+              <span className="targetNote noteColouredText" style={noteColourStyle(currentSongNote.id)}>{currentSongNote.label}</span>
             </div>
 
-            <div className="fingeringStage">
+            <div className="fingeringStage noteColourSurface" style={noteColourStyle(currentSongNote.id)}>
               <RecorderPattern note={currentSongNote} large />
             </div>
 
@@ -777,9 +778,10 @@ function App() {
                   return (
                     <div
                       key={`${event.note}-${absoluteIndex}`}
-                      className={`songStripNote ${
+                      className={`songStripNote noteColourCard ${
                         absoluteIndex === songStep ? "current" : ""
                       } ${absoluteIndex < songStep ? "done" : ""}`}
+                      style={noteColourStyle(note.id)}
                     >
                       <strong>{note.label}</strong>
                       <RecorderPattern note={note} compact />

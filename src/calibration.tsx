@@ -2,6 +2,7 @@ import React from "react";
 import {
   RecorderPattern,
   midiToNote,
+  noteColourStyle,
   type MidiMap,
   type TrainingNote,
 } from "./training";
@@ -49,9 +50,9 @@ export function CalibrationPanel({
         <div className="calibrationWorkspace">
           <div className="calibrationTarget">
             <span className="trainingLabel">Selected note</span>
-            <strong>{selected.label}</strong>
+            <strong className="noteColouredText" style={noteColourStyle(selected.id)}>{selected.label}</strong>
 
-            <div className="fingeringStage calibrationStage">
+            <div className="fingeringStage calibrationStage noteColourSurface" style={noteColourStyle(selected.id)}>
               <RecorderPattern note={selected} large />
             </div>
 
@@ -112,7 +113,8 @@ export function CalibrationPanel({
             return (
               <button
                 key={note.id}
-                className={`calibrationRow ${active ? "selected" : ""}`}
+                className={`calibrationRow noteColourCard ${active ? "selected" : ""}`}
+                style={noteColourStyle(note.id)}
                 onClick={() => onSelect(note.id)}
               >
                 <RecorderPattern note={note} compact />

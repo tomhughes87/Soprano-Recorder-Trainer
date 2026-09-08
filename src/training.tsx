@@ -14,6 +14,28 @@ export type TrainingNote = {
 
 const NOTE_NAMES = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"];
 
+// Common classroom / Boomwhackers-style pitch colours.
+// Accidentals inherit the colour of their letter name.
+export const NOTE_COLOURS: Record<string, string> = {
+  C: "#d85b5b",
+  D: "#dc8a43",
+  E: "#d8bc4f",
+  F: "#6fa66c",
+  G: "#5e91c5",
+  A: "#8b6fb5",
+  B: "#c97094",
+};
+
+export function noteColour(noteIdOrLabel: string) {
+  const letter = noteIdOrLabel.trim().charAt(0).toUpperCase();
+  return NOTE_COLOURS[letter] ?? "#c9c5bb";
+}
+
+export function noteColourStyle(noteIdOrLabel: string): React.CSSProperties {
+  return { "--note-colour": noteColour(noteIdOrLabel) } as React.CSSProperties;
+}
+
+
 const O: HoleState = "open";
 const X: HoleState = "closed";
 const H: HoleState = "half";
@@ -142,10 +164,10 @@ export function TrainingPanel(props: TrainingPanelProps) {
       <section className="panel trainingCard">
         <div className="trainingTop">
           <span className="trainingLabel">Play this fingering</span>
-          <span className="targetNote">{target.label}</span>
+          <span className="targetNote noteColouredText" style={noteColourStyle(target.id)}>{target.label}</span>
         </div>
 
-        <div className="fingeringStage">
+        <div className="fingeringStage noteColourSurface" style={noteColourStyle(target.id)}>
           <RecorderPattern note={target} large />
         </div>
 
@@ -187,7 +209,8 @@ export function TrainingPanel(props: TrainingPanelProps) {
           {trainingNotes.map((note, index) => (
             <button
               key={note.id}
-              className={`fingerRow ${index === targetIndex ? "selected" : ""}`}
+              className={`fingerRow noteColourCard ${index === targetIndex ? "selected" : ""}`}
+              style={noteColourStyle(note.id)}
               onClick={() => onTargetIndex(index)}
             >
               <RecorderPattern note={note} compact />

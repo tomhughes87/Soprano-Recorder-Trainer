@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { RecorderPattern, type TrainingNote } from "./training";
+import { RecorderPattern, noteColourStyle, type TrainingNote } from "./training";
 import { eventLengthLabel, type SongEvent } from "./music/songTypes";
 
 export type BeatMidiSignal = {
@@ -390,11 +390,13 @@ export function BeatGame({
                 top: `${laneTop}%`,
               }}
             >
-              <div className="noteHead">
+              <div className="noteHead noteColourCard" style={noteColourStyle(note.id)}>
                 <strong>{note.label}</strong>
                 <RecorderPattern note={note} compact />
               </div>
 
+              {/* Only notes longer than 1 beat need an explicit sustain tail.
+                  Shorter durations are represented by their timing/spacing. */}
               {event.beats > 1 && (
                 <span
                   className="sustainTail"
