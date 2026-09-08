@@ -1878,8 +1878,9 @@ code {
 
 .beatGamePage .noteHead {
   min-width: 104px;
-  min-height: 108px;
-  padding: 8px 12px;
+  min-height: 128px;
+  padding: 6px 10px;
+  gap: 3px;
 }
 
 .beatGamePage .noteHead > strong {
@@ -1887,18 +1888,22 @@ code {
 }
 
 .beatGamePage .noteHead .recorderPattern.compact .recorderHole {
-  width: 13px;
-  height: 13px;
+  width: 10px;
+  height: 10px;
   border-width: 2px;
 }
 
+.beatGamePage .noteHead .recorderPattern.compact {
+  gap: 2px;
+}
+
 .beatGamePage .noteHead .recorderPattern.compact .patternTopRow {
-  gap: 6px;
+  gap: 4px;
 }
 
 .beatGamePage .noteHead .recorderPattern.compact .patternFrontColumn {
-  gap: 4px;
-  padding-left: 19px;
+  gap: 2px;
+  padding-left: 15px;
 }
 
 .beatGamePage .fallingDuration {
@@ -2058,8 +2063,9 @@ code {
 
 
 .beatGamePage .noteHead.noteColourCard > strong {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 1000;
+  line-height: 1;
   letter-spacing: -.02em;
 }
 
@@ -2283,11 +2289,12 @@ code {
 }
 
 .beatGamePage .fallingNote {
-  min-height: 108px;
+  height: 128px;
+  min-height: 128px;
 }
 
 .beatGamePage .fallingNote .noteHead {
-  min-height: 108px;
+  min-height: 128px;
 }
 
 .beatGamePage .fallingDuration {
