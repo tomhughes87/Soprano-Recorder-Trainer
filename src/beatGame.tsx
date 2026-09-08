@@ -18,6 +18,7 @@ import {
 } from "./music/songTypes";
 import { SongTransport } from "./audio/songTransport";
 import type { GuideLevel } from "./audio/recorderSynth";
+import { gradeForPercentage, type Grade, type SongRating } from "./songRatings";
 
 export type BeatMidiSignal = {
   nonce: number;
@@ -38,11 +39,20 @@ type Props = {
   guideLevel: GuideLevel;
   onGuideLevelChange: (level: GuideLevel) => void;
   onBpmChange: (bpm: number) => void;
+  savedRating?: SongRating;
+  onComplete: (result: BeatGameResult) => void;
+};
+
+export type BeatGameResult = {
+  score: number;
+  maximumScore: number;
+  percentage: number;
+  grade: Grade;
 };
 
 const HIT_WINDOW_BEATS = 0.42;
 const LOOKAHEAD_BEATS = 3;
-const RESULT_STORAGE = "carryon-beat-game-best-v1";
+const COUNTDOWN_BEATS = 4;
 
 const NOTE_HEIGHT_ORDER = [
   "D5",
@@ -106,25 +116,6 @@ function primaryGameLabel(label: string) {
   return label.split("/")[0].trim();
 }
 
-function loadBest() {
-  try {
-    const raw = localStorage.getItem(RESULT_STORAGE);
-    if (!raw) return 0;
-    const parsed = JSON.parse(raw) as { bestScore?: number };
-    return Number(parsed.bestScore) || 0;
-  } catch {
-    return 0;
-  }
-}
-
-function saveBest(bestScore: number) {
-  try {
-    localStorage.setItem(RESULT_STORAGE, JSON.stringify({ bestScore }));
-  } catch {
-    // Practice still works if storage is unavailable.
-  }
-}
-
 export function BeatGame({
   events,
   notes,
@@ -135,6 +126,8 @@ export function BeatGame({
   guideLevel,
   onGuideLevelChange,
   onBpmChange,
+  savedRating,
+  onComplete,
 }: Props) {
   const [running, setRunning] = useState(false);
   const [finished, setFinished] = useState(false);
@@ -144,7 +137,7 @@ export function BeatGame({
   const [bestCombo, setBestCombo] = useState(0);
   const [feedback, setFeedback] = useState("Press Start when you're ready");
   const [judgements, setJudgements] = useState<Record<number, Judgement>>({});
-  const [bestScore, setBestScore] = useState(loadBest);
+  const [finalResult, setFinalResult] = useState<BeatGameResult | null>(null);
   const [holdStarts, setHoldStarts] = useState<
     Record<number, { at: number; eventIndex: number }>
   >({});
@@ -176,6 +169,10 @@ export function BeatGame({
   const totalBeats = timeline.length
     ? timeline[timeline.length - 1].endBeat
     : 0;
+  const maximumScore = timeline.reduce(
+    (total, event) => total + 100 + (event.beats > 1 ? 30 : 0),
+    0,
+  );
   const currentBeat =
     running && transportRef.current ? transportRef.current.currentBeat() : 0;
 
@@ -196,6 +193,7 @@ export function BeatGame({
     setFeedback("Press Start when you're ready");
     setJudgements({});
     setHoldStarts({});
+    setFinalResult(null);
     transportRef.current?.stop();
 
     if (frameRef.current !== null) {
@@ -211,6 +209,7 @@ export function BeatGame({
     setJudgements({});
     setHoldStarts({});
     setFinished(false);
+    setFinalResult(null);
     setFeedback("Get ready…");
 
     try {
@@ -218,7 +217,7 @@ export function BeatGame({
       const info = await transport.start(events, bpm, {
         guideLevel,
         metronome: true,
-        leadInBeats: 2,
+        leadInBeats: COUNTDOWN_BEATS,
       });
 
       startAtRef.current = info.startPerformanceTime;
@@ -305,13 +304,29 @@ export function BeatGame({
       setFinished(true);
       setFeedback("Song complete");
 
-      setBestScore((previous) => {
-        const next = Math.max(previous, score);
-        if (next !== previous) saveBest(next);
-        return next;
-      });
+      const percentage =
+        maximumScore === 0
+          ? 0
+          : Math.min(100, Math.round((score / maximumScore) * 100));
+      const result: BeatGameResult = {
+        score,
+        maximumScore,
+        percentage,
+        grade: gradeForPercentage(percentage),
+      };
+      setFinalResult(result);
+      onComplete(result);
     }
-  }, [currentBeat, running, finished, timeline, totalBeats, score]);
+  }, [
+    currentBeat,
+    running,
+    finished,
+    timeline,
+    totalBeats,
+    score,
+    maximumScore,
+    onComplete,
+  ]);
 
   useEffect(() => {
     if (!running || !midiSignal) return;
@@ -398,14 +413,24 @@ export function BeatGame({
         setScore((value) => value + 30);
         setFeedback("Hold ✓");
       } else {
+        const onsetJudgement = judgements[hold.eventIndex];
+        const onsetPoints =
+          onsetJudgement === "perfect"
+            ? 100
+            : onsetJudgement === "good"
+              ? 70
+              : onsetJudgement === "okay"
+                ? 40
+                : 0;
+
+        // A short long-note is a miss, so remove the points awarded at note-on.
+        setScore((value) => Math.max(0, value - onsetPoints));
         setJudgements((previous) => ({
           ...previous,
           [hold.eventIndex]: "too-short",
         }));
         setCombo(0);
-        setFeedback(
-          `Too short · ${noteById(event.note)?.label ?? event.note}`,
-        );
+        setFeedback(`Too short · ${noteById(event.note)?.label ?? event.note}`);
       }
 
       setHoldStarts((previous) => {
@@ -445,6 +470,14 @@ export function BeatGame({
     { length: Math.max(0, lastGridBeat - firstGridBeat + 1) },
     (_, offset) => firstGridBeat + offset,
   );
+  const countdownLabel =
+    currentBeat < -3
+      ? "3"
+      : currentBeat < -2
+        ? "2"
+        : currentBeat < -1
+          ? "1"
+          : "GO!";
 
   return (
     <div className="beatGame">
@@ -460,6 +493,10 @@ export function BeatGame({
         <div className="beatHudStat">
           <span>Accuracy</span>
           <strong>{accuracy}%</strong>
+        </div>
+        <div className="beatHudStat">
+          <span>Rating</span>
+          <strong>{finalResult?.grade ?? "—"}</strong>
         </div>
 
         <label className="beatGuideSelect">
@@ -574,13 +611,26 @@ export function BeatGame({
           <span>HIT</span>
         </div>
 
-        {!running && (
-          <div className="beatGameOverlay">
-            {finished ? (
+        {(!running || currentBeat < 0) && (
+          <div
+            className={`beatGameOverlay ${running ? "beatCountdownOverlay" : ""}`}
+          >
+            {running ? (
+              <strong key={countdownLabel} className="beatCountdownNumber">
+                {countdownLabel}
+              </strong>
+            ) : finished ? (
               <>
-                <strong>Finished</strong>
+                <strong>
+                  {finalResult?.grade ?? "F"} · {finalResult?.percentage ?? 0}%
+                </strong>
                 <span>
-                  Score {score} · Best saved score {Math.max(bestScore, score)}
+                  Score {score} / {maximumScore} · Best saved rating{" "}
+                  {Math.max(
+                    savedRating?.bestPercentage ?? 0,
+                    finalResult?.percentage ?? 0,
+                  )}
+                  %
                 </span>
                 <button className="primary" onClick={startGame}>
                   Play again
@@ -589,7 +639,7 @@ export function BeatGame({
             ) : (
               <>
                 <strong>Ready?</strong>
-                <span>Two-beat count-in, then the notes start falling.</span>
+                <span>Press Start for a 3, 2, 1, GO count-in.</span>
                 <button className="primary" onClick={startGame}>
                   Start Beat Game
                 </button>
@@ -614,6 +664,9 @@ export function BeatGame({
         </span>
         <span>
           <b>Long notes</b> keep holding while the block crosses HIT
+        </span>
+        <span>
+          <b>Grades</b> A+ 95 · A 90 · B 85 · C 80 · D 75 · E 70
         </span>
       </div>
     </div>

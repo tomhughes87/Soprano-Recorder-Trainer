@@ -568,6 +568,31 @@ code {
   font-weight: 900;
 }
 
+.songCardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.songGrade {
+  padding: 4px 8px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 13%, transparent);
+  color: var(--accent-strong);
+  font-size: 12px;
+  font-weight: 950;
+  white-space: nowrap;
+}
+
+.songGrade.unrated {
+  border-color: var(--border);
+  background: transparent;
+  color: var(--muted);
+  font-weight: 750;
+}
+
 .stars {
   white-space: nowrap;
   color: var(--accent);
@@ -1702,6 +1727,31 @@ code {
 .beatGameOverlay > span {
   max-width: 430px;
   color: var(--muted);
+}
+
+.beatCountdownOverlay {
+  background: rgba(10,12,11,.58);
+  pointer-events: none;
+}
+
+.beatGameOverlay > .beatCountdownNumber {
+  color: var(--accent-strong);
+  font-size: clamp(78px, 15vw, 170px);
+  line-height: 1;
+  text-shadow: 0 7px 28px rgba(0,0,0,.5);
+  animation: beatCountdownPop .32s ease-out;
+}
+
+@keyframes beatCountdownPop {
+  from {
+    opacity: .25;
+    transform: scale(.72);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .beatGameFeedback {

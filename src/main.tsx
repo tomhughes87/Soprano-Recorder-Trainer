@@ -1,11 +1,21 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { createRoot } from "react-dom/client";
 import "./styles.css";
 
 import { CalibrationPanel } from "./calibration";
 import { SongDemoControls } from "./audio/SongDemoControls";
 import type { GuideLevel } from "./audio/recorderSynth";
-import { BeatGame, type BeatMidiSignal } from "./beatGame";
+import {
+  BeatGame,
+  type BeatGameResult,
+  type BeatMidiSignal,
+} from "./beatGame";
 import { MidiTester, type MidiMessage } from "./tester";
 import {
   DEFAULT_MIDI_MAP,
@@ -30,6 +40,12 @@ import {
   type Song,
   type SongEvent,
 } from "./music/songTypes";
+import {
+  loadSongRatings,
+  saveSongResult,
+  SONG_RATINGS_STORAGE_KEY,
+  type SongRatings,
+} from "./songRatings";
 
 type Tab =
   | "tester"
@@ -100,12 +116,14 @@ function SongLibrary({
   subtitle,
   onStart,
   section,
+  ratings,
 }: {
   songs: Song[];
   title: string;
   subtitle: string;
   onStart: (song: Song) => void;
   section: SongSection;
+  ratings: SongRatings;
 }) {
   return (
     <section
@@ -131,24 +149,40 @@ function SongLibrary({
       </div>
 
       <div className="songGrid">
-        {songs.map((song) => (
-          <button
-            key={song.id}
-            className={`songCard ${song.playable ? "" : "comingSoon"}`}
-            onClick={() => onStart(song)}
-            disabled={!song.playable}
-          >
-            <div className="songCardTop">
-              <strong>{song.title}</strong>
-              <Stars count={song.difficulty} />
-            </div>
+        {songs.map((song) => {
+          const rating = ratings[song.id];
 
-            <p>{song.description}</p>
-            <span className="songStatus">
-              {song.playable ? "Practise →" : "Add melody tab"}
-            </span>
-          </button>
-        ))}
+          return (
+            <button
+              key={song.id}
+              className={`songCard ${song.playable ? "" : "comingSoon"}`}
+              onClick={() => onStart(song)}
+              disabled={!song.playable}
+            >
+              <div className="songCardTop">
+                <strong>{song.title}</strong>
+                <Stars count={song.difficulty} />
+              </div>
+
+              <p>{song.description}</p>
+              <div className="songCardFooter">
+                <span className="songStatus">
+                  {song.playable ? "Practise →" : "Add melody tab"}
+                </span>
+                {rating ? (
+                  <span
+                    className="songGrade"
+                    title={`${rating.attempts} completed attempt${rating.attempts === 1 ? "" : "s"}`}
+                  >
+                    {rating.bestGrade} · {rating.bestPercentage}%
+                  </span>
+                ) : (
+                  <span className="songGrade unrated">Not rated</span>
+                )}
+              </div>
+            </button>
+          );
+        })}
       </div>
     </section>
   );
@@ -196,6 +230,9 @@ function App() {
     null,
   );
   const [beatGameResetKey, setBeatGameResetKey] = useState(0);
+  const [songRatings, setSongRatings] = useState<SongRatings>(() =>
+    loadSongRatings(),
+  );
 
   const resetBlowCountRef = useRef(0);
   const metronomeTimerRef = useRef<number | null>(null);
@@ -223,6 +260,14 @@ function App() {
 
   const selectedSong =
     songCollection.find((song) => song.id === selectedSongId) ?? null;
+
+  const saveBeatGameRating = useCallback(
+    (result: BeatGameResult) => {
+      if (!selectedSong) return;
+      setSongRatings(saveSongResult(selectedSong.id, result.percentage));
+    },
+    [selectedSong],
+  );
 
   const activeSongEvents: SongEvent[] = selectedSong
     ? selectedSongSection === "zelda"
@@ -332,6 +377,17 @@ function App() {
     setFeedback("Play the fingering shown");
     setTargetIndex(0);
   };
+
+  useEffect(() => {
+    const refreshRatings = (event: StorageEvent) => {
+      if (event.key === SONG_RATINGS_STORAGE_KEY) {
+        setSongRatings(loadSongRatings());
+      }
+    };
+
+    window.addEventListener("storage", refreshRatings);
+    return () => window.removeEventListener("storage", refreshRatings);
+  }, []);
 
   const useLastPlayedForTarget = () => {
     if (lastMidi === null) return;
@@ -1053,6 +1109,8 @@ function App() {
             guideLevel={guideLevel}
             onGuideLevelChange={setGuideLevel}
             onBpmChange={setBpm}
+            savedRating={songRatings[selectedSong.id]}
+            onComplete={saveBeatGameRating}
           />
         )}
       </section>
@@ -1256,6 +1314,7 @@ function App() {
               subtitle="Start with B only, then add A through eight short rhythm and fingering exercises."
               onStart={(song) => startSong(song, "level0")}
               section="level0"
+              ratings={songRatings}
             />
           ))}
 
@@ -1269,6 +1328,7 @@ function App() {
               subtitle="First recorder tunes and clearly labelled three-note adaptations, all playable with B, A and G."
               onStart={(song) => startSong(song, "level1")}
               section="level1"
+              ratings={songRatings}
             />
           ))}
 
@@ -1282,6 +1342,7 @@ function App() {
               subtitle="Traditional tunes for soprano recorder. Your saved MIDI calibration is applied automatically."
               onStart={(song) => startSong(song, "songs")}
               section="songs"
+              ratings={songRatings}
             />
           ))}
 
@@ -1295,6 +1356,7 @@ function App() {
               subtitle="Traditional English-language maritime work songs arranged for soprano recorder."
               onStart={(song) => startSong(song, "shanties")}
               section="shanties"
+              ratings={songRatings}
             />
           ))}
 
@@ -1309,6 +1371,7 @@ function App() {
                 subtitle="Short mode plays Link's phrase twice. Your saved MIDI calibration is applied automatically."
                 onStart={(song) => startSong(song, "zelda")}
                 section="zelda"
+                ratings={songRatings}
               />
 
               <section className="panel noticeCard zeldaPanel">
@@ -1332,6 +1395,7 @@ function App() {
                 subtitle="Film themes arranged for recorder practice."
                 onStart={(song) => startSong(song, "lotr")}
                 section="lotr"
+                ratings={songRatings}
               />
 
               <section className="panel noticeCard lotrPanel">
