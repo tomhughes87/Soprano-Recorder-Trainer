@@ -1783,13 +1783,6 @@ code {
   opacity: .45;
 }
 
-.fallingNote {
-  max-width: 250px;
-}
-
-
-
-
 /* Beat Game is its own clean performance screen */
 .beatGamePage .page {
   width: min(1500px, calc(100% - 24px));
