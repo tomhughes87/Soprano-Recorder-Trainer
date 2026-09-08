@@ -27,7 +27,7 @@ export function CalibrationPanel({
   onSave,
   onResetAll,
 }: Props) {
-  const selected = notes.find(note => note.id === selectedId) ?? notes[0];
+  const selected = notes.find((note) => note.id === selectedId) ?? notes[0];
   const selectedMidi = midiMap[selected.id] ?? selected.midi;
 
   return (
@@ -38,8 +38,8 @@ export function CalibrationPanel({
             <div className="eyebrow">Instrument setup</div>
             <h2>Calibrate your recorder</h2>
             <p className="sub">
-              The music stores note names, not device MIDI numbers. Calibration tells the app
-              what MIDI value your instrument sends for each note.
+              The music stores note names, not device MIDI numbers. Calibration
+              tells the app what MIDI value your instrument sends for each note.
             </p>
           </div>
 
@@ -57,8 +57,9 @@ export function CalibrationPanel({
 
             {selected.fingeringStatus === "reference" && (
               <div className="referenceWarning">
-                This is a standard Baroque reference fingering, not yet confirmed on the Carry-on.
-                Use whatever fingering produces this pitch on your instrument, then save its MIDI output.
+                This is a standard Baroque reference fingering, not yet
+                confirmed on the Carry-on. Use whatever fingering produces this
+                pitch on your instrument, then save its MIDI output.
               </div>
             )}
 
@@ -75,8 +76,12 @@ export function CalibrationPanel({
             <div className="captureDivider" />
 
             <span className="captureLabel">Last note received</span>
-            <strong className="captureMidi">{lastMidi === null ? "—" : `MIDI ${lastMidi}`}</strong>
-            <span className="captureNote">{lastMidi === null ? "Play the selected note" : lastNote}</span>
+            <strong className="captureMidi">
+              {lastMidi === null ? "—" : `MIDI ${lastMidi}`}
+            </strong>
+            <span className="captureNote">
+              {lastMidi === null ? "Play the selected note" : lastNote}
+            </span>
 
             <button
               className="primary"
@@ -94,8 +99,8 @@ export function CalibrationPanel({
           <div>
             <h2>C4–D5 chromatic map</h2>
             <p className="sub small">
-              Select a note, play it on your instrument, then save the MIDI result.
-              Every trainer and song uses this map automatically.
+              Select a note, play it on your instrument, then save the MIDI
+              result. Every trainer and song uses this map automatically.
             </p>
           </div>
 
@@ -105,7 +110,7 @@ export function CalibrationPanel({
         </div>
 
         <div className="calibrationGrid">
-          {notes.map(note => {
+          {notes.map((note) => {
             const mappedMidi = midiMap[note.id] ?? note.midi;
             const active = selected.id === note.id;
 
@@ -124,8 +129,16 @@ export function CalibrationPanel({
                   </span>
                 </div>
 
-                <span className={note.fingeringStatus === "reference" ? "referenceBadge" : "confirmedBadge"}>
-                  {note.fingeringStatus === "reference" ? "reference" : "confirmed"}
+                <span
+                  className={
+                    note.fingeringStatus === "reference"
+                      ? "referenceBadge"
+                      : "confirmedBadge"
+                  }
+                >
+                  {note.fingeringStatus === "reference"
+                    ? "reference"
+                    : "confirmed"}
                 </span>
               </button>
             );

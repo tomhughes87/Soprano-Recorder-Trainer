@@ -17,28 +17,26 @@ import { ENGLISH_FOLK_SONGS } from "./music/englishFolk";
 import { ZELDA_SHORT_SONGS } from "./music/zeldaShort";
 import { ZELDA_LONG_SONGS } from "./music/zeldaLong";
 import { LOTR_SONGS } from "./music/lordOfTheRings";
+import {
+  articulationLabel,
+  eventLengthLabel,
+  notesToEvents,
+  type Song,
+  type SongEvent,
+} from "./music/songTypes";
 
 type Tab = "tester" | "training" | "calibration" | "songs" | "zelda" | "lotr";
 type SongSection = "songs" | "zelda" | "lotr";
-
-type Song = {
-  id: string;
-  title: string;
-  difficulty: number;
-  description: string;
-  playable: boolean;
-  notes?: string[];
-  longNotes?: string[];
-};
 
 const STORAGE_KEY = "carryon-recorder-midi-map-v1";
 const RESET_NOTE_ID = "Cs5";
 const DEFAULT_RESET_BLOWS = 3;
 const SAFE_RESET_BLOWS = 5;
 
-const ZELDA_SONGS: Song[] = ZELDA_SHORT_SONGS.map(song => ({
+const ZELDA_SONGS: Song[] = ZELDA_SHORT_SONGS.map((song) => ({
   ...song,
   playable: true,
+  rhythmVerified: false,
   longNotes: ZELDA_LONG_SONGS[song.id],
 }));
 
@@ -47,11 +45,13 @@ function loadMidiMap(): MidiMap {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return { ...DEFAULT_MIDI_MAP };
 
-    const parsed = JSON.parse(raw) as { version?: number; mappings?: MidiMap } | MidiMap;
+    const parsed = JSON.parse(raw) as
+      | { version?: number; mappings?: MidiMap }
+      | MidiMap;
     const mappings =
       "mappings" in parsed && parsed.mappings
         ? parsed.mappings
-        : parsed as MidiMap;
+        : (parsed as MidiMap);
 
     return { ...DEFAULT_MIDI_MAP, ...mappings };
   } catch {
@@ -65,7 +65,7 @@ function saveMidiMap(mappings: MidiMap) {
     JSON.stringify({
       version: 1,
       mappings,
-    })
+    }),
   );
 }
 
@@ -92,11 +92,15 @@ function SongLibrary({
   section: SongSection;
 }) {
   return (
-    <section className={`panel songLibrary ${
-      section === "songs" ? "folkPanel" :
-      section === "zelda" ? "zeldaPanel" :
-      "lotrPanel"
-    }`}>
+    <section
+      className={`panel songLibrary ${
+        section === "songs"
+          ? "folkPanel"
+          : section === "zelda"
+            ? "zeldaPanel"
+            : "lotrPanel"
+      }`}
+    >
       <div className="songHeader">
         <div>
           <h2>{title}</h2>
@@ -105,7 +109,7 @@ function SongLibrary({
       </div>
 
       <div className="songGrid">
-        {songs.map(song => (
+        {songs.map((song) => (
           <button
             key={song.id}
             className={`songCard ${song.playable ? "" : "comingSoon"}`}
@@ -118,7 +122,9 @@ function SongLibrary({
             </div>
 
             <p>{song.description}</p>
-            <span className="songStatus">{song.playable ? "Practise →" : "Add melody tab"}</span>
+            <span className="songStatus">
+              {song.playable ? "Practise →" : "Add melody tab"}
+            </span>
           </button>
         ))}
       </div>
@@ -141,7 +147,7 @@ function App() {
 
   const trainingNotes = useMemo(
     () => applyMidiMap(DEFAULT_TRAINING_NOTES, midiMap),
-    [midiMap]
+    [midiMap],
   );
 
   const [targetIndex, setTargetIndex] = useState(0);
@@ -152,18 +158,24 @@ function App() {
   const [shuffleMode, setShuffleMode] = useState(true);
 
   const [selectedSongId, setSelectedSongId] = useState<string | null>(null);
-  const [selectedSongSection, setSelectedSongSection] = useState<SongSection>("songs");
+  const [selectedSongSection, setSelectedSongSection] =
+    useState<SongSection>("songs");
   const [songStep, setSongStep] = useState(0);
   const [songMistakes, setSongMistakes] = useState(0);
   const [songFeedback, setSongFeedback] = useState("Play the first note");
   const [zeldaVersion, setZeldaVersion] = useState<"short" | "long">("short");
   const [safeResetMode, setSafeResetMode] = useState(false);
+  const [focusMode, setFocusMode] = useState(false);
+  const [metronomeEnabled, setMetronomeEnabled] = useState(false);
+  const [bpm, setBpm] = useState(90);
 
   const resetBlowCountRef = useRef(0);
+  const metronomeTimerRef = useRef<number | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
 
   const selectedInput = useMemo(
-    () => inputs.find(input => input.id === selectedId) ?? null,
-    [inputs, selectedId]
+    () => inputs.find((input) => input.id === selectedId) ?? null,
+    [inputs, selectedId],
   );
 
   const target = trainingNotes[targetIndex];
@@ -175,30 +187,44 @@ function App() {
         ? (LOTR_SONGS as Song[])
         : (ENGLISH_FOLK_SONGS as Song[]);
 
-  const selectedSong = songCollection.find(song => song.id === selectedSongId) ?? null;
+  const selectedSong =
+    songCollection.find((song) => song.id === selectedSongId) ?? null;
 
-  const activeSongNotes = selectedSong
+  const activeSongEvents: SongEvent[] = selectedSong
     ? selectedSongSection === "zelda"
-      ? (
-          zeldaVersion === "long" && selectedSong.longNotes?.length
-            ? selectedSong.longNotes
-            : [...(selectedSong.notes ?? []), ...(selectedSong.notes ?? [])]
-        )
-      : (selectedSong.notes ?? [])
+      ? zeldaVersion === "long"
+        ? selectedSong.longEvents?.length
+          ? selectedSong.longEvents
+          : notesToEvents(selectedSong.longNotes ?? [])
+        : (() => {
+            const shortEvents = selectedSong.events?.length
+              ? selectedSong.events
+              : notesToEvents(selectedSong.notes ?? []);
+            return [...shortEvents, ...shortEvents];
+          })()
+      : selectedSong.events?.length
+        ? selectedSong.events
+        : notesToEvents(selectedSong.notes ?? [])
     : [];
 
-  const currentSongNoteId = activeSongNotes[songStep] ?? null;
-  const currentSongNote = trainingNotes.find(note => note.id === currentSongNoteId) ?? null;
-  const resetBlowsRequired = safeResetMode ? SAFE_RESET_BLOWS : DEFAULT_RESET_BLOWS;
+  const currentSongEvent = activeSongEvents[songStep] ?? null;
+  const currentSongNote =
+    trainingNotes.find((note) => note.id === currentSongEvent?.note) ?? null;
+  const resetBlowsRequired = safeResetMode
+    ? SAFE_RESET_BLOWS
+    : DEFAULT_RESET_BLOWS;
 
   const pageTheme =
-    tab === "songs" ? "themeFolk" :
-    tab === "zelda" ? "themeZelda" :
-    tab === "lotr" ? "themeLotr" :
-    "themeCharcoal";
+    tab === "songs"
+      ? "themeFolk"
+      : tab === "zelda"
+        ? "themeZelda"
+        : tab === "lotr"
+          ? "themeLotr"
+          : "themeCharcoal";
 
   const updateMapping = (noteId: string, midi: number) => {
-    setMidiMap(previous => {
+    setMidiMap((previous) => {
       const next = { ...previous, [noteId]: midi };
       saveMidiMap(next);
       return next;
@@ -215,11 +241,12 @@ function App() {
     const list = Array.from(access.inputs.values());
     setInputs(list);
 
-    setSelectedId(current => {
-      if (current && list.some(input => input.id === current)) return current;
+    setSelectedId((current) => {
+      if (current && list.some((input) => input.id === current)) return current;
 
-      const carryOn = list.find(input => {
-        const text = `${input.name ?? ""} ${input.manufacturer ?? ""}`.toLowerCase();
+      const carryOn = list.find((input) => {
+        const text =
+          `${input.name ?? ""} ${input.manufacturer ?? ""}`.toLowerCase();
         return text.includes("wind") || text.includes("carry");
       });
 
@@ -229,7 +256,9 @@ function App() {
 
   const connect = async () => {
     if (!("requestMIDIAccess" in navigator)) {
-      setStatus("Web MIDI is not supported in this browser. Use Chrome or Edge.");
+      setStatus(
+        "Web MIDI is not supported in this browser. Use Chrome or Edge.",
+      );
       return;
     }
 
@@ -267,7 +296,9 @@ function App() {
   const useLastPlayedForTarget = () => {
     if (lastMidi === null) return;
     updateMapping(target.id, lastMidi);
-    setFeedback(`Saved ${target.label} → ${midiToNote(lastMidi)} (MIDI ${lastMidi})`);
+    setFeedback(
+      `Saved ${target.label} → ${midiToNote(lastMidi)} (MIDI ${lastMidi})`,
+    );
   };
 
   const startSong = (song: Song, section: SongSection) => {
@@ -280,6 +311,8 @@ function App() {
     setSongFeedback("Play the first note");
     resetBlowCountRef.current = 0;
     setSafeResetMode(false);
+    setFocusMode(false);
+    setMetronomeEnabled(false);
 
     if (section === "zelda") {
       setZeldaVersion("short");
@@ -291,6 +324,8 @@ function App() {
     setSongStep(0);
     setSongMistakes(0);
     resetBlowCountRef.current = 0;
+    setFocusMode(false);
+    setMetronomeEnabled(false);
   };
 
   const resetCurrentSong = () => {
@@ -299,6 +334,50 @@ function App() {
     setSongFeedback("↺ Song reset — play the first note");
     resetBlowCountRef.current = 0;
   };
+
+  const playMetronomeClick = () => {
+    const AudioContextCtor =
+      window.AudioContext ?? (window as any).webkitAudioContext;
+    if (!AudioContextCtor) return;
+
+    const context = audioContextRef.current ?? new AudioContextCtor();
+
+    audioContextRef.current = context;
+
+    const oscillator = context.createOscillator();
+    const gain = context.createGain();
+
+    oscillator.frequency.value = 880;
+    gain.gain.setValueAtTime(0.11, context.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.045);
+
+    oscillator.connect(gain);
+    gain.connect(context.destination);
+    oscillator.start();
+    oscillator.stop(context.currentTime + 0.05);
+  };
+
+  useEffect(() => {
+    if (metronomeTimerRef.current !== null) {
+      window.clearInterval(metronomeTimerRef.current);
+      metronomeTimerRef.current = null;
+    }
+
+    if (!metronomeEnabled || !selectedSong) return;
+
+    playMetronomeClick();
+    metronomeTimerRef.current = window.setInterval(
+      playMetronomeClick,
+      Math.round(60000 / bpm),
+    );
+
+    return () => {
+      if (metronomeTimerRef.current !== null) {
+        window.clearInterval(metronomeTimerRef.current);
+        metronomeTimerRef.current = null;
+      }
+    };
+  }, [metronomeEnabled, bpm, selectedSong]);
 
   useEffect(() => {
     if (!selectedInput) return;
@@ -322,15 +401,15 @@ function App() {
         setVelocity(String(data2));
 
         if (tab === "training") {
-          setAttempts(value => value + 1);
+          setAttempts((value) => value + 1);
 
           if (data1 === target.midi) {
-            setScore(value => value + 1);
-            setStreak(value => value + 1);
+            setScore((value) => value + 1);
+            setStreak((value) => value + 1);
             setFeedback(`✓ Correct — ${target.label}`);
 
             window.setTimeout(() => {
-              setTargetIndex(current => pickNext(current));
+              setTargetIndex((current) => pickNext(current));
               setFeedback("Play the fingering shown");
             }, 400);
           } else {
@@ -339,10 +418,17 @@ function App() {
           }
         }
 
-        const inSongSection = tab === "songs" || tab === "zelda";
+        const inSongSection =
+          tab === "songs" || tab === "zelda" || tab === "lotr";
 
-        if (inSongSection && selectedSong && currentSongNote && activeSongNotes.length) {
-          const resetMidi = midiMap[RESET_NOTE_ID] ?? DEFAULT_MIDI_MAP[RESET_NOTE_ID];
+        if (
+          inSongSection &&
+          selectedSong &&
+          currentSongNote &&
+          activeSongEvents.length
+        ) {
+          const resetMidi =
+            midiMap[RESET_NOTE_ID] ?? DEFAULT_MIDI_MAP[RESET_NOTE_ID];
 
           if (data1 === resetMidi) {
             resetBlowCountRef.current += 1;
@@ -352,14 +438,16 @@ function App() {
               return;
             }
 
-            setSongFeedback(`Reset gesture ${resetBlowCountRef.current}/${resetBlowsRequired}`);
+            setSongFeedback(
+              `Reset gesture ${resetBlowCountRef.current}/${resetBlowsRequired}`,
+            );
             return;
           }
 
           resetBlowCountRef.current = 0;
 
           if (data1 === currentSongNote.midi) {
-            const isLast = songStep >= activeSongNotes.length - 1;
+            const isLast = songStep >= activeSongEvents.length - 1;
 
             if (isLast) {
               setSongFeedback("✓ Tune complete!");
@@ -367,12 +455,12 @@ function App() {
               setSongFeedback(`✓ ${currentSongNote.label}`);
 
               window.setTimeout(() => {
-                setSongStep(step => step + 1);
+                setSongStep((step) => step + 1);
                 setSongFeedback("Next note");
               }, 300);
             }
           } else {
-            setSongMistakes(value => value + 1);
+            setSongMistakes((value) => value + 1);
             setSongFeedback(`✗ Try ${currentSongNote.label} again`);
           }
         }
@@ -390,10 +478,12 @@ function App() {
         channel,
         data1,
         data2,
-        raw: data.map(value => value.toString(16).padStart(2, "0").toUpperCase()).join(" "),
+        raw: data
+          .map((value) => value.toString(16).padStart(2, "0").toUpperCase())
+          .join(" "),
       };
 
-      setMessages(previous => [message, ...previous].slice(0, 30));
+      setMessages((previous) => [message, ...previous].slice(0, 30));
     };
 
     selectedInput.onmidimessage = handleMidi;
@@ -412,26 +502,38 @@ function App() {
     selectedSong,
     currentSongNote,
     songStep,
-    activeSongNotes,
+    activeSongEvents,
     midiMap,
     resetBlowsRequired,
   ]);
 
-  const songTotal = activeSongNotes.length;
+  const songTotal = activeSongEvents.length;
   const songProgress =
     songTotal === 0 ? 0 : Math.round(((songStep + 1) / songTotal) * 100);
 
   const renderSongPlayer = () => {
-    if (!selectedSong || !currentSongNote || !activeSongNotes.length) return null;
+    if (
+      !selectedSong ||
+      !currentSongNote ||
+      !currentSongEvent ||
+      !activeSongEvents.length
+    )
+      return null;
 
     return (
-      <section className={`panel songPlayer ${
-        selectedSongSection === "songs" ? "folkPanel" :
-        selectedSongSection === "zelda" ? "zeldaPanel" :
-        "lotrPanel"
-      }`}>
+      <section
+        className={`panel songPlayer ${focusMode ? "focusMode" : ""} ${
+          selectedSongSection === "songs"
+            ? "folkPanel"
+            : selectedSongSection === "zelda"
+              ? "zeldaPanel"
+              : "lotrPanel"
+        }`}
+      >
         <div className="songPlayerHeader">
-          <button className="secondary" onClick={leaveSong}>← Songs</button>
+          <button className="secondary" onClick={leaveSong}>
+            ← Songs
+          </button>
 
           <div>
             <h2>{selectedSong.title}</h2>
@@ -439,7 +541,7 @@ function App() {
           </div>
 
           <div className="songCounter">
-            {songStep + 1} / {activeSongNotes.length}
+            {songStep + 1} / {activeSongEvents.length}
           </div>
         </div>
 
@@ -455,7 +557,7 @@ function App() {
             <input
               type="checkbox"
               checked={safeResetMode}
-              onChange={event => {
+              onChange={(event) => {
                 setSafeResetMode(event.target.checked);
                 resetBlowCountRef.current = 0;
                 setSongFeedback("Play the next note");
@@ -465,14 +567,19 @@ function App() {
           </label>
 
           <div className="resetSafetyHelp">
-            Turn this on for songs that contain repeated C♯5 notes, so normal playing is less likely to reset the tune.
+            Turn this on for songs that contain repeated C♯5 notes, so normal
+            playing is less likely to reset the tune.
           </div>
         </div>
 
         {selectedSongSection === "zelda" && (
           <div className="zeldaVersionSwitch">
             <button
-              className={zeldaVersion === "short" ? "secondary selectedMode" : "secondary"}
+              className={
+                zeldaVersion === "short"
+                  ? "secondary selectedMode"
+                  : "secondary"
+              }
               onClick={() => {
                 setZeldaVersion("short");
                 resetCurrentSong();
@@ -482,7 +589,9 @@ function App() {
             </button>
 
             <button
-              className={zeldaVersion === "long" ? "secondary selectedMode" : "secondary"}
+              className={
+                zeldaVersion === "long" ? "secondary selectedMode" : "secondary"
+              }
               disabled={!selectedSong.longNotes?.length}
               onClick={() => {
                 setZeldaVersion("long");
@@ -497,6 +606,80 @@ function App() {
             )}
           </div>
         )}
+
+        <div className="playModePanel">
+          <div className="playModeTitle">
+            <strong>Play mode</strong>
+            <span className="sub small">
+              Rhythm is guidance only — pitch recognition still waits for the
+              correct note.
+            </span>
+          </div>
+
+          <div className="playModeControls">
+            <label className="playToggle">
+              <input
+                type="checkbox"
+                checked={focusMode}
+                onChange={(event) => setFocusMode(event.target.checked)}
+              />
+              <span>Focus</span>
+            </label>
+
+            <label className="playToggle">
+              <input
+                type="checkbox"
+                checked={metronomeEnabled}
+                onChange={(event) => setMetronomeEnabled(event.target.checked)}
+              />
+              <span>Metronome</span>
+            </label>
+
+            <div className="speedPresets" aria-label="Song speed">
+              <button
+                className={bpm === 60 ? "secondary selectedMode" : "secondary"}
+                onClick={() => setBpm(60)}
+              >
+                Slow
+              </button>
+              <button
+                className={bpm === 90 ? "secondary selectedMode" : "secondary"}
+                onClick={() => setBpm(90)}
+              >
+                Normal
+              </button>
+              <button
+                className={bpm === 120 ? "secondary selectedMode" : "secondary"}
+                onClick={() => setBpm(120)}
+              >
+                Fast
+              </button>
+            </div>
+
+            <div className="bpmControl">
+              <button
+                className="secondary bpmButton"
+                onClick={() => setBpm((value) => Math.max(40, value - 5))}
+              >
+                −
+              </button>
+              <strong>{bpm} BPM</strong>
+              <button
+                className="secondary bpmButton"
+                onClick={() => setBpm((value) => Math.min(200, value + 5))}
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          {selectedSong.rhythmVerified === false && (
+            <div className="rhythmUnverified">
+              Timing for this arrangement has not been verified yet, so its
+              notes currently display as equal 1-beat notes.
+            </div>
+          )}
+        </div>
 
         <div className="progressTrack">
           <div className="progressFill" style={{ width: `${songProgress}%` }} />
@@ -515,9 +698,29 @@ function App() {
           {currentSongNote.hint && (
             <div className="fingeringHint">{currentSongNote.hint}</div>
           )}
+
+          <div className="currentRhythm">
+            <span className="rhythmLength">
+              {eventLengthLabel(currentSongEvent)}
+            </span>
+            {articulationLabel(currentSongEvent) && (
+              <span className="rhythmArticulation">
+                {articulationLabel(currentSongEvent)}
+              </span>
+            )}
+            <span
+              className="rhythmBar rhythmBarLarge"
+              style={{
+                width: `${Math.max(18, Math.min(100, currentSongEvent.beats * 42))}%`,
+              }}
+              aria-hidden="true"
+            />
+          </div>
         </div>
 
-        <div className={`feedback ${songFeedback.startsWith("✓") ? "correct" : songFeedback.startsWith("✗") ? "wrong" : ""}`}>
+        <div
+          className={`feedback ${songFeedback.startsWith("✓") ? "correct" : songFeedback.startsWith("✗") ? "wrong" : ""}`}
+        >
           {songFeedback}
         </div>
 
@@ -528,35 +731,74 @@ function App() {
             const BEFORE = 3;
             const AFTER = 5;
             const start = Math.max(0, songStep - BEFORE);
-            const end = Math.min(activeSongNotes.length, songStep + AFTER + 1);
-            const visibleNotes = activeSongNotes.slice(start, end);
+            const end = Math.min(activeSongEvents.length, songStep + AFTER + 1);
+            const visibleEvents = activeSongEvents.slice(start, end);
 
             return (
               <>
                 {start > 0 && (
-                  <div className="songWindowEllipsis" aria-hidden="true">…</div>
+                  <div className="songWindowEllipsis" aria-hidden="true">
+                    …
+                  </div>
                 )}
 
-                {visibleNotes.map((id, offset) => {
+                {visibleEvents.map((event, offset) => {
                   const absoluteIndex = start + offset;
-                  const note = trainingNotes.find(item => item.id === id);
+                  const note = trainingNotes.find(
+                    (item) => item.id === event.note,
+                  );
                   if (!note) return null;
 
                   return (
                     <div
-                      key={`${id}-${absoluteIndex}`}
+                      key={`${event.note}-${absoluteIndex}`}
                       className={`songStripNote ${
                         absoluteIndex === songStep ? "current" : ""
                       } ${absoluteIndex < songStep ? "done" : ""}`}
                     >
                       <strong>{note.label}</strong>
                       <RecorderPattern note={note} compact />
+
+                      <div className="miniRhythm">
+                        <span
+                          className="rhythmBar"
+                          style={{
+                            width: `${Math.max(22, Math.min(100, event.beats * 50))}%`,
+                          }}
+                        />
+                        {(event.tieToNext || event.articulation === "slur") && (
+                          <span
+                            className="slurMark"
+                            title={
+                              event.tieToNext
+                                ? "Hold into next"
+                                : "Blend to next"
+                            }
+                          >
+                            ↝
+                          </span>
+                        )}
+                        {event.articulation === "staccato" && (
+                          <span
+                            className="staccatoMark"
+                            title="Short / detached"
+                          >
+                            •
+                          </span>
+                        )}
+                      </div>
+
+                      <span className="miniBeatLabel">
+                        {eventLengthLabel(event)}
+                      </span>
                     </div>
                   );
                 })}
 
-                {end < activeSongNotes.length && (
-                  <div className="songWindowEllipsis" aria-hidden="true">…</div>
+                {end < activeSongEvents.length && (
+                  <div className="songWindowEllipsis" aria-hidden="true">
+                    …
+                  </div>
                 )}
               </>
             );
@@ -564,14 +806,28 @@ function App() {
         </div>
 
         <div className="stats songStats">
-          <div><span>Position</span><strong>{songStep + 1}</strong></div>
-          <div><span>Notes</span><strong>{activeSongNotes.length}</strong></div>
-          <div><span>Mistakes</span><strong>{songMistakes}</strong></div>
-          <div><span>Complete</span><strong>{songProgress}%</strong></div>
+          <div>
+            <span>Position</span>
+            <strong>{songStep + 1}</strong>
+          </div>
+          <div>
+            <span>Notes</span>
+            <strong>{activeSongEvents.length}</strong>
+          </div>
+          <div>
+            <span>Mistakes</span>
+            <strong>{songMistakes}</strong>
+          </div>
+          <div>
+            <span>Complete</span>
+            <strong>{songProgress}%</strong>
+          </div>
         </div>
 
         <div className="trainingActions">
-          <button className="secondary" onClick={resetCurrentSong}>Restart tune</button>
+          <button className="secondary" onClick={resetCurrentSong}>
+            Restart tune
+          </button>
         </div>
       </section>
     );
@@ -585,27 +841,63 @@ function App() {
           <h1>Soprano recorder trainer</h1>
 
           <div className="tabs" role="tablist">
-            <button className={tab === "tester" ? "tab active" : "tab"} onClick={() => { setTab("tester"); leaveSong(); }}>
+            <button
+              className={tab === "tester" ? "tab active" : "tab"}
+              onClick={() => {
+                setTab("tester");
+                leaveSong();
+              }}
+            >
               MIDI tester
             </button>
 
-            <button className={tab === "training" ? "tab active" : "tab"} onClick={() => { setTab("training"); leaveSong(); }}>
+            <button
+              className={tab === "training" ? "tab active" : "tab"}
+              onClick={() => {
+                setTab("training");
+                leaveSong();
+              }}
+            >
               Training
             </button>
 
-            <button className={tab === "calibration" ? "tab active" : "tab"} onClick={() => { setTab("calibration"); leaveSong(); }}>
+            <button
+              className={tab === "calibration" ? "tab active" : "tab"}
+              onClick={() => {
+                setTab("calibration");
+                leaveSong();
+              }}
+            >
               Calibration
             </button>
 
-            <button className={tab === "songs" ? "tab active" : "tab"} onClick={() => { setTab("songs"); leaveSong(); }}>
+            <button
+              className={tab === "songs" ? "tab active" : "tab"}
+              onClick={() => {
+                setTab("songs");
+                leaveSong();
+              }}
+            >
               English folk songs
             </button>
 
-            <button className={tab === "zelda" ? "tab active" : "tab"} onClick={() => { setTab("zelda"); leaveSong(); }}>
+            <button
+              className={tab === "zelda" ? "tab active" : "tab"}
+              onClick={() => {
+                setTab("zelda");
+                leaveSong();
+              }}
+            >
               Zelda
             </button>
 
-            <button className={tab === "lotr" ? "tab active" : "tab"} onClick={() => { setTab("lotr"); leaveSong(); }}>
+            <button
+              className={tab === "lotr" ? "tab active" : "tab"}
+              onClick={() => {
+                setTab("lotr");
+                leaveSong();
+              }}
+            >
               Lord of the Rings
             </button>
           </div>
@@ -614,26 +906,35 @@ function App() {
             <div className="setupTitle">Before connecting</div>
 
             <div className="setupSettings">
-              <span><strong>Voice:</strong> Soprano Recorder - press v, and set to 1</span>
-              <span><strong>Fingering:</strong> R (Recorder) press: f, and set to r</span>
+              <span>
+                <strong>Voice:</strong> Soprano Recorder - press v, and set to 1
+              </span>
+              <span>
+                <strong>Fingering:</strong> R (Recorder) press: f, and set to r
+              </span>
             </div>
 
             <p>
-              The Carry-on defaults are preloaded. If your notes do not match, connect MIDI and use the Calibration tab.
+              The Carry-on defaults are preloaded. If your notes do not match,
+              connect MIDI and use the Calibration tab.
             </p>
           </div>
 
           <div className="actions">
-            <button className="primary" onClick={connect}>Connect MIDI</button>
+            <button className="primary" onClick={connect}>
+              Connect MIDI
+            </button>
             <span className="status">{status}</span>
           </div>
 
           {inputs.length > 0 && (
             <label className="selectRow">
               MIDI input
-
-              <select value={selectedId} onChange={event => setSelectedId(event.target.value)}>
-                {inputs.map(input => (
+              <select
+                value={selectedId}
+                onChange={(event) => setSelectedId(event.target.value)}
+              >
+                {inputs.map((input) => (
                   <option key={input.id} value={input.id}>
                     {input.name || "Unnamed MIDI device"}
                   </option>
@@ -663,11 +964,11 @@ function App() {
             shuffleMode={shuffleMode}
             lastNote={lastNote}
             lastMidi={lastMidi}
-            onTargetIndex={index => {
+            onTargetIndex={(index) => {
               setTargetIndex(index);
               setFeedback("Play the fingering shown");
             }}
-            onSkip={() => setTargetIndex(index => pickNext(index))}
+            onSkip={() => setTargetIndex((index) => pickNext(index))}
             onReset={resetTraining}
             onShuffleMode={setShuffleMode}
             onMapLast={useLastPlayedForTarget}
@@ -687,65 +988,65 @@ function App() {
           />
         )}
 
-        {tab === "songs" && (
-          selectedSongSection === "songs" && selectedSong
-            ? renderSongPlayer()
-            : (
+        {tab === "songs" &&
+          (selectedSongSection === "songs" && selectedSong ? (
+            renderSongPlayer()
+          ) : (
+            <SongLibrary
+              songs={ENGLISH_FOLK_SONGS as Song[]}
+              title="English folk songs"
+              subtitle="Traditional tunes for soprano recorder. Your saved MIDI calibration is applied automatically."
+              onStart={(song) => startSong(song, "songs")}
+              section="songs"
+            />
+          ))}
+
+        {tab === "zelda" &&
+          (selectedSongSection === "zelda" && selectedSong ? (
+            renderSongPlayer()
+          ) : (
+            <>
               <SongLibrary
-                songs={ENGLISH_FOLK_SONGS as Song[]}
-                title="English folk songs"
-                subtitle="Traditional tunes for soprano recorder. Your saved MIDI calibration is applied automatically."
-                onStart={song => startSong(song, "songs")}
-                section="songs"
+                songs={ZELDA_SONGS}
+                title="Zelda — Ocarina of Time"
+                subtitle="Short mode plays Link's phrase twice. Your saved MIDI calibration is applied automatically."
+                onStart={(song) => startSong(song, "zelda")}
+                section="zelda"
               />
-            )
-        )}
 
-        {tab === "zelda" && (
-          selectedSongSection === "zelda" && selectedSong
-            ? renderSongPlayer()
-            : (
-              <>
-                <SongLibrary
-                  songs={ZELDA_SONGS}
-                  title="Zelda — Ocarina of Time"
-                  subtitle="Short mode plays Link's phrase twice. Your saved MIDI calibration is applied automatically."
-                  onStart={song => startSong(song, "zelda")}
-                  section="zelda"
-                />
+              <section className="panel noticeCard zeldaPanel">
+                <strong>Short vs Long</strong>
+                <p className="sub small">
+                  Short is Link's 5–8 note input played twice. Long is the
+                  expanded melody heard after the game recognises it.
+                </p>
+              </section>
+            </>
+          ))}
 
-                <section className="panel noticeCard zeldaPanel">
-                  <strong>Short vs Long</strong>
-                  <p className="sub small">
-                    Short is Link's 5–8 note input played twice. Long is the expanded melody heard after the game recognises it.
-                  </p>
-                </section>
-              </>
-            )
-        )}
+        {tab === "lotr" &&
+          (selectedSongSection === "lotr" && selectedSong ? (
+            renderSongPlayer()
+          ) : (
+            <>
+              <SongLibrary
+                songs={LOTR_SONGS as Song[]}
+                title="The Lord of the Rings"
+                subtitle="Film themes arranged for recorder practice."
+                onStart={(song) => startSong(song, "lotr")}
+                section="lotr"
+              />
 
-        {tab === "lotr" && (
-          selectedSongSection === "lotr" && selectedSong
-            ? renderSongPlayer()
-            : (
-              <>
-                <SongLibrary
-                  songs={LOTR_SONGS as Song[]}
-                  title="The Lord of the Rings"
-                  subtitle="Film themes arranged for recorder practice."
-                  onStart={song => startSong(song, "lotr")}
-                  section="lotr"
-                />
-
-                <section className="panel noticeCard lotrPanel">
-                  <strong>Melody source</strong>
-                  <p className="sub small">
-                    The film themes are set up as song slots. Add a tab or note sequence you own/provide and it can use the same calibration, fingering display and reset system.
-                  </p>
-                </section>
-              </>
-            )
-        )}
+              <section className="panel noticeCard lotrPanel">
+                <strong>Melody source</strong>
+                <p className="sub small">
+                  The film themes are set up as song slots. Add a tab or note
+                  sequence you own/provide and it can use the same calibration,
+                  fingering display and reset system.
+                </p>
+              </section>
+            </>
+          ))}
       </main>
     </div>
   );
@@ -754,5 +1055,5 @@ function App() {
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>
+  </React.StrictMode>,
 );

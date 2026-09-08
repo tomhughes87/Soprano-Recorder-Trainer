@@ -1,5 +1,12 @@
 :root {
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
   color: #ece8df;
   background: #222321;
   font-synthesis: none;
@@ -52,10 +59,16 @@ button {
 .appShell {
   min-height: 100vh;
   background:
-    radial-gradient(circle at top, rgba(255,255,255,.035), transparent 34rem),
+    radial-gradient(
+      circle at top,
+      rgba(255, 255, 255, 0.035),
+      transparent 34rem
+    ),
     var(--bg);
   color: var(--text);
-  transition: background .25s ease, color .25s ease;
+  transition:
+    background 0.25s ease,
+    color 0.25s ease;
 }
 
 .page {
@@ -71,7 +84,7 @@ button {
   border: 1px solid var(--border);
   border-radius: 18px;
   padding: 24px;
-  box-shadow: 0 12px 34px rgba(0,0,0,.18);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.18);
 }
 
 .appHeader {
@@ -81,7 +94,7 @@ button {
 .eyebrow {
   font-size: 12px;
   font-weight: 850;
-  letter-spacing: .11em;
+  letter-spacing: 0.11em;
   text-transform: uppercase;
   color: var(--muted);
 }
@@ -89,7 +102,7 @@ button {
 h1 {
   margin: 6px 0 18px;
   font-size: clamp(34px, 6vw, 56px);
-  line-height: .98;
+  line-height: 0.98;
 }
 
 h2 {
@@ -113,7 +126,7 @@ h2 {
   padding: 5px;
   border: 1px solid var(--border);
   border-radius: 13px;
-  background: rgba(0,0,0,.12);
+  background: rgba(0, 0, 0, 0.12);
   overflow-x: auto;
 }
 
@@ -141,7 +154,7 @@ h2 {
   padding: 15px 17px;
   border: 1px solid var(--border);
   border-radius: 13px;
-  background: rgba(0,0,0,.1);
+  background: rgba(0, 0, 0, 0.1);
 }
 
 .setupTitle {
@@ -194,7 +207,7 @@ h2 {
 }
 
 .secondary:disabled {
-  opacity: .42;
+  opacity: 0.42;
   cursor: not-allowed;
 }
 
@@ -226,8 +239,8 @@ select {
 .note {
   font-weight: 950;
   font-size: clamp(82px, 16vw, 170px);
-  line-height: .9;
-  letter-spacing: -.06em;
+  line-height: 0.9;
+  letter-spacing: -0.06em;
 }
 
 .meta {
@@ -248,7 +261,7 @@ select {
   color: var(--muted);
   font-size: 11px;
   font-weight: 850;
-  letter-spacing: .09em;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
 }
 
@@ -278,7 +291,7 @@ td {
 th {
   color: var(--muted);
   font-size: 11px;
-  letter-spacing: .07em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
 }
 
@@ -323,11 +336,11 @@ code {
   padding: 24px 34px;
   border-radius: 18px;
   background:
-    linear-gradient(180deg, rgba(255,255,255,.26), rgba(0,0,0,.04)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.26), rgba(0, 0, 0, 0.04)),
     var(--hole-stage);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.45),
-    0 8px 24px rgba(0,0,0,.14);
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 8px 24px rgba(0, 0, 0, 0.14);
 }
 
 .recorderPattern {
@@ -358,7 +371,7 @@ code {
   border: 3px solid var(--hole-stroke);
   border-radius: 50%;
   background: var(--hole-open);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.35);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
 }
 
 .recorderHole.closed {
@@ -445,7 +458,7 @@ code {
   padding: 13px 8px;
   border: 1px solid var(--border);
   border-radius: 12px;
-  background: rgba(0,0,0,.09);
+  background: rgba(0, 0, 0, 0.09);
 }
 
 .stats strong {
@@ -534,7 +547,10 @@ code {
   background: var(--panel-soft);
   color: var(--text);
   text-align: left;
-  transition: transform .14s ease, border-color .14s ease, background .14s ease;
+  transition:
+    transform 0.14s ease,
+    border-color 0.14s ease,
+    background 0.14s ease;
 }
 
 .songCard:hover:not(:disabled) {
@@ -543,7 +559,7 @@ code {
 }
 
 .songCard:disabled {
-  opacity: .45;
+  opacity: 0.45;
   cursor: not-allowed;
 }
 
@@ -574,7 +590,7 @@ code {
 }
 
 .emptyStars {
-  opacity: .24;
+  opacity: 0.24;
 }
 
 .songPlayerHeader {
@@ -596,7 +612,7 @@ code {
   padding: 10px 13px;
   border: 1px dashed var(--border);
   border-radius: 10px;
-  background: rgba(0,0,0,.08);
+  background: rgba(0, 0, 0, 0.08);
   color: var(--muted);
   font-size: 13px;
   line-height: 1.45;
@@ -625,13 +641,13 @@ code {
   overflow: hidden;
   margin: 20px 0 28px;
   border-radius: 999px;
-  background: rgba(0,0,0,.22);
+  background: rgba(0, 0, 0, 0.22);
 }
 
 .progressFill {
   height: 100%;
   background: var(--accent);
-  transition: width .25s ease;
+  transition: width 0.25s ease;
 }
 
 .songNow {
@@ -643,7 +659,7 @@ code {
   color: var(--muted);
   font-size: 12px;
   font-weight: 900;
-  letter-spacing: .09em;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
 }
 
@@ -675,7 +691,7 @@ code {
   padding: 9px 8px 8px;
   border: 1px solid var(--border);
   border-radius: 11px;
-  background: rgba(0,0,0,.10);
+  background: rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -700,7 +716,7 @@ code {
 }
 
 .songStripNote.done {
-  opacity: .36;
+  opacity: 0.36;
 }
 
 .songStats {
@@ -734,18 +750,18 @@ code {
 .themeFolk .noticeCard {
   font-family: Georgia, "Times New Roman", serif;
   background:
-    linear-gradient(rgba(255,255,255,.018), rgba(0,0,0,.035)),
+    linear-gradient(rgba(255, 255, 255, 0.018), rgba(0, 0, 0, 0.035)),
     var(--panel);
 }
 
 .themeFolk .songLibrary h2,
 .themeFolk .songPlayer h2 {
-  letter-spacing: .02em;
+  letter-spacing: 0.02em;
   font-variant: small-caps;
 }
 
 .themeFolk .songCard {
-  box-shadow: inset 0 0 0 1px rgba(223,194,139,.035);
+  box-shadow: inset 0 0 0 1px rgba(223, 194, 139, 0.035);
 }
 
 /* Zelda: dark forest green + antique gold */
@@ -771,8 +787,8 @@ code {
 .themeZelda .noticeCard {
   border-color: #49633d;
   box-shadow:
-    inset 0 0 0 1px rgba(212,175,84,.08),
-    0 12px 34px rgba(0,0,0,.24);
+    inset 0 0 0 1px rgba(212, 175, 84, 0.08),
+    0 12px 34px rgba(0, 0, 0, 0.24);
 }
 
 .themeZelda .songLibrary h2,
@@ -842,7 +858,6 @@ code {
   }
 }
 
-
 /* Calibration */
 .calibrationHero h2 {
   margin-top: 4px;
@@ -879,7 +894,7 @@ code {
   padding: 18px;
   border: 1px solid var(--border);
   border-radius: 15px;
-  background: rgba(0,0,0,.08);
+  background: rgba(0, 0, 0, 0.08);
 }
 
 .calibrationTarget > strong {
@@ -909,7 +924,7 @@ code {
   color: var(--muted);
   font-size: 11px;
   font-weight: 900;
-  letter-spacing: .08em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
@@ -934,7 +949,7 @@ code {
 }
 
 .captureCard .primary:disabled {
-  opacity: .4;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
@@ -945,7 +960,7 @@ code {
   border: 1px dashed #a7804e;
   border-radius: 10px;
   color: #d9bd91;
-  background: rgba(113,72,24,.12);
+  background: rgba(113, 72, 24, 0.12);
   font-size: 13px;
   line-height: 1.45;
 }
@@ -1002,20 +1017,20 @@ code {
   border-radius: 999px;
   font-size: 10px;
   font-weight: 900;
-  letter-spacing: .05em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
 .referenceBadge {
   border: 1px solid #8e6c43;
   color: #d8b47d;
-  background: rgba(110,73,30,.12);
+  background: rgba(110, 73, 30, 0.12);
 }
 
 .confirmedBadge {
   border: 1px solid #466951;
   color: #9dccaa;
-  background: rgba(48,99,64,.12);
+  background: rgba(48, 99, 64, 0.12);
 }
 
 .fingerRow .referenceBadge {
@@ -1033,7 +1048,6 @@ code {
     grid-template-columns: 1fr;
   }
 }
-
 
 /* Per-song reset safety */
 .songResetHint {
@@ -1059,7 +1073,7 @@ code {
   padding: 7px 10px;
   border: 1px solid var(--border);
   border-radius: 9px;
-  background: rgba(0,0,0,.08);
+  background: rgba(0, 0, 0, 0.08);
   color: var(--text);
   font-size: 13px;
   font-weight: 850;
@@ -1091,7 +1105,6 @@ code {
   }
 }
 
-
 /* Lord of the Rings: dark royal blue + antique gold */
 .themeLotr {
   --bg: #0b1020;
@@ -1116,14 +1129,14 @@ code {
   font-family: Georgia, "Times New Roman", serif;
   border-color: #3b5589;
   background:
-    linear-gradient(rgba(223,196,119,.02), rgba(0,0,0,.055)),
+    linear-gradient(rgba(223, 196, 119, 0.02), rgba(0, 0, 0, 0.055)),
     var(--panel);
 }
 
 .themeLotr .songLibrary h2,
 .themeLotr .songPlayer h2 {
   color: var(--accent-strong);
-  letter-spacing: .025em;
+  letter-spacing: 0.025em;
   font-variant: small-caps;
 }
 
@@ -1134,7 +1147,6 @@ code {
 .themeLotr .songCard:hover:not(:disabled) {
   border-color: var(--accent);
 }
-
 
 @media (max-width: 860px) {
   .songWindow {
@@ -1156,5 +1168,202 @@ code {
 
   .songStripNote {
     width: 62px;
+  }
+}
+
+/* Play mode + rhythm */
+.playModePanel {
+  margin: 0 auto 20px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: rgba(0, 0, 0, 0.08);
+  text-align: left;
+}
+
+.playModeTitle {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.playModeControls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.playToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--button);
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.playToggle input {
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.speedPresets {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.speedPresets .secondary {
+  padding: 8px 10px;
+}
+
+.bpmControl {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-left: auto;
+}
+
+.bpmButton {
+  width: 39px;
+  min-width: 39px;
+  padding: 8px 0;
+}
+
+.rhythmUnverified {
+  margin-top: 11px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.currentRhythm {
+  width: min(360px, 100%);
+  margin: 0 auto 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+.rhythmLength,
+.rhythmArticulation {
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.rhythmArticulation {
+  color: var(--accent);
+}
+
+.rhythmBar {
+  display: block;
+  height: 4px;
+  min-width: 10px;
+  max-width: 100%;
+  border-radius: 999px;
+  background: currentColor;
+  opacity: 0.8;
+}
+
+.rhythmBarLarge {
+  flex-basis: 100%;
+  height: 6px;
+  margin: 2px auto 0;
+  color: var(--accent);
+}
+
+.miniRhythm {
+  width: 100%;
+  min-height: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: currentColor;
+}
+
+.slurMark {
+  font-size: 14px;
+  line-height: 1;
+  color: var(--accent);
+}
+
+.staccatoMark {
+  font-size: 18px;
+  line-height: 0.5;
+}
+
+.miniBeatLabel {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.songStripNote.current .miniBeatLabel {
+  color: rgba(31, 33, 29, 0.7);
+}
+
+.songPlayer.focusMode .songResetHint,
+.songPlayer.focusMode .playModeTitle .sub,
+.songPlayer.focusMode .songStats,
+.songPlayer.focusMode .trainingActions,
+.songPlayer.focusMode .upcomingTitle {
+  display: none;
+}
+
+.songPlayer.focusMode .songPlayerHeader {
+  margin-bottom: 10px;
+}
+
+.songPlayer.focusMode .songNow .fingeringStage {
+  width: min(460px, 100%);
+  padding-top: 30px;
+  padding-bottom: 30px;
+}
+
+.songPlayer.focusMode .recorderPattern.large .recorderHole {
+  width: 46px;
+  height: 46px;
+  border-width: 5px;
+}
+
+.songPlayer.focusMode .targetNote {
+  font-size: 40px;
+}
+
+.songPlayer.focusMode .songWindow {
+  margin-bottom: 0;
+}
+
+@media (max-width: 700px) {
+  .bpmControl {
+    margin-left: 0;
+  }
+
+  .playModeControls {
+    align-items: stretch;
+  }
+
+  .speedPresets {
+    width: 100%;
+  }
+
+  .speedPresets .secondary {
+    flex: 1;
   }
 }
