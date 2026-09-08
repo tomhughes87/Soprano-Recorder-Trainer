@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { RecorderPattern, noteColourStyle, type TrainingNote } from "./training";
-import { eventLengthLabel, type SongEvent } from "./music/songTypes";
+import { eventLengthLabel, mergeTiedEvents, type SongEvent } from "./music/songTypes";
 import { SongTransport } from "./audio/songTransport";
 import type { GuideLevel } from "./audio/recorderSynth";
 
@@ -88,16 +88,6 @@ function primaryGameLabel(label: string) {
   return label.split("/")[0].trim();
 }
 
-function noteBoxWidth(beats: number) {
-  if (beats <= 0.25) return 86;
-  if (beats <= 0.5) return 98;
-  if (beats <= 0.75) return 112;
-  if (beats <= 1) return 126;
-  if (beats <= 1.5) return 142;
-  if (beats <= 2) return 160;
-  return 176;
-}
-
 
 function loadBest() {
   try {
@@ -148,9 +138,11 @@ export function BeatGame({
 
   const timeline = useMemo(() => {
     let cursor = 0;
-    return events.map((event, index) => {
+
+    return mergeTiedEvents(events).map((event, index) => {
       const startBeat = cursor;
       cursor += event.beats;
+
       return {
         ...event,
         index,
@@ -377,8 +369,11 @@ export function BeatGame({
   }, [midiSignal?.nonce]);
 
   const visibleEvents = timeline.filter(event => {
-    const distance = event.startBeat - currentBeat;
-    return distance >= -0.65 && distance <= LOOKAHEAD_BEATS;
+    const untilStart = event.startBeat - currentBeat;
+    const untilEnd = event.endBeat - currentBeat;
+
+    // Keep a held note visible until its trailing edge has passed the hit line.
+    return untilEnd >= -0.18 && untilStart <= LOOKAHEAD_BEATS;
   });
 
   const judgedCount = Object.keys(judgements).length;
@@ -430,50 +425,32 @@ export function BeatGame({
           if (!note) return null;
 
           const beatsUntilHit = event.startBeat - currentBeat;
-          const progress = 1 - (beatsUntilHit / LOOKAHEAD_BEATS);
 
-          // Notes enter on the RIGHT and travel LEFT toward the hit line.
-          // progress: 0 = far future, 1 = at hit time.
-          const x = Math.max(8, Math.min(94, 92 - progress * 80));
+          // The leading edge is the actual note-on moment.
+          // At 0 beatsUntilHit it sits exactly on the HIT line (12%).
+          // One beat occupies exactly one beat of horizontal travel distance.
+          const percentPerBeat = 80 / LOOKAHEAD_BEATS;
+          const leadingEdgeX = 12 + beatsUntilHit * percentPerBeat;
+          const durationWidthPercent = event.beats * percentPerBeat;
 
           const y = verticalPositionForNoteId(event.note);
           const judgement = judgements[event.index];
 
-          const headWidth = noteBoxWidth(event.beats);
-          const tailWidth =
-            event.beats > 1
-              ? Math.max(36, Math.min(180, (event.beats - 1) * 86))
-              : 0;
-
           return (
             <div
               key={event.index}
-              className={`fallingNote ${judgement ? `judged ${judgement}` : ""}`}
+              className={`fallingNote ${event.beats > 1 ? "heldNote" : ""} ${judgement ? `judged ${judgement}` : ""}`}
               style={{
-                left: `${x}%`,
+                left: `${leadingEdgeX}%`,
                 top: `${y}px`,
+                width: `${durationWidthPercent}%`,
+                ...noteColourStyle(note.id),
               }}
             >
-              <div
-                className="noteHead noteColourCard"
-                style={{
-                  ...noteColourStyle(note.id),
-                  width: `${headWidth}px`,
-                }}
-              >
+              <div className="noteHead noteColourCard">
                 <strong>{primaryGameLabel(note.label)}</strong>
                 <RecorderPattern note={note} compact />
               </div>
-
-              {/* Short notes use smaller heads, 1-beat notes use normal heads,
-                  and held notes get both a wider head and a sustain tail. */}
-              {event.beats > 1 && (
-                <span
-                  className="sustainTail"
-                  style={{ width: `${tailWidth}px` }}
-                  aria-hidden="true"
-                />
-              )}
 
               <span className="fallingDuration">{eventLengthLabel(event)}</span>
             </div>

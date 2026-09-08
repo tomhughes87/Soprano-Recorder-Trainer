@@ -1,4 +1,4 @@
-import type { SongEvent } from "../music/songTypes";
+import { mergeTiedEvents, type SongEvent } from "../music/songTypes";
 import {
   scheduleMetronomeClick,
   scheduleRecorderNote,
@@ -28,29 +28,14 @@ function makeTimeline(events: SongEvent[]): TimedEvent[] {
   const result: TimedEvent[] = [];
   let beat = 0;
 
-  for (let index = 0; index < events.length; index += 1) {
-    const event = events[index];
-    let beats = event.beats;
-
-    // A tie to the same following pitch should sound as one continuous note.
-    while (
-      event.tieToNext &&
-      index + 1 < events.length &&
-      events[index + 1].note === event.note
-    ) {
-      beats += events[index + 1].beats;
-      index += 1;
-      if (!events[index].tieToNext) break;
-    }
-
+  for (const event of mergeTiedEvents(events)) {
     result.push({
       ...event,
-      beats,
       startBeat: beat,
-      endBeat: beat + beats,
+      endBeat: beat + event.beats,
     });
 
-    beat += beats;
+    beat += event.beats;
   }
 
   return result;

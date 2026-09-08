@@ -51,3 +51,46 @@ export function articulationLabel(event: SongEvent) {
   if (event.articulation === "staccato") return "short / detached";
   return "";
 }
+
+
+/**
+ * Collapse explicitly tied repeated pitches into one logical held event.
+ * Example:
+ *   E4 (1 beat, tieToNext) + E4 (1 beat)
+ * becomes:
+ *   E4 (2 beats)
+ *
+ * This is used by playback, Beat Game and any future rhythm views so a tie
+ * is never treated as two separate attacks.
+ */
+export function mergeTiedEvents(events: SongEvent[]): SongEvent[] {
+  const merged: SongEvent[] = [];
+
+  for (let index = 0; index < events.length; index += 1) {
+    const current = events[index];
+    let beats = current.beats;
+    let finalArticulation = current.articulation;
+    let tieToNext = current.tieToNext;
+
+    while (
+      tieToNext &&
+      index + 1 < events.length &&
+      events[index + 1].note === current.note
+    ) {
+      const next = events[index + 1];
+      beats += next.beats;
+      finalArticulation = next.articulation ?? finalArticulation;
+      tieToNext = next.tieToNext;
+      index += 1;
+    }
+
+    merged.push({
+      ...current,
+      beats,
+      articulation: finalArticulation,
+      tieToNext: false,
+    });
+  }
+
+  return merged;
+}
