@@ -11,11 +11,7 @@ import "./styles.css";
 import { CalibrationPanel } from "./calibration";
 import { SongDemoControls } from "./audio/SongDemoControls";
 import type { GuideLevel } from "./audio/recorderSynth";
-import {
-  BeatGame,
-  type BeatGameResult,
-  type BeatMidiSignal,
-} from "./beatGame";
+import { BeatGame, type BeatGameResult, type BeatMidiSignal } from "./beatGame";
 import { MidiTester, type MidiMessage } from "./tester";
 import {
   DEFAULT_MIDI_MAP,
@@ -137,11 +133,11 @@ function SongLibrary({
             ? "levelZeroPanel"
             : section === "level1"
               ? "levelOnePanel"
-            : section === "shanties"
-              ? "shantyPanel"
-          : section === "zelda"
-            ? "zeldaPanel"
-            : "lotrPanel"
+              : section === "shanties"
+                ? "shantyPanel"
+                : section === "zelda"
+                  ? "zeldaPanel"
+                  : "lotrPanel"
       }`}
     >
       <div className="songHeader">
@@ -317,16 +313,16 @@ function App() {
     tab === "level0"
       ? "themeLevel0"
       : tab === "level1"
-      ? "themeLevel1"
-      : tab === "songs"
-      ? "themeFolk"
-      : tab === "shanties"
-        ? "themeShanty"
-        : tab === "zelda"
-          ? "themeZelda"
-          : tab === "lotr"
-            ? "themeLotr"
-            : "themeCharcoal";
+        ? "themeLevel1"
+        : tab === "songs"
+          ? "themeFolk"
+          : tab === "shanties"
+            ? "themeShanty"
+            : tab === "zelda"
+              ? "themeZelda"
+              : tab === "lotr"
+                ? "themeLotr"
+                : "themeCharcoal";
 
   const updateMapping = (noteId: string, midi: number) => {
     setMidiMap((previous) => {
@@ -680,11 +676,11 @@ function App() {
               ? "levelZeroPanel"
               : selectedSongSection === "level1"
                 ? "levelOnePanel"
-            : selectedSongSection === "shanties"
-              ? "shantyPanel"
-              : selectedSongSection === "zelda"
-                ? "zeldaPanel"
-                : "lotrPanel"
+                : selectedSongSection === "shanties"
+                  ? "shantyPanel"
+                  : selectedSongSection === "zelda"
+                    ? "zeldaPanel"
+                    : "lotrPanel"
         }`}
       >
         {songMode === "beat" ? (
@@ -753,17 +749,6 @@ function App() {
             </div>
 
             <div className="songModeSwitch">
-              <button
-                className="secondary selectedMode"
-                onClick={() => {
-                  setSongMode("practice");
-                  setBeatGameResetKey((value) => value + 1);
-                  resetCurrentSong();
-                }}
-              >
-                Practice
-              </button>
-
               <button
                 className="secondary"
                 disabled={selectedSong.rhythmVerified !== true}
